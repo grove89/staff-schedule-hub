@@ -176,13 +176,14 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 .live-sched{max-width:1100px;margin:18px auto 30px;padding:0 16px}.live-sched .card{padding:18px}.live-sched h2{font-size:22px}.live-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:15px 0}.live-controls .field{width:auto;max-width:100%}.live-week{font-weight:700}.live-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.live-day{border:1px solid #dce5f0;border-radius:10px;padding:9px;min-height:135px;background:#f9fbff}.live-day h4{font-size:12px;margin:0 0 10px;color:#253c60}.live-shift{border:1px solid #d8e3f5;border-radius:8px;background:white;padding:7px;margin:6px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.live-shift button{font-size:11px;margin-top:5px}.live-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.live-form-grid label{font-size:12px;font-weight:650;display:block;margin-bottom:5px}.live-form-grid .field{width:100%}.live-history{max-height:330px;overflow:auto}.live-history-item{padding:10px;border-bottom:1px solid #e8edf4;font-size:12px;overflow-wrap:anywhere}.live-staff-item{border-bottom:1px solid #e8edf4;padding:11px 0;font-size:14px}.live-error{color:#a12626}.live-muted{color:#65738a;font-size:13px}@media(max-width:850px){.live-days{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.live-days{grid-template-columns:1fr}.live-form-grid{grid-template-columns:1fr}.live-controls .field{width:100%}}
 </style>
 <section class="live-sched" id="liveScheduling"><div class="card"><h2>Schedule</h2><p class="sub">Your upcoming shifts and, if authorized, your team schedule.</p><p id="liveScheduleStatus" class="live-muted" role="status" aria-live="polite">Sign in to load your live schedule.</p>
-<div id="liveManagerSchedule" hidden><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select class="field" id="liveScheduleHome" aria-label="Home"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div><div class="live-controls"><button class="btn" type="button" id="pathwaysViewerToggle">View weekly schedule</button></div>
+<div id="liveManagerSchedule" hidden><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select class="field" id="liveScheduleHome" aria-label="Home"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div>
 <section id="pathwaysWeeklyViewer" class="pathways-weekly-viewer" hidden>
 <div class="pwv-top"><div><h3>Pathways · Published Weekly Schedule</h3><p id="pwvWeekLabel">Loading week…</p></div><button class="btn secondary" id="pwvClose" type="button">Close viewer</button></div>
 <div class="pwv-nav"><button class="btn secondary" id="pwvPrevious" type="button">← Previous week</button><button class="btn secondary" id="pwvNext" type="button">Next week →</button><button class="btn secondary" id="pwvRefresh" type="button">Refresh</button></div>
 <p class="pwv-note">View-only. Displays published shifts, including open slots. Changes are made in the management schedule below.</p>
 <div id="pwvDays" class="pwv-days"></div></section>
 <div class="live-days" id="liveScheduleDays"></div>
+<div class="live-controls" id="pathwaysViewerControl"><button class="btn" type="button" id="pathwaysViewerToggle">📅 View Weekly Schedule</button></div>
 <section id="pathwaysBuilder" class="card" style="padding:16px;margin:18px 0;border:1px solid #2c527f" hidden>
 <h3 style="margin:0 0 6px">Pathways · Weekly Template Builder</h3>
 <p class="live-muted">Uses the existing Pathways standard shifts and required staffing counts. Each slot becomes a real shift when published. Drafts are saved for other authorized managers.</p>
@@ -784,6 +785,7 @@ document.getElementById('testDbButton').addEventListener('click',async()=>{
 
 // Pathways-only read-only weekly viewer. Uses already authorized manager data.
 const pwvPanel=document.getElementById('pathwaysWeeklyViewer');
+const pwvControl=document.getElementById('pathwaysViewerControl');
 const pwvDays=document.getElementById('pwvDays');
 let pwvWeek=lsMonday(new Date());
 function pwvRender(){
