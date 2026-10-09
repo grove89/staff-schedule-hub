@@ -682,4 +682,19 @@ document.getElementById('testDbButton').addEventListener('click',async()=>{
     status.textContent='Connection test failed: '+(err?.message||String(err))+'. Check table access and RLS policies before proceeding.';
   }
 });
-</script></body></html>
+</script>
+<style id="pathwaysBuilderContrastFix">
+/* Pathways builder: dark surfaces and legible text on mobile. */
+#pathwaysBuilder{background:linear-gradient(160deg,#092a53,#061b37)!important;color:#f6faff!important;border:1px solid #35618e!important;border-radius:16px!important;}
+#pathwaysBuilder h3,#pathwaysBuilder h4,#pathwaysBuilder strong,#pathwaysBuilder label,#pathwaysBuilder .pb-day,#pathwaysBuilder .pb-shift{color:#f6faff!important;}
+#pathwaysBuilder .live-muted,#pathwaysBuilderStatus{color:#c5d9f2!important;}
+#pathwaysBuilder .pb-day{background:#0b2b51!important;border:1px solid #315b87!important;border-radius:12px!important;padding:14px!important;margin:14px 0!important;}
+#pathwaysBuilder .pb-day h4{color:#ffffff!important;font-size:17px!important;margin:0 0 12px!important;}
+#pathwaysBuilder .pb-shift{background:#0d335d!important;border:1px solid #365f8b!important;border-left:4px solid #35b8ff!important;border-radius:10px!important;padding:12px!important;margin:10px 0!important;}
+#pathwaysBuilder .pb-shift strong{display:block!important;font-size:14px!important;line-height:1.5!important;}
+#pathwaysBuilder .pb-grid label{color:#d9e9ff!important;font-size:13px!important;font-weight:600!important;}
+#pathwaysBuilder select.field{background:#061a34!important;color:#fff!important;border:1px solid #638bb3!important;min-height:46px!important;}
+#pathwaysBuilder .live-error{color:#ffb4bc!important;}
+@media(max-width:500px){#pathwaysBuilder{padding:12px!important;}#pathwaysBuilder .pb-day{padding:10px!important;}#pathwaysBuilder .pb-shift{padding:10px!important;}#pathwaysBuilder .pb-grid{grid-template-columns:1fr!important;}}
+</style>
+</body></html>
