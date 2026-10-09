@@ -125,6 +125,23 @@ h2,h3,h4,.live-sched h3,.live-sched h2,#liveEmployeeEditor h3{color:#fff!importa
 #pathwaysWeeklyViewer .pwv-person{font-size:13px!important}
 @media(min-width:1500px){#pathwaysWeeklyViewer .pwv-days{min-width:0!important;grid-template-columns:repeat(7,minmax(0,1fr))!important}}
 </style>
+<style id="pathwaysCalendarEditStyle">
+#pathwaysWeeklyViewer .pwv-edit{display:block!important;width:100%!important;margin-top:10px!important;padding:9px 6px!important;min-height:39px!important;font-size:13px!important;font-weight:800!important;border:1px solid #88b6dc!important;background:#123251!important;color:#fff!important;border-radius:8px!important}
+#pathwaysWeeklyViewer .pwv-edit:focus-visible{outline:3px solid #f8d77c!important;outline-offset:2px!important}
+</style>
+<style id="pathwaysCalendarColorAndPriority">
+/* Clearly differentiated shifts; role priority is handled in the viewer sort. */
+#pathwaysWeeklyViewer .pwv-shift{border-left:6px solid #89b8ed!important;box-shadow:0 3px 10px rgba(0,0,0,.22)!important;margin-bottom:13px!important;padding:12px!important}
+#pathwaysWeeklyViewer .pwv-shift.pwv-morning{background:#f5cf53!important;border-left-color:#f59e0b!important;color:#27210f!important}
+#pathwaysWeeklyViewer .pwv-shift.pwv-morning .pwv-time,#pathwaysWeeklyViewer .pwv-shift.pwv-morning .pwv-person,#pathwaysWeeklyViewer .pwv-shift.pwv-morning strong,#pathwaysWeeklyViewer .pwv-shift.pwv-morning span{color:#27210f!important}
+#pathwaysWeeklyViewer .pwv-shift.pwv-morning .pwv-edit{background:#704909!important;color:#fff!important;border-color:#9b680c!important}
+#pathwaysWeeklyViewer .pwv-shift.pwv-evening{background:#514274!important;border-left-color:#d0a1ff!important}
+#pathwaysWeeklyViewer .pwv-shift.pwv-overnight{background:#30445c!important;border-left-color:#ffcf78!important}
+#pathwaysWeeklyViewer .pwv-role-tag{display:inline-block!important;background:#fff!important;color:#13314e!important;font-size:11px!important;font-weight:900!important;letter-spacing:.7px!important;padding:4px 8px!important;border-radius:5px!important;margin:7px 0 3px!important}
+#pathwaysWeeklyViewer .pwv-time{font-size:15px!important;font-weight:850!important}
+#pathwaysWeeklyViewer .pwv-person{font-size:14px!important;font-weight:650!important;line-height:1.45!important}
+#pathwaysWeeklyViewer .pwv-day{border:1px solid #50769c!important}
+</style>
 </head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" placeholder="Search employees or job titles…" oninput="render()"><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select required class="field" id="accountEmployee"></select><label for="accountPhone">Phone number (primary)</label><input class="field" id="accountPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="555-010-1234" required><label for="accountEmail">Email (secondary, optional)</label><input class="field" id="accountEmail" type="email" autocomplete="off" placeholder="employee@example.com"><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section id="schedulePage" class="schedule-wrap" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span id="modeLabel" class="tag"></span></div>
@@ -194,7 +211,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <section id="pathwaysWeeklyViewer" class="pathways-weekly-viewer" hidden>
 <div class="pwv-top"><div><h3>Pathways · Published Weekly Schedule</h3><p id="pwvWeekLabel">Loading week…</p></div><button class="btn secondary" id="pwvClose" type="button">Close viewer</button></div>
 <div class="pwv-nav"><button class="btn secondary" id="pwvPrevious" type="button">← Previous week</button><button class="btn secondary" id="pwvNext" type="button">Next week →</button><button class="btn secondary" id="pwvRefresh" type="button">Refresh</button></div>
-<p class="pwv-note">View-only. Displays published shifts, including open slots. Changes are made in the management schedule below.</p>
+<p class="pwv-note">Tap Edit on any shift to change its assigned employee or times. Only authorized managers can save changes.</p>
 <p class="pwv-swipe-hint">← Swipe sideways to see all seven days →</p><div class="pwv-scroll" tabindex="0" aria-label="Weekly calendar, scroll horizontally"><div id="pwvDays" class="pwv-days"></div></div></section>
 <div class="live-days" id="liveScheduleDays"></div>
 <div class="live-controls" id="pathwaysViewerControl"><button class="btn" type="button" id="pathwaysViewerToggle">📅 View Weekly Schedule</button></div>
@@ -802,6 +819,18 @@ const pwvPanel=document.getElementById('pathwaysWeeklyViewer');
 const pwvControl=document.getElementById('pathwaysViewerControl');
 const pwvDays=document.getElementById('pwvDays');
 let pwvWeek=lsMonday(new Date());
+function pwvPriority(employee){
+ const title=String(employee?.job_title||'').toLowerCase().replace(/[-_]/g,' ');
+ if(/\b(cli\s*lead|lead\s*cli|community living instructor\s*lead|lead community living instructor)\b/.test(title))return 0;
+ if(/\bcook\b/.test(title))return 1;
+ return 2;
+}
+function pwvShiftColor(shift){
+ const hour=new Date(shift.starts_at).getHours();
+ if(hour>=5&&hour<12)return 'pwv-morning';
+ if(hour>=12&&hour<19)return 'pwv-evening';
+ return 'pwv-overnight';
+}
 function pwvRender(){
  if(pwvPanel.hidden)return;
  if(!lsAllowed.includes(1)){pwvPanel.hidden=true;return;}
@@ -815,13 +844,26 @@ function pwvRender(){
   head.append(lsEl('strong',date.toLocaleDateString('en-US',{weekday:'long'})),lsEl('span',lsNice(date)));
   day.append(head);
   const list=lsEl('div',undefined,'pwv-shifts');
-  const shifts=all.filter(s=>new Date(s.starts_at)<end&&new Date(s.ends_at)>start).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const shifts=all.filter(s=>new Date(s.starts_at)<end&&new Date(s.ends_at)>start).sort((a,b)=>{
+   const priority=pwvPriority(lsOwnEmployee(a))-pwvPriority(lsOwnEmployee(b));
+   return priority||new Date(a.starts_at)-new Date(b.starts_at)||Number(a.id)-Number(b.id);
+  });
   if(!shifts.length)list.append(lsEl('div','No shifts scheduled','pwv-empty'));
   for(const shift of shifts){
-   const card=lsEl('div',undefined,'pwv-shift');
+   const card=lsEl('div',undefined,'pwv-shift '+pwvShiftColor(shift));
    card.append(lsEl('div',lsRange(shift),'pwv-time'));
    const employee=lsOwnEmployee(shift);
+   if(pwvPriority(employee)<2){card.append(lsEl('div',pwvPriority(employee)===0?'CLI LEAD':'COOK','pwv-role-tag'));}
    card.append(lsEl('div',employee?.full_name||'OPEN — Unassigned',employee?'pwv-person':'pwv-person pwv-open'));
+   const editButton=lsEl('button','Edit shift','btn secondary small pwv-edit');
+   editButton.type='button';
+   editButton.setAttribute('aria-label','Edit '+(employee?.full_name||'open shift')+' on '+date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}));
+   editButton.onclick=()=>{
+    if(Number(lsHome.value)!==1||!lsAllowed.includes(1))return;
+    lsOpenForm(shift);
+    lsMsg('Editing Pathways shift. Make changes below, then tap Save shift.');
+   };
+   card.append(editButton);
    list.append(card);
   }
   day.append(list);pwvDays.append(day);
