@@ -57,10 +57,34 @@ function saveAccountDrafts(){localStorage.setItem(accountDraftKey,JSON.stringify
 function renderAccounts(){const selector=document.getElementById('accountEmployee');const current=selector.value;selector.replaceChildren();for(const employee of employees){const option=document.createElement('option');option.value=employee.id;option.textContent=employee.name+' · '+employee.role;selector.append(option)}if([...selector.options].some(o=>o.value===current))selector.value=current;const body=document.getElementById('accountRows');body.replaceChildren();for(const a of accountDrafts){const emp=employees.find(e=>String(e.id)===String(a.employeeId));const row=document.createElement('tr');for(const value of [emp?.name||'Employee removed',a.phone,a.email||'—',a.disabled?'Disabled':'Draft — not invited']){const cell=document.createElement('td');cell.textContent=value;row.append(cell)}const action=document.createElement('td');const toggle=document.createElement('button');toggle.className='btn secondary small';toggle.textContent=a.disabled?'Enable draft':'Disable draft';toggle.onclick=()=>{a.disabled=!a.disabled;saveAccountDrafts();renderAccounts()};action.append(toggle);row.append(action);body.append(row)}if(!accountDrafts.length){const row=document.createElement('tr');const cell=document.createElement('td');cell.colSpan=5;cell.className='empty';cell.textContent='No account drafts yet';row.append(cell);body.append(row)}}
 function createAccountDraft(event){event.preventDefault();const id=document.getElementById('accountEmployee').value;const phone=document.getElementById('accountPhone').value.trim();const email=document.getElementById('accountEmail').value.trim();const digits=phone.replace(/\D/g,'');if(digits.length!==10&&!(digits.length===11&&digits.startsWith('1'))){alert('Enter a valid 10-digit US phone number for this prototype.');return}if(accountDrafts.some(a=>String(a.employeeId)===String(id))){alert('An account draft already exists for this employee.');return}if(accountDrafts.some(a=>a.phone.replace(/\D/g,'')===digits)){alert('This phone number is already used in an account draft.');return}accountDrafts.push({employeeId:id,phone,email,disabled:false});saveAccountDrafts();event.target.reset();renderAccounts();alert('Account draft saved on this device. No invitation was sent.')}
 </script><section id="databaseConnection" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:16px"><h3 style="margin:0 0 8px">Supabase connection</h3><p class="sub" id="dbStatus" role="status">Not tested yet. Your schedules and employee records still use this browser’s local storage.</p><button class="btn secondary" type="button" id="testDbButton">Test database connection</button><p class="sub" style="margin-top:12px">This test reads only the Homes table. It does not upload staff records, enable accounts, or change access permissions.</p></div></section>
+<section id="loginTest" style="max-width:1100px;margin:0 auto 25px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Test Employee sign-in</h3><p class="sub">Secure Supabase authentication test only. Existing schedule and directory features are still local prototypes.</p><form id="loginTestForm" style="margin-top:14px"><label for="testEmail">Test account email</label><input class="field" id="testEmail" type="email" autocomplete="username" required placeholder="Email used in Supabase Authentication"><label for="testPassword" style="display:block;margin-top:12px">Password</label><input class="field" id="testPassword" type="password" autocomplete="current-password" required placeholder="Password"><div class="footer" style="justify-content:flex-start"><button class="btn" id="loginTestButton" type="submit">Sign in to Supabase</button><button class="btn secondary" id="logoutTestButton" type="button" hidden>Sign out</button></div></form><p id="loginTestStatus" class="sub" role="status" aria-live="polite" style="margin-top:12px">Not signed in.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const client=createClient('https://taerfxphcootfxzudvgv.supabase.co','sb_publishable_lPMIn3nPG7KSAqhvbO_NSQ_VubYq4WB');
 window.staffHubSupabase=client;
+const loginForm=document.getElementById('loginTestForm');
+const loginStatus=document.getElementById('loginTestStatus');
+const loginButton=document.getElementById('loginTestButton');
+const logoutButton=document.getElementById('logoutTestButton');
+const emailInput=document.getElementById('testEmail');
+const passwordInput=document.getElementById('testPassword');
+async function showAuthState(){
+  const {data:{session}}=await client.auth.getSession();
+  if(!session){loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
+  logoutButton.hidden=false;loginButton.hidden=true;emailInput.disabled=true;passwordInput.disabled=true;passwordInput.value='';
+  loginStatus.textContent='Signed in as '+(session.user.email||'test user')+'. Checking Homes access…';
+  const {data,error}=await client.from('Homes').select('id,Name').limit(10);
+  loginStatus.textContent=error?'Signed in, but Homes query failed: '+error.message:'Signed in successfully. Homes visible: '+(data?.length??0)+'. This does not yet enable live scheduling.';
+}
+loginForm.addEventListener('submit',async e=>{
+  e.preventDefault();loginButton.disabled=true;loginStatus.textContent='Signing in…';
+  const {error}=await client.auth.signInWithPassword({email:emailInput.value.trim(),password:passwordInput.value});
+  passwordInput.value='';loginButton.disabled=false;
+  if(error){loginStatus.textContent='Sign-in failed: '+error.message;return;}
+  await showAuthState();
+});
+logoutButton.addEventListener('click',async()=>{logoutButton.disabled=true;const {error}=await client.auth.signOut();logoutButton.disabled=false;if(error){loginStatus.textContent='Sign-out failed: '+error.message;return;}await showAuthState();});
+showAuthState().catch(e=>loginStatus.textContent='Authentication check failed: '+e.message);
 const status=document.getElementById('dbStatus');
 document.getElementById('testDbButton').addEventListener('click',async()=>{
   status.textContent='Checking Supabase…';
