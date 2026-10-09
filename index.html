@@ -123,6 +123,12 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 </style>
 <section class="live-sched" id="liveScheduling"><div class="card"><h2>Schedule</h2><p class="sub">Your upcoming shifts and, if authorized, your team schedule.</p><p id="liveScheduleStatus" class="live-muted" role="status" aria-live="polite">Sign in to load your live schedule.</p>
 <div id="liveManagerSchedule" hidden><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select class="field" id="liveScheduleHome" aria-label="Home"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div><div class="live-days" id="liveScheduleDays"></div>
+<section id="pathwaysBuilder" class="card" style="padding:16px;margin:18px 0;border:1px solid #2c527f" hidden>
+<h3 style="margin:0 0 6px">Pathways · Weekly Template Builder</h3>
+<p class="live-muted">Uses the existing Pathways standard shifts and required staffing counts. Each slot becomes a real shift when published. Drafts are saved for other authorized managers.</p>
+<div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Load week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save draft</button><button class="btn" id="pathwaysBuilderPublish" type="button">Publish entire week</button></div>
+<p id="pathwaysBuilderStatus" class="live-muted" role="status"></p><div id="pathwaysBuilderSlots"></div>
+</section>
 <div id="liveShiftPanel" class="card" style="padding:16px;margin-top:18px" hidden><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm"><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" type="date" id="liveShiftDate" required></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" type="time" id="liveShiftStart" required></div><div><label for="liveShiftEnd">End time</label><input class="field" type="time" id="liveShiftEnd" required></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" type="submit" id="liveShiftSave">Save shift</button><button class="btn danger" type="button" id="liveShiftDelete" hidden>Delete shift</button><button class="btn secondary" type="button" id="liveShiftCancel">Cancel</button></div></form></div>
 <div id="managerRequests"><h3>Open-shift requests <span class="request-count" id="managerRequestCount">0</span></h3><button class="btn secondary" id="managerRequestsRefresh" type="button">Refresh requests</button><div id="managerRequestList" aria-live="polite"></div></div><div id="managerExtras" class="staff-extra" style="margin-top:20px"><h3>Trade approvals <span class="request-count" id="tradeManagerCount">0</span></h3><button class="btn secondary" id="tradeManagerRefresh" type="button">Refresh trade approvals</button><div id="tradeManagerList"></div><h3 style="margin-top:22px">Time-off approvals <span class="request-count" id="offManagerCount">0</span></h3><button class="btn secondary" id="offManagerRefresh" type="button">Refresh time-off approvals</button><div id="offManagerList"></div></div><div style="margin-top:20px"><h3>Management-only change history</h3><p class="live-muted">Only authorized management can retrieve these records. The database records the account, timestamp, and before/after values.</p><button class="btn secondary" id="liveLoadHistory" type="button">Load change history</button><div class="live-history" id="liveHistory"></div></div></div>
 <div id="liveMySchedule" hidden><h3>My upcoming shifts</h3><div class="live-controls"><button class="btn secondary" id="liveMyRefresh" type="button">Refresh my shifts</button></div><div id="liveMyShifts"></div></div>
@@ -382,9 +388,74 @@ async function lsLoadManager(){
   ]);
   for(const r of [sh,em,tm])if(r.error)throw r.error;
   lsShifts=sh.data||[];lsEmployees=em.data||[];lsTemplates=tm.data||[];
-  lsRenderManager();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Empty templates are optional, not scheduled shifts.');
+  lsRenderManager();await pbLoad();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Empty templates are optional, not scheduled shifts.');
  }catch(e){lsMsg('Could not load live schedule: '+e.message,true);}
 }
+// Pathways weekly template builder: management-only, server-authorized RPCs.
+const pbBox=document.getElementById('pathwaysBuilder');
+const pbRows=document.getElementById('pathwaysBuilderSlots');
+const pbStatus=document.getElementById('pathwaysBuilderStatus');
+const pbPublish=document.getElementById('pathwaysBuilderPublish');
+const pbSave=document.getElementById('pathwaysBuilderSave');
+let pbAssignments={},pbPublished=false,pbLoadedWeek='';
+function pbMessage(message,bad=false){pbStatus.textContent=message;pbStatus.classList.toggle('live-error',bad);}
+function pbSlotKey(template,day,slot){return template.id+'|'+day+'|'+slot;}
+function pbDraw(){
+ pbRows.replaceChildren();const week=lsDate(lsWeek);
+ document.getElementById('pathwaysWeekName').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
+ if(!lsTemplates.length){pbRows.append(lsEl('p','No standard staffing slots found for Pathways.','live-muted'));return;}
+ for(let day=0;day<7;day++){
+  const date=lsDay(lsWeek,day);const section=lsEl('div',undefined,'pb-day');
+  section.style.cssText='border-top:1px solid #244f80;padding:12px 0';
+  section.append(lsEl('h4',date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})));
+  for(const template of lsTemplates){
+   const count=Math.max(0,Number(template.available_slots)||0);if(!count)continue;
+   const line=lsEl('div',undefined,'pb-shift');line.style.cssText='padding:9px 0';
+   line.append(lsEl('strong',template.shift_label+' · '+template.start_time.slice(0,5)+'–'+template.end_time.slice(0,5)+' · '+count+' required'));
+   const grid=lsEl('div',undefined,'pb-grid');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:8px;margin:8px 0';
+   for(let slot=1;slot<=count;slot++){
+    const key=pbSlotKey(template,day,slot);const wrap=lsEl('label','Slot '+slot);wrap.style.cssText='font-size:12px;display:block';
+    const sel=lsEl('select',undefined,'field');sel.style.cssText='display:block;width:100%;margin-top:4px';sel.disabled=pbPublished;
+    lsOption(sel,'','OPEN — unassigned');for(const emp of lsEmployees)lsOption(sel,emp.id,emp.full_name);
+    sel.value=String(pbAssignments[key]||'');sel.onchange=()=>{if(sel.value)pbAssignments[key]=sel.value;else delete pbAssignments[key];pbMessage('Unsaved changes — tap Save draft.');};
+    wrap.append(sel);grid.append(wrap);
+   }
+   line.append(grid);section.append(line);
+  }
+  pbRows.append(section);
+ }
+ pbSave.disabled=pbPublished;pbPublish.disabled=pbPublished;
+}
+async function pbLoad(){
+ const home=Number(lsHome.value);pbBox.hidden=home!==1||!lsAllowed.includes(1);if(pbBox.hidden)return;
+ const week=lsDate(lsWeek);pbLoadedWeek='';pbMessage('Loading Pathways draft…');
+ const {data,error}=await client.rpc('pathways_get_week',{p_week:week});
+ if(week!==lsDate(lsWeek)||home!==Number(lsHome.value))return;
+ if(error){pbMessage('Builder unavailable: '+error.message,true);pbRows.replaceChildren();return;}
+ pbAssignments=data?.[0]?.assignments||{};pbPublished=!!data?.[0]?.published_at;pbLoadedWeek=week;
+ pbDraw();pbMessage(pbPublished?'Published · This week is locked. Use the regular schedule editor for changes.':'Draft ready · Fill blank slots, save, then publish.');
+}
+async function pbSaveDraft(){
+ if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished)return;
+ pbSave.disabled=true;pbMessage('Saving draft…');
+ const {error}=await client.rpc('pathways_save_week',{p_week:pbLoadedWeek,p_assignments:pbAssignments});
+ pbSave.disabled=false;pbMessage(error?'Save failed: '+error.message:'Draft saved to Supabase for authorized Pathways managers.',!!error);
+}
+async function pbPublishWeek(){
+ if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished)return;
+ const total=lsTemplates.reduce((n,t)=>n+Math.max(0,Number(t.available_slots)||0),0)*7;
+ if(!confirm('Publish '+total+' Pathways shift slots for '+pbLoadedWeek+'? Blank slots become OPEN shifts. This cannot be undone as a batch.'))return;
+ pbPublish.disabled=true;pbSave.disabled=true;pbMessage('Saving draft and publishing…');
+ try{
+  const saved=await client.rpc('pathways_save_week',{p_week:pbLoadedWeek,p_assignments:pbAssignments});if(saved.error)throw saved.error;
+  const published=await client.rpc('pathways_publish_week',{p_week:pbLoadedWeek});if(published.error)throw published.error;
+  pbPublished=true;pbDraw();pbMessage('Published '+published.data+' real Pathways shifts! Open slots are available to request.');
+  await lsLoadManager();
+ }catch(err){pbMessage('Publish stopped safely: '+err.message,true);pbPublish.disabled=false;pbSave.disabled=false;}
+}
+document.getElementById('pathwaysBuilderReload').onclick=pbLoad;
+pbSave.onclick=pbSaveDraft;pbPublish.onclick=pbPublishWeek;
+
 function lsRenderManager(){
  const home=Number(lsHome.value);lsDays.replaceChildren();document.getElementById('liveWeekLabel').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
  for(let i=0;i<7;i++){
