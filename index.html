@@ -58,6 +58,7 @@ function renderAccounts(){const selector=document.getElementById('accountEmploye
 function createAccountDraft(event){event.preventDefault();const id=document.getElementById('accountEmployee').value;const phone=document.getElementById('accountPhone').value.trim();const email=document.getElementById('accountEmail').value.trim();const digits=phone.replace(/\D/g,'');if(digits.length!==10&&!(digits.length===11&&digits.startsWith('1'))){alert('Enter a valid 10-digit US phone number for this prototype.');return}if(accountDrafts.some(a=>String(a.employeeId)===String(id))){alert('An account draft already exists for this employee.');return}if(accountDrafts.some(a=>a.phone.replace(/\D/g,'')===digits)){alert('This phone number is already used in an account draft.');return}accountDrafts.push({employeeId:id,phone,email,disabled:false});saveAccountDrafts();event.target.reset();renderAccounts();alert('Account draft saved on this device. No invitation was sent.')}
 </script><section id="databaseConnection" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:16px"><h3 style="margin:0 0 8px">Supabase connection</h3><p class="sub" id="dbStatus" role="status">Not tested yet. Your schedules and employee records still use this browser’s local storage.</p><button class="btn secondary" type="button" id="testDbButton">Test database connection</button><p class="sub" style="margin-top:12px">This test reads only the Homes table. It does not upload staff records, enable accounts, or change access permissions.</p></div></section>
 <section id="loginTest" style="max-width:1100px;margin:0 auto 25px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Test Employee sign-in</h3><p class="sub">Secure Supabase authentication test only. Existing schedule and directory features are still local prototypes.</p><form id="loginTestForm" style="margin-top:14px"><label for="testEmail">Test account email</label><input class="field" id="testEmail" type="email" autocomplete="username" required placeholder="Email used in Supabase Authentication"><label for="testPassword" style="display:block;margin-top:12px">Password</label><input class="field" id="testPassword" type="password" autocomplete="current-password" required placeholder="Password"><div class="footer" style="justify-content:flex-start"><button class="btn" id="loginTestButton" type="submit">Sign in to Supabase</button><button class="btn secondary" id="logoutTestButton" type="button" hidden>Sign out</button></div></form><p id="loginTestStatus" class="sub" role="status" aria-live="polite" style="margin-top:12px">Not signed in.</p></div></section>
+<section id="employeeAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Employee database access test</h3><p class="sub">Read-only security check using your signed-in account. Does not change the sample directory or save any data.</p><button class="btn secondary" type="button" id="testEmployeeAccessButton">Test my employee access</button><p class="sub" id="employeeAccessStatus" role="status" style="margin-top:12px">Not tested yet.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const client=createClient('https://taerfxphcootfxzudvgv.supabase.co','sb_publishable_lPMIn3nPG7KSAqhvbO_NSQ_VubYq4WB');
@@ -68,6 +69,32 @@ const loginButton=document.getElementById('loginTestButton');
 const logoutButton=document.getElementById('logoutTestButton');
 const emailInput=document.getElementById('testEmail');
 const passwordInput=document.getElementById('testPassword');
+const employeeAccessStatus=document.getElementById('employeeAccessStatus');
+const employeeAccessButton=document.getElementById('testEmployeeAccessButton');
+employeeAccessButton.addEventListener('click',async()=>{
+  employeeAccessButton.disabled=true;
+  employeeAccessStatus.textContent='Checking employee access…';
+  try{
+    const {data:{user},error:authError}=await client.auth.getUser();
+    if(authError)throw authError;
+    if(!user){employeeAccessStatus.textContent='Please sign in with the Test Employee account first.';return;}
+    // Query through the browser's authenticated session so RLS is applied.
+    // Never display contact details or other sensitive columns.
+    const {data,error}=await client.from('Employees').select('id,auth_user_id,job_title').limit(20);
+    if(error)throw error;
+    const rows=data||[];
+    const own=rows.filter(r=>r.auth_user_id===user.id);
+    if(rows.length===1&&own.length===1){
+      employeeAccessStatus.textContent='PASS: Your signed-in account can read its own employee record only (1 row). Job title: '+(own[0].job_title||'not set')+'.';
+    }else if(rows.length===0){
+      employeeAccessStatus.textContent='No employee records visible. The account link or RLS policy needs checking.';
+    }else{
+      employeeAccessStatus.textContent='REVIEW REQUIRED: '+rows.length+' employee records visible; '+own.length+' match your account. We must verify permissions before enabling a live directory.';
+    }
+  }catch(err){employeeAccessStatus.textContent='Employee access test failed: '+(err?.message||String(err));}
+  finally{employeeAccessButton.disabled=false;}
+});
+
 async function showAuthState(){
   const {data:{session}}=await client.auth.getSession();
   if(!session){loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
