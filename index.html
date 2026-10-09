@@ -60,6 +60,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <section id="loginTest" style="max-width:1100px;margin:0 auto 25px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Test Employee sign-in</h3><p class="sub">Secure Supabase authentication test only. Existing schedule and directory features are still local prototypes.</p><form id="loginTestForm" style="margin-top:14px"><label for="testEmail">Test account email</label><input class="field" id="testEmail" type="email" autocomplete="username" required placeholder="Email used in Supabase Authentication"><label for="testPassword" style="display:block;margin-top:12px">Password</label><input class="field" id="testPassword" type="password" autocomplete="current-password" required placeholder="Password"><div class="footer" style="justify-content:flex-start"><button class="btn" id="loginTestButton" type="submit">Sign in to Supabase</button><button class="btn secondary" id="logoutTestButton" type="button" hidden>Sign out</button></div></form><p id="loginTestStatus" class="sub" role="status" aria-live="polite" style="margin-top:12px">Not signed in.</p></div></section>
 <section id="liveDirectory" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee directory (read-only)</h3><p class="sub">Shows only employee records your signed-in Supabase account is authorized to read. The sample directory above is not connected and its editing controls remain demonstrations.</p><button class="btn secondary" type="button" id="loadLiveDirectory">Load authorized employee records</button><p class="sub" id="liveDirectoryStatus" role="status" aria-live="polite" style="margin-top:12px">Sign in, then load the directory.</p><div class="tablewrap"><table style="min-width:400px"><thead><tr><th>Employee record</th><th>Job title</th><th>Home ID</th></tr></thead><tbody id="liveDirectoryRows"></tbody></table></div></div></section>
 <section id="employeeAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Employee database access test</h3><p class="sub">Read-only security check using your signed-in account. Does not change the sample directory or save any data.</p><button class="btn secondary" type="button" id="testEmployeeAccessButton">Test my employee access</button><p class="sub" id="employeeAccessStatus" role="status" style="margin-top:12px">Not tested yet.</p></div></section>
+<section id="adminAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Administrator access test</h3><p class="sub">Checks your signed-in administrator status and authorized employee record access. Read-only; no schedules or permissions are changed.</p><button class="btn secondary" type="button" id="testAdminAccessButton">Test administrator access</button><p class="sub" id="adminAccessStatus" role="status" aria-live="polite" style="margin-top:12px">Not tested yet.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const client=createClient('https://taerfxphcootfxzudvgv.supabase.co','sb_publishable_lPMIn3nPG7KSAqhvbO_NSQ_VubYq4WB');
@@ -94,6 +95,24 @@ liveDirectoryButton.addEventListener('click',async()=>{
     liveDirectoryStatus.textContent=rows.length+' employee record(s) visible through Supabase RLS.'+(rows.length===100?' Display limited to 100 records.':'');
   }catch(err){clearLiveDirectory('Unable to load directory: '+(err?.message||String(err)));}
   finally{liveDirectoryButton.disabled=false;}
+});
+const adminAccessButton=document.getElementById('testAdminAccessButton');
+const adminAccessStatus=document.getElementById('adminAccessStatus');
+adminAccessButton.addEventListener('click',async()=>{
+  adminAccessButton.disabled=true;
+  adminAccessStatus.textContent='Checking administrator permissions…';
+  try {
+    const {data:{user},error:authError}=await client.auth.getUser();
+    if(authError)throw authError;
+    if(!user){adminAccessStatus.textContent='Sign in to Supabase first.';return;}
+    const {data:isAdmin,error:rpcError}=await client.rpc('is_app_admin');
+    if(rpcError)throw rpcError;
+    if(isAdmin!==true){adminAccessStatus.textContent='Administrator check: FALSE. This account does not currently have administrator access.';return;}
+    const {count,error:employeesError}=await client.from('Employees').select('id',{count:'exact',head:true});
+    if(employeesError)throw employeesError;
+    adminAccessStatus.textContent='PASS: Administrator check TRUE. Employee records visible through RLS: '+(count??'unknown')+'. The local demo controls are not yet secured or connected.';
+  }catch(err){adminAccessStatus.textContent='Administrator test failed: '+(err?.message||String(err));}
+  finally{adminAccessButton.disabled=false;}
 });
 const employeeAccessStatus=document.getElementById('employeeAccessStatus');
 const employeeAccessButton=document.getElementById('testEmployeeAccessButton');
