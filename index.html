@@ -61,6 +61,16 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <section id="liveDirectory" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee directory (read-only)</h3><p class="sub">Shows only employee records your signed-in Supabase account is authorized to read. The sample directory above is not connected and its editing controls remain demonstrations.</p><button class="btn secondary" type="button" id="loadLiveDirectory">Load authorized employee records</button><p class="sub" id="liveDirectoryStatus" role="status" aria-live="polite" style="margin-top:12px">Sign in, then load the directory.</p><div class="tablewrap"><table style="min-width:400px"><thead><tr><th>Employee record</th><th>Job title</th><th>Home ID</th></tr></thead><tbody id="liveDirectoryRows"></tbody></table></div></div></section>
 <section id="employeeAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Employee database access test</h3><p class="sub">Read-only security check using your signed-in account. Does not change the sample directory or save any data.</p><button class="btn secondary" type="button" id="testEmployeeAccessButton">Test my employee access</button><p class="sub" id="employeeAccessStatus" role="status" style="margin-top:12px">Not tested yet.</p></div></section>
 <section id="adminAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Administrator access test</h3><p class="sub">Checks your signed-in administrator status and authorized employee record access. Read-only; no schedules or permissions are changed.</p><button class="btn secondary" type="button" id="testAdminAccessButton">Test administrator access</button><p class="sub" id="adminAccessStatus" role="status" aria-live="polite" style="margin-top:12px">Not tested yet.</p></div></section>
+
+<style>
+.live-sched{max-width:1100px;margin:18px auto 30px;padding:0 16px}.live-sched .card{padding:18px}.live-sched h2{font-size:22px}.live-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:15px 0}.live-controls .field{width:auto;max-width:100%}.live-week{font-weight:700}.live-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.live-day{border:1px solid #dce5f0;border-radius:10px;padding:9px;min-height:135px;background:#f9fbff}.live-day h4{font-size:12px;margin:0 0 10px;color:#253c60}.live-shift{border:1px solid #d8e3f5;border-radius:8px;background:white;padding:7px;margin:6px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.live-shift button{font-size:11px;margin-top:5px}.live-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.live-form-grid label{font-size:12px;font-weight:650;display:block;margin-bottom:5px}.live-form-grid .field{width:100%}.live-history{max-height:330px;overflow:auto}.live-history-item{padding:10px;border-bottom:1px solid #e8edf4;font-size:12px;overflow-wrap:anywhere}.live-staff-item{border-bottom:1px solid #e8edf4;padding:11px 0;font-size:14px}.live-error{color:#a12626}.live-muted{color:#65738a;font-size:13px}@media(max-width:850px){.live-days{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.live-days{grid-template-columns:1fr}.live-form-grid{grid-template-columns:1fr}.live-controls .field{width:100%}}
+</style>
+<section class="live-sched" id="liveScheduling"><div class="card"><h2>Live weekly schedule</h2><p class="sub">Supabase-backed · Monday–Sunday · Your home permissions apply. The older sample schedule above is still a separate browser-only prototype.</p><p id="liveScheduleStatus" class="live-muted" role="status" aria-live="polite">Sign in to load your live schedule.</p>
+<div id="liveManagerSchedule" hidden><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select class="field" id="liveScheduleHome" aria-label="Home"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div><div class="live-days" id="liveScheduleDays"></div>
+<div id="liveShiftPanel" class="card" style="padding:16px;margin-top:18px" hidden><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm"><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" type="date" id="liveShiftDate" required></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" type="time" id="liveShiftStart" required></div><div><label for="liveShiftEnd">End time</label><input class="field" type="time" id="liveShiftEnd" required></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" type="submit" id="liveShiftSave">Save shift</button><button class="btn danger" type="button" id="liveShiftDelete" hidden>Delete shift</button><button class="btn secondary" type="button" id="liveShiftCancel">Cancel</button></div></form></div>
+<div style="margin-top:20px"><h3>Management-only change history</h3><p class="live-muted">Only authorized management can retrieve these records. The database records the account, timestamp, and before/after values.</p><button class="btn secondary" id="liveLoadHistory" type="button">Load change history</button><div class="live-history" id="liveHistory"></div></div></div>
+<div id="liveMySchedule" hidden><h3>My shifts</h3><div class="live-controls"><button class="btn secondary" id="liveMyRefresh" type="button">Refresh my shifts</button></div><div id="liveMyShifts"></div></div>
+</div></section>
 <section id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px" hidden><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee editor (authorized management)</h3><p class="sub">Changes here are saved to Supabase. The sample directory and schedules above remain separate. Login associations cannot be edited here.</p><p id="liveEditorStatus" class="sub" role="status" aria-live="polite">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select id="liveEmployeeSelect" class="field" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input id="liveEmployeeName" class="field" maxlength="120" required autocomplete="off" style="width:100%;margin-bottom:12px"><label for="liveEmployeeRole">Job title</label><select id="liveEmployeeRole" class="field" required style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select id="liveEmployeeHome" class="field" required style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><button class="btn" type="submit" id="liveEmployeeSave">Save to Supabase</button><button class="btn secondary" type="button" id="liveEmployeeRefresh">Refresh records</button><button class="btn secondary" type="button" id="liveEmployeeDelete" style="border:1px solid #b91c1c;color:#b91c1c" hidden>Delete employee</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -251,14 +261,147 @@ employeeAccessButton.addEventListener('click',async()=>{
   finally{employeeAccessButton.disabled=false;}
 });
 
+
+// Live schedule: all reads and writes go through authenticated Supabase RLS.
+const LS_HOMES={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
+const lsStatus=document.getElementById('liveScheduleStatus');
+const lsManager=document.getElementById('liveManagerSchedule');
+const lsMine=document.getElementById('liveMySchedule');
+const lsHome=document.getElementById('liveScheduleHome');
+const lsDays=document.getElementById('liveScheduleDays');
+const lsHistory=document.getElementById('liveHistory');
+const lsForm=document.getElementById('liveShiftForm');
+const lsPanel=document.getElementById('liveShiftPanel');
+const lsTemplate=document.getElementById('liveShiftTemplate');
+const lsEmployee=document.getElementById('liveShiftEmployee');
+let lsWeek=lsMonday(new Date()),lsShifts=[],lsTemplates=[],lsEmployees=[],lsEditing=null,lsAllowed=[],lsSession=0;
+function lsMonday(date){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()-(d.getDay()+6)%7);return d;}
+function lsDate(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
+function lsDay(date,delta){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()+delta);return d;}
+function lsNice(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function lsTime(d){return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function lsMsg(m,bad=false){lsStatus.textContent=m;lsStatus.classList.toggle('live-error',bad);}
+function lsEl(tag,value,cls){const e=document.createElement(tag);if(value!==undefined)e.textContent=value;if(cls)e.className=cls;return e;}
+function lsOption(select,value,label){select.add(new Option(label,String(value)));}
+function lsLocalTime(date,time){const [y,m,d]=date.split('-').map(Number),[h,min]=time.split(':').map(Number);return new Date(y,m-1,d,h,min);}
+function lsRange(shift){return lsTime(new Date(shift.starts_at))+' – '+lsTime(new Date(shift.ends_at));}
+function lsOwnEmployee(shift){return lsEmployees.find(e=>Number(e.id)===Number(shift.employee_id));}
+async function lsLoadAccess(){
+ const ticket=++lsSession;lsManager.hidden=true;lsMine.hidden=true;lsAllowed=[];lsMsg('Checking live schedule access…');
+ const {data:{user},error:ue}=await client.auth.getUser();if(ue||!user){lsMsg('Sign in to view your live schedule.');return;}
+ try{
+  const {data:admin,error:ae}=await client.rpc('is_app_admin');if(ae)throw ae;
+  if(admin===true)lsAllowed=[1,2,3,4];
+  else for(const id of [1,2,3,4]){const {data,error}=await client.rpc('can_manage_home',{target_home_id:id});if(error)throw error;if(data===true)lsAllowed.push(id);}
+  if(ticket!==lsSession)return;
+  if(lsAllowed.length){
+   lsManager.hidden=false;const previous=Number(lsHome.value);lsHome.replaceChildren();for(const id of lsAllowed)lsOption(lsHome,id,LS_HOMES[id]);if(lsAllowed.includes(previous))lsHome.value=String(previous);
+   await lsLoadManager();
+  }else{lsMine.hidden=false;await lsLoadMine();}
+ }catch(e){if(ticket===lsSession)lsMsg('Schedule access error: '+e.message,true);}
+}
+async function lsLoadManager(){
+ const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;
+ lsMsg('Loading '+LS_HOMES[home]+' live schedule…');lsPanel.hidden=true;lsHistory.replaceChildren();
+ const start=lsWeek.toISOString(),end=lsDay(lsWeek,8).toISOString();
+ try{
+  const [sh,em,tm]=await Promise.all([
+   client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').eq('home_id',home).lt('starts_at',end).gt('ends_at',start).order('starts_at',{ascending:true}).limit(500),
+   client.from('Employees').select('id,full_name,home_id,auth_user_id,user_id').eq('home_id',home).order('full_name').limit(500),
+   client.from('shift_templates').select('id,home_id,shift_label,start_time,end_time,available_slots').eq('home_id',home).order('id')
+  ]);
+  for(const r of [sh,em,tm])if(r.error)throw r.error;
+  lsShifts=sh.data||[];lsEmployees=em.data||[];lsTemplates=tm.data||[];
+  lsRenderManager();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Empty templates are optional, not scheduled shifts.');
+ }catch(e){lsMsg('Could not load live schedule: '+e.message,true);}
+}
+function lsRenderManager(){
+ const home=Number(lsHome.value);lsDays.replaceChildren();document.getElementById('liveWeekLabel').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
+ for(let i=0;i<7;i++){
+  const date=lsDay(lsWeek,i),begin=new Date(date.getFullYear(),date.getMonth(),date.getDate()),finish=lsDay(date,1),day=lsEl('div',undefined,'live-day');
+  day.append(lsEl('h4',date.toLocaleDateString('en-US',{weekday:'short'})+' · '+lsNice(date)));
+  const records=lsShifts.filter(s=>{const a=new Date(s.starts_at),b=new Date(s.ends_at);return a<finish&&b>begin;});
+  if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
+  for(const shift of records){const card=lsEl('div',undefined,'live-shift');const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));
+   const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);day.append(card);}
+  const add=lsEl('button','+ Shift','btn secondary small');add.type='button';add.onclick=()=>lsOpenForm(null,lsDate(date));day.append(add);lsDays.append(day);
+ }
+}
+function lsOpenForm(shift=null,date=lsDate(new Date())){
+ const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;
+ lsEditing=shift?Number(shift.id):null;lsPanel.hidden=false;
+ document.getElementById('liveShiftPanelTitle').textContent=shift?'Edit shift':'Add shift';
+ document.getElementById('liveShiftDelete').hidden=!shift;
+ lsTemplate.replaceChildren();lsOption(lsTemplate,'','Custom times / choose a template');
+ for(const t of lsTemplates)lsOption(lsTemplate,t.id,t.shift_label+' · '+t.start_time.slice(0,5)+'–'+t.end_time.slice(0,5)+' · '+t.available_slots+' slots');
+ lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name);
+ const d=shift?new Date(shift.starts_at):null;
+ document.getElementById('liveShiftDate').value=d?lsDate(d):date;
+ document.getElementById('liveShiftStart').value=d?`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'08:00';
+ const e=shift?new Date(shift.ends_at):null;
+ document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
+ lsEmployee.value=shift?.employee_id==null?'':String(shift.employee_id);
+ lsPanel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+lsTemplate.addEventListener('change',()=>{const t=lsTemplates.find(t=>String(t.id)===lsTemplate.value);if(t){document.getElementById('liveShiftStart').value=t.start_time.slice(0,5);document.getElementById('liveShiftEnd').value=t.end_time.slice(0,5);}});
+lsForm.addEventListener('submit',async e=>{
+ e.preventDefault();const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;
+ const date=document.getElementById('liveShiftDate').value,start=document.getElementById('liveShiftStart').value,end=document.getElementById('liveShiftEnd').value;
+ if(!date||!start||!end){lsMsg('Enter a date and start/end times.',true);return;}
+ const a=lsLocalTime(date,start),b=lsLocalTime(date,end);if(b<=a)b.setDate(b.getDate()+1);
+ if(b-a>24*60*60*1000){lsMsg('A shift cannot exceed 24 hours.',true);return;}
+ const employee_id=lsEmployee.value?Number(lsEmployee.value):null;
+ if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)){lsMsg('Select an employee from this home.',true);return;}
+ const payload={home_id:home,employee_id,starts_at:a.toISOString(),ends_at:b.toISOString()};
+ const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving live shift…');
+ try{
+  const result=lsEditing?await client.from('Shifts').update(payload).eq('id',lsEditing).eq('home_id',home).select('id'):await client.from('Shifts').insert(payload).select('id');
+  if(result.error)throw result.error;if(result.data?.length!==1)throw new Error('No shift saved. Check database permissions.');
+  await lsLoadManager();lsMsg('Shift saved in Supabase. Change recorded in management history.');
+ }catch(err){lsMsg('Save failed: '+err.message,true);}finally{save.disabled=false;}
+});
+document.getElementById('liveShiftDelete').addEventListener('click',async()=>{
+ const home=Number(lsHome.value);if(!lsEditing||!lsAllowed.includes(home))return;
+ if(!confirm('Delete this shift permanently? The change will remain in management-only history.'))return;
+ const btn=document.getElementById('liveShiftDelete');btn.disabled=true;
+ try{const {data,error}=await client.from('Shifts').delete().eq('id',lsEditing).eq('home_id',home).select('id');if(error)throw error;if(data?.length!==1)throw new Error('No shift deleted.');await lsLoadManager();lsMsg('Shift deleted. Change recorded in management history.');}
+ catch(e){lsMsg('Delete failed: '+e.message,true);}finally{btn.disabled=false;}
+});
+document.getElementById('liveShiftCancel').onclick=()=>lsPanel.hidden=true;
+document.getElementById('liveAddShift').onclick=()=>lsOpenForm();
+document.getElementById('livePrevWeek').onclick=()=>{lsWeek=lsDay(lsWeek,-7);lsLoadManager();};
+document.getElementById('liveNextWeek').onclick=()=>{lsWeek=lsDay(lsWeek,7);lsLoadManager();};
+document.getElementById('liveScheduleReload').onclick=lsLoadManager;
+lsHome.onchange=lsLoadManager;
+document.getElementById('liveLoadHistory').onclick=async()=>{
+ const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;lsHistory.replaceChildren(lsEl('p','Loading history…','live-muted'));
+ const {data,error}=await client.from('schedule_audit_log').select('shift_id,home_id,action,changed_by,changed_at,old_values,new_values').eq('home_id',home).order('changed_at',{ascending:false}).limit(100);
+ lsHistory.replaceChildren();if(error){lsHistory.append(lsEl('p','History error: '+error.message,'live-error'));return;}
+ if(!data?.length){lsHistory.append(lsEl('p','No changes recorded yet.','live-muted'));return;}
+ for(const item of data){const line=lsEl('div',undefined,'live-history-item');const when=new Date(item.changed_at).toLocaleString();const actor=lsEmployees.find(e=>e.auth_user_id===item.changed_by||e.user_id===item.changed_by)?.full_name||item.changed_by||'SQL / system';
+  line.append(lsEl('strong',item.action+' · Shift #'+item.shift_id));line.append(lsEl('div',when+' · '+actor));
+  const detail=lsEl('details');detail.append(lsEl('summary','View before / after'));const pre=lsEl('pre',JSON.stringify({before:item.old_values,after:item.new_values},null,2));pre.style.whiteSpace='pre-wrap';pre.style.fontSize='11px';detail.append(pre);line.append(detail);lsHistory.append(line);
+ }
+};
+async function lsLoadMine(){
+ lsMsg('Loading your shifts…');const out=document.getElementById('liveMyShifts');out.replaceChildren();
+ const {data,error}=await client.rpc('my_schedule');if(error){lsMsg('Could not load your shifts: '+error.message,true);return;}
+ const shifts=data||[];lsMsg('Your private schedule loaded. Coworker names are not shown.');
+ if(!shifts.length){out.append(lsEl('p','No live shifts assigned yet.','live-muted'));return;}
+ for(const shift of shifts){const row=lsEl('div',undefined,'live-staff-item');const a=new Date(shift.starts_at),b=new Date(shift.ends_at);row.append(lsEl('strong',a.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(a)+' – '+lsTime(b)));row.append(lsEl('div',LS_HOMES[shift.home_id]||'Home'+' · '+shift.staff_scheduled+' staff scheduled'));
+  row.lastChild.textContent=(LS_HOMES[shift.home_id]||'Home')+' · '+shift.staff_scheduled+' staff scheduled (including you if assigned)';out.append(row);}
+}
+document.getElementById('liveMyRefresh').onclick=lsLoadMine;
+
 async function showAuthState(){
   const {data:{session}}=await client.auth.getSession();
-  if(!session){clearEditor();clearLiveDirectory('Sign in, then load the directory.');loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
+  if(!session){++lsSession;lsManager.hidden=true;lsMine.hidden=true;lsMsg('Sign in to view your live schedule.');clearEditor();clearLiveDirectory('Sign in, then load the directory.');loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
   logoutButton.hidden=false;loginButton.hidden=true;emailInput.disabled=true;passwordInput.disabled=true;passwordInput.value='';
   loginStatus.textContent='Signed in as '+(session.user.email||'test user')+'. Checking Homes access…';
   const {data,error}=await client.from('Homes').select('id,Name').limit(10);
   loginStatus.textContent=error?'Signed in, but Homes query failed: '+error.message:'Signed in successfully. Homes visible: '+(data?.length??0)+'. This does not yet enable live scheduling.';
   await verifyEditorAccess();
+  await lsLoadAccess();
 }
 loginForm.addEventListener('submit',async e=>{
   e.preventDefault();loginButton.disabled=true;loginStatus.textContent='Signing in…';
