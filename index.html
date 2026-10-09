@@ -73,6 +73,25 @@ h2,h3,h4,.live-sched h3,.live-sched h2,#liveEmployeeEditor h3{color:#fff!importa
 #pathwaysBuilder .btn {min-height:42px!important}
 @media(max-width:650px){#pathwaysBuilder .pb-grid{grid-template-columns:1fr!important}#pathwaysBuilder .pb-day{padding:10px!important}}
 </style>
+<style id="pathwaysMobilePolish">
+#pathwaysBuilder .pb-day{padding:0!important;overflow:hidden!important;margin:18px 0!important;border:2px solid #477eae!important}
+#pathwaysBuilder .pb-day-header{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#286395!important;padding:16px!important;border-bottom:2px solid #7eb8e6!important}
+#pathwaysBuilder .pb-day-header h4{font-size:23px!important;line-height:1.1!important;letter-spacing:.2px!important;margin:0!important;color:white!important}
+#pathwaysBuilder .pb-day-date{background:#fff!important;color:#123759!important;font-size:15px!important;font-weight:800!important;border-radius:999px!important;padding:7px 12px!important;white-space:nowrap}
+#pathwaysBuilder .pb-shift{margin:12px!important;padding:14px!important;background:#183b5e!important}
+#pathwaysBuilder .pb-shift strong{font-size:17px!important;line-height:1.5!important;margin-bottom:12px!important}
+#pathwaysBuilder .pb-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(205px,1fr))!important;gap:12px!important;margin:10px 0 0!important}
+#pathwaysBuilder .pb-grid label{font-size:15px!important}
+#pathwaysBuilder select.field{margin-top:7px!important;padding:11px!important}
+@media(max-width:650px){
+ #pathwaysBuilder{padding:12px!important}
+ #pathwaysBuilder .pb-grid{grid-template-columns:1fr!important}
+ #pathwaysBuilder .pb-day-header{padding:15px 12px!important}
+ #pathwaysBuilder .pb-day-header h4{font-size:22px!important}
+ #pathwaysBuilder .pb-shift{margin:10px!important}
+ #pathwaysBuilder .live-controls button{flex:1 1 140px!important}
+}
+</style>
 </head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" placeholder="Search employees or job titles…" oninput="render()"><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select required class="field" id="accountEmployee"></select><label for="accountPhone">Phone number (primary)</label><input class="field" id="accountPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="555-010-1234" required><label for="accountEmail">Email (secondary, optional)</label><input class="field" id="accountEmail" type="email" autocomplete="off" placeholder="employee@example.com"><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section id="schedulePage" class="schedule-wrap" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span id="modeLabel" class="tag"></span></div>
@@ -416,19 +435,27 @@ const pbSave=document.getElementById('pathwaysBuilderSave');
 let pbAssignments={},pbPublished=false,pbLoadedWeek='';
 function pbMessage(message,bad=false){pbStatus.textContent=message;pbStatus.classList.toggle('live-error',bad);}
 function pbSlotKey(template,day,slot){return template.id+'|'+day+'|'+slot;}
+function pbFriendlyTime(value){
+ const bits=String(value||'').split(':');const hour=Number(bits[0]),minute=Number(bits[1]||0);
+ if(!Number.isFinite(hour)||hour<0||hour>23)return String(value||'');
+ return (hour%12||12)+(minute?':'+String(minute).padStart(2,'0'):'')+(hour<12?' AM':' PM');
+}
 function pbDraw(){
  pbRows.replaceChildren();const week=lsDate(lsWeek);
  document.getElementById('pathwaysWeekName').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
  if(!lsTemplates.length){pbRows.append(lsEl('p','No standard staffing slots found for Pathways.','live-muted'));return;}
  for(let day=0;day<7;day++){
   const date=lsDay(lsWeek,day);const section=lsEl('div',undefined,'pb-day');
-  section.style.cssText='border-top:1px solid #244f80;padding:12px 0';
-  section.append(lsEl('h4',date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})));
+  section.style.cssText='';
+  const dayHeader=lsEl('div',undefined,'pb-day-header');
+  const dayTitle=lsEl('h4',date.toLocaleDateString('en-US',{weekday:'long'}));
+  const dayDate=lsEl('span',date.toLocaleDateString('en-US',{month:'short',day:'numeric'}),'pb-day-date');
+  dayHeader.append(dayTitle,dayDate);section.append(dayHeader);
   for(const template of lsTemplates){
    const count=Math.max(0,Number(template.available_slots)||0);if(!count)continue;
-   const line=lsEl('div',undefined,'pb-shift');line.style.cssText='padding:9px 0';
-   line.append(lsEl('strong',template.shift_label+' · '+template.start_time.slice(0,5)+'–'+template.end_time.slice(0,5)+' · '+count+' required'));
-   const grid=lsEl('div',undefined,'pb-grid');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:8px;margin:8px 0';
+   const line=lsEl('div',undefined,'pb-shift');line.style.cssText='';
+   line.append(lsEl('strong',template.shift_label+' · '+pbFriendlyTime(template.start_time)+' – '+pbFriendlyTime(template.end_time)+' · '+count+' required'));
+   const grid=lsEl('div',undefined,'pb-grid');grid.style.cssText='';
    for(let slot=1;slot<=count;slot++){
     const key=pbSlotKey(template,day,slot);const wrap=lsEl('label','Slot '+slot);wrap.style.cssText='font-size:12px;display:block';
     const sel=lsEl('select',undefined,'field');sel.style.cssText='display:block;width:100%;margin-top:4px';sel.disabled=pbPublished;
