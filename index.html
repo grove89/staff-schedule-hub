@@ -58,6 +58,7 @@ function renderAccounts(){const selector=document.getElementById('accountEmploye
 function createAccountDraft(event){event.preventDefault();const id=document.getElementById('accountEmployee').value;const phone=document.getElementById('accountPhone').value.trim();const email=document.getElementById('accountEmail').value.trim();const digits=phone.replace(/\D/g,'');if(digits.length!==10&&!(digits.length===11&&digits.startsWith('1'))){alert('Enter a valid 10-digit US phone number for this prototype.');return}if(accountDrafts.some(a=>String(a.employeeId)===String(id))){alert('An account draft already exists for this employee.');return}if(accountDrafts.some(a=>a.phone.replace(/\D/g,'')===digits)){alert('This phone number is already used in an account draft.');return}accountDrafts.push({employeeId:id,phone,email,disabled:false});saveAccountDrafts();event.target.reset();renderAccounts();alert('Account draft saved on this device. No invitation was sent.')}
 </script><section id="databaseConnection" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:16px"><h3 style="margin:0 0 8px">Supabase connection</h3><p class="sub" id="dbStatus" role="status">Not tested yet. Your schedules and employee records still use this browser’s local storage.</p><button class="btn secondary" type="button" id="testDbButton">Test database connection</button><p class="sub" style="margin-top:12px">This test reads only the Homes table. It does not upload staff records, enable accounts, or change access permissions.</p></div></section>
 <section id="loginTest" style="max-width:1100px;margin:0 auto 25px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Test Employee sign-in</h3><p class="sub">Secure Supabase authentication test only. Existing schedule and directory features are still local prototypes.</p><form id="loginTestForm" style="margin-top:14px"><label for="testEmail">Test account email</label><input class="field" id="testEmail" type="email" autocomplete="username" required placeholder="Email used in Supabase Authentication"><label for="testPassword" style="display:block;margin-top:12px">Password</label><input class="field" id="testPassword" type="password" autocomplete="current-password" required placeholder="Password"><div class="footer" style="justify-content:flex-start"><button class="btn" id="loginTestButton" type="submit">Sign in to Supabase</button><button class="btn secondary" id="logoutTestButton" type="button" hidden>Sign out</button></div></form><p id="loginTestStatus" class="sub" role="status" aria-live="polite" style="margin-top:12px">Not signed in.</p></div></section>
+<section id="liveDirectory" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee directory (read-only)</h3><p class="sub">Shows only employee records your signed-in Supabase account is authorized to read. The sample directory above is not connected and its editing controls remain demonstrations.</p><button class="btn secondary" type="button" id="loadLiveDirectory">Load authorized employee records</button><p class="sub" id="liveDirectoryStatus" role="status" aria-live="polite" style="margin-top:12px">Sign in, then load the directory.</p><div class="tablewrap"><table style="min-width:400px"><thead><tr><th>Employee record</th><th>Job title</th><th>Home ID</th></tr></thead><tbody id="liveDirectoryRows"></tbody></table></div></div></section>
 <section id="employeeAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Employee database access test</h3><p class="sub">Read-only security check using your signed-in account. Does not change the sample directory or save any data.</p><button class="btn secondary" type="button" id="testEmployeeAccessButton">Test my employee access</button><p class="sub" id="employeeAccessStatus" role="status" style="margin-top:12px">Not tested yet.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -69,6 +70,31 @@ const loginButton=document.getElementById('loginTestButton');
 const logoutButton=document.getElementById('logoutTestButton');
 const emailInput=document.getElementById('testEmail');
 const passwordInput=document.getElementById('testPassword');
+const liveDirectoryButton=document.getElementById('loadLiveDirectory');
+const liveDirectoryStatus=document.getElementById('liveDirectoryStatus');
+const liveDirectoryRows=document.getElementById('liveDirectoryRows');
+function clearLiveDirectory(message){liveDirectoryRows.replaceChildren();liveDirectoryStatus.textContent=message;}
+liveDirectoryButton.addEventListener('click',async()=>{
+  liveDirectoryButton.disabled=true;
+  clearLiveDirectory('Loading authorized employee records…');
+  try{
+    const {data:{user},error:authError}=await client.auth.getUser();
+    if(authError)throw authError;
+    if(!user){clearLiveDirectory('Sign in to Supabase first.');return;}
+    // RLS determines which records are returned. Do not query contact details.
+    const {data,error}=await client.from('Employees').select('id,auth_user_id,job_title,home_id').limit(100);
+    if(error)throw error;
+    const rows=data||[];
+    for(const record of rows){
+      const tr=document.createElement('tr');
+      const values=[record.auth_user_id===user.id?'My employee record':'Authorized employee record',record.job_title||'Not set',record.home_id==null?'Not set':String(record.home_id)];
+      for(const value of values){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+      liveDirectoryRows.append(tr);
+    }
+    liveDirectoryStatus.textContent=rows.length+' employee record(s) visible through Supabase RLS.'+(rows.length===100?' Display limited to 100 records.':'');
+  }catch(err){clearLiveDirectory('Unable to load directory: '+(err?.message||String(err)));}
+  finally{liveDirectoryButton.disabled=false;}
+});
 const employeeAccessStatus=document.getElementById('employeeAccessStatus');
 const employeeAccessButton=document.getElementById('testEmployeeAccessButton');
 employeeAccessButton.addEventListener('click',async()=>{
@@ -97,7 +123,7 @@ employeeAccessButton.addEventListener('click',async()=>{
 
 async function showAuthState(){
   const {data:{session}}=await client.auth.getSession();
-  if(!session){loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
+  if(!session){clearLiveDirectory('Sign in, then load the directory.');loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
   logoutButton.hidden=false;loginButton.hidden=true;emailInput.disabled=true;passwordInput.disabled=true;passwordInput.value='';
   loginStatus.textContent='Signed in as '+(session.user.email||'test user')+'. Checking Homes access…';
   const {data,error}=await client.from('Homes').select('id,Name').limit(10);
