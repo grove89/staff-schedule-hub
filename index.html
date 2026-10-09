@@ -61,7 +61,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <section id="liveDirectory" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee directory (read-only)</h3><p class="sub">Shows only employee records your signed-in Supabase account is authorized to read. The sample directory above is not connected and its editing controls remain demonstrations.</p><button class="btn secondary" type="button" id="loadLiveDirectory">Load authorized employee records</button><p class="sub" id="liveDirectoryStatus" role="status" aria-live="polite" style="margin-top:12px">Sign in, then load the directory.</p><div class="tablewrap"><table style="min-width:400px"><thead><tr><th>Employee record</th><th>Job title</th><th>Home ID</th></tr></thead><tbody id="liveDirectoryRows"></tbody></table></div></div></section>
 <section id="employeeAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Employee database access test</h3><p class="sub">Read-only security check using your signed-in account. Does not change the sample directory or save any data.</p><button class="btn secondary" type="button" id="testEmployeeAccessButton">Test my employee access</button><p class="sub" id="employeeAccessStatus" role="status" style="margin-top:12px">Not tested yet.</p></div></section>
 <section id="adminAccessTest" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Administrator access test</h3><p class="sub">Checks your signed-in administrator status and authorized employee record access. Read-only; no schedules or permissions are changed.</p><button class="btn secondary" type="button" id="testAdminAccessButton">Test administrator access</button><p class="sub" id="adminAccessStatus" role="status" aria-live="polite" style="margin-top:12px">Not tested yet.</p></div></section>
-<section id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px" hidden><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee editor (administrator)</h3><p class="sub">Changes here are saved to Supabase. The sample directory and schedules above remain separate. Login associations cannot be edited here.</p><p id="liveEditorStatus" class="sub" role="status" aria-live="polite">Checking administrator access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select id="liveEmployeeSelect" class="field" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input id="liveEmployeeName" class="field" maxlength="120" required autocomplete="off" style="width:100%;margin-bottom:12px"><label for="liveEmployeeRole">Job title</label><select id="liveEmployeeRole" class="field" required style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select id="liveEmployeeHome" class="field" required style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><button class="btn" type="submit" id="liveEmployeeSave">Save to Supabase</button><button class="btn secondary" type="button" id="liveEmployeeRefresh">Refresh records</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
+<section id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px" hidden><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Live employee editor (authorized management)</h3><p class="sub">Changes here are saved to Supabase. The sample directory and schedules above remain separate. Login associations cannot be edited here.</p><p id="liveEditorStatus" class="sub" role="status" aria-live="polite">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select id="liveEmployeeSelect" class="field" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input id="liveEmployeeName" class="field" maxlength="120" required autocomplete="off" style="width:100%;margin-bottom:12px"><label for="liveEmployeeRole">Job title</label><select id="liveEmployeeRole" class="field" required style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select id="liveEmployeeHome" class="field" required style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><button class="btn" type="submit" id="liveEmployeeSave">Save to Supabase</button><button class="btn secondary" type="button" id="liveEmployeeRefresh">Refresh records</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const client=createClient('https://taerfxphcootfxzudvgv.supabase.co','sb_publishable_lPMIn3nPG7KSAqhvbO_NSQ_VubYq4WB');
@@ -108,19 +108,33 @@ const editorSave=document.getElementById('liveEmployeeSave');
 const editorRefresh=document.getElementById('liveEmployeeRefresh');
 let editorRecords=[];
 let editorAuthorized=false;
+let editorHomes=[];
 function editorMessage(message){editorStatus.textContent=message;}
-function clearEditor(){editorAuthorized=false;editorSection.hidden=true;editorRecords=[];editorForm.reset();editorSelect.replaceChildren(new Option('Add new employee',''));}
+function clearEditor(){editorAuthorized=false;editorHomes=[];editorSection.hidden=true;editorRecords=[];editorForm.reset();editorSelect.replaceChildren(new Option('Add new employee',''));}
+function restrictEditorHomes(){
+ const names={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
+ editorHome.replaceChildren(new Option('Select home',''));
+ for(const id of editorHomes)editorHome.add(new Option(names[id],String(id)));
+}
 async function verifyEditorAccess(){
-  clearEditor();
-  try{
-    const {data:{user},error:userError}=await client.auth.getUser();
-    if(userError||!user)return;
-    const {data:isAdmin,error:adminError}=await client.rpc('is_app_admin');
-    if(adminError||isAdmin!==true)return;
-    editorAuthorized=true;
-    editorSection.hidden=false;
-    await refreshEditorRecords();
-  }catch(e){clearEditor();}
+ clearEditor();
+ try{
+  const {data:{user},error:userError}=await client.auth.getUser();
+  if(userError||!user)return;
+  const {data:isAdmin,error:adminError}=await client.rpc('is_app_admin');
+  if(adminError)throw adminError;
+  if(isAdmin===true)editorHomes=[1,2,3,4];
+  else for(const id of [1,2,3,4]){
+   const {data:allowed,error}=await client.rpc('can_manage_home',{target_home_id:id});
+   if(error)throw error;
+   if(allowed===true)editorHomes.push(id);
+  }
+  if(!editorHomes.length)return;
+  editorAuthorized=true;
+  restrictEditorHomes();
+  editorSection.hidden=false;
+  await refreshEditorRecords();
+ }catch(e){clearEditor();}
 }
 async function refreshEditorRecords(){
   if(!editorAuthorized)return;
@@ -149,12 +163,16 @@ editorForm.addEventListener('submit',async event=>{
   const name=editorName.value.trim();
   const job_title=editorRole.value;
   const home_id=Number(editorHome.value);
-  if(!name||!job_title||![1,2,3,4].includes(home_id)){editorMessage('Enter a name, job title, and home.');return;}
+  if(!name||!job_title||!editorHomes.includes(home_id)){editorMessage('Enter a name, job title, and home.');return;}
   if(job_title==='Cook'&&home_id!==1){editorMessage('Cook is only available for Pathways.');return;}
   editorSave.disabled=true;
   editorMessage('Saving to Supabase…');
   try{
     const id=editorSelect.value;
+    const original=editorRecords.find(r=>String(r.id)===id);
+    if(id&&(!original||!editorHomes.includes(original.home_id)))throw new Error('Employee outside your authorized homes.');
+    const {data:allowed,error:permissionError}=await client.rpc('can_manage_home',{target_home_id:home_id});
+    if(permissionError||allowed!==true)throw new Error('Not authorized for the selected home.');
     const payload={full_name:name,job_title,home_id};
     const result=id
       ? await client.from('Employees').update(payload).eq('id',Number(id)).select('id').single()
