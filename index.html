@@ -161,7 +161,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <section id="pathwaysBuilder" class="card" style="padding:16px;margin:18px 0;border:1px solid #2c527f" hidden>
 <h3 style="margin:0 0 6px">Pathways · Weekly Template Builder</h3>
 <p class="live-muted">Uses the existing Pathways standard shifts and required staffing counts. Each slot becomes a real shift when published. Drafts are saved for other authorized managers.</p>
-<div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Load week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save draft</button><button class="btn" id="pathwaysBuilderPublish" type="button">Publish entire week</button></div>
+<div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Load week</button><button class="btn secondary" id="pathwaysBuilderCopy" type="button">Copy previous week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save draft</button><button class="btn" id="pathwaysBuilderPublish" type="button">Publish entire week</button></div>
 <p id="pathwaysBuilderStatus" class="live-muted" role="status"></p><div id="pathwaysBuilderSlots"></div>
 </section>
 <div id="liveShiftPanel" class="card" style="padding:16px;margin-top:18px" hidden><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm"><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" type="date" id="liveShiftDate" required></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" type="time" id="liveShiftStart" required></div><div><label for="liveShiftEnd">End time</label><input class="field" type="time" id="liveShiftEnd" required></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" type="submit" id="liveShiftSave">Save shift</button><button class="btn danger" type="button" id="liveShiftDelete" hidden>Delete shift</button><button class="btn secondary" type="button" id="liveShiftCancel">Cancel</button></div></form></div>
@@ -432,6 +432,7 @@ const pbRows=document.getElementById('pathwaysBuilderSlots');
 const pbStatus=document.getElementById('pathwaysBuilderStatus');
 const pbPublish=document.getElementById('pathwaysBuilderPublish');
 const pbSave=document.getElementById('pathwaysBuilderSave');
+const pbCopy=document.getElementById('pathwaysBuilderCopy');
 let pbAssignments={},pbPublished=false,pbLoadedWeek='';
 function pbMessage(message,bad=false){pbStatus.textContent=message;pbStatus.classList.toggle('live-error',bad);}
 function pbSlotKey(template,day,slot){return template.id+'|'+day+'|'+slot;}
@@ -467,7 +468,7 @@ function pbDraw(){
   }
   pbRows.append(section);
  }
- pbSave.disabled=pbPublished;pbPublish.disabled=pbPublished;
+ pbSave.disabled=pbPublished;pbPublish.disabled=pbPublished;pbCopy.disabled=pbPublished;
 }
 async function pbLoad(){
  const home=Number(lsHome.value);pbBox.hidden=home!==1||!lsAllowed.includes(1);if(pbBox.hidden)return;
@@ -477,6 +478,35 @@ async function pbLoad(){
  if(error){pbMessage('Builder unavailable: '+error.message,true);pbRows.replaceChildren();return;}
  pbAssignments=data?.[0]?.assignments||{};pbPublished=!!data?.[0]?.published_at;pbLoadedWeek=week;
  pbDraw();pbMessage(pbPublished?'Published · This week is locked. Use the regular schedule editor for changes.':'Draft ready · Fill blank slots, save, then publish.');
+}
+async function pbCopyPreviousWeek(){
+ if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished){pbMessage('Choose an unpublished week first.',true);return;}
+ const targetWeek=pbLoadedWeek;
+ const previous=lsDate(lsDay(targetWeek,-7));
+ if(!confirm('Copy staffing assignments from the week of '+previous+' into '+targetWeek+'? This replaces any unsaved assignments in the current draft.'))return;
+ pbCopy.disabled=true;pbMessage('Copying previous week…');
+ try{
+  const {data,error}=await client.rpc('pathways_get_week',{p_week:previous});
+  if(error)throw error;
+  if(pbLoadedWeek!==targetWeek||pbPublished)return;
+  if(!data?.length)throw new Error('No saved or published Pathways schedule exists for the previous week.');
+  const previousAssignments=data[0].assignments||{};
+  const validTemplates=new Map(lsTemplates.map(t=>[String(t.id),Number(t.available_slots)||0]));
+  const validEmployees=new Set(lsEmployees.map(e=>String(e.id)));
+  const copy={};let copied=0,skipped=0;
+  for(const [key,employee] of Object.entries(previousAssignments)){
+   const parts=key.split('|');
+   if(parts.length!==3||!validTemplates.has(parts[0])||!Number.isInteger(Number(parts[1]))||Number(parts[1])<0||Number(parts[1])>6||Number(parts[2])<1||Number(parts[2])>validTemplates.get(parts[0])){skipped++;continue;}
+   if(employee!==null&&String(employee)!==''&&!validEmployees.has(String(employee))){skipped++;continue;}
+   if(employee!==null&&String(employee)!==''){copy[key]=String(employee);copied++;}
+  }
+  // Save immediately, so a copied week is safely retained as a draft.
+  const saved=await client.rpc('pathways_save_week',{p_week:targetWeek,p_assignments:copy});
+  if(saved.error)throw saved.error;
+  pbAssignments=copy;pbDraw();
+  pbMessage('Copied '+copied+' assignments from '+previous+' and saved as a draft.'+(skipped?' '+skipped+' unavailable assignments were skipped.':''));
+ }catch(err){pbMessage('Copy failed: '+err.message,true);}
+ finally{pbCopy.disabled=pbPublished;}
 }
 async function pbSaveDraft(){
  if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished)return;
@@ -497,6 +527,7 @@ async function pbPublishWeek(){
  }catch(err){pbMessage('Publish stopped safely: '+err.message,true);pbPublish.disabled=false;pbSave.disabled=false;}
 }
 document.getElementById('pathwaysBuilderReload').onclick=pbLoad;
+pbCopy.onclick=pbCopyPreviousWeek;
 pbSave.onclick=pbSaveDraft;pbPublish.onclick=pbPublishWeek;
 
 function lsRenderManager(){
