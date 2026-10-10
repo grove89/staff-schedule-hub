@@ -1213,8 +1213,8 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
   try{
    const now=new Date(),end=new Date(now.getTime()+7*86400000);
    const [active,future]=await Promise.all([
-    client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homes()).lte('starts_at',now.toISOString()).gt('ends_at',now.toISOString()).limit(1000),
-    client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homes()).gt('starts_at',now.toISOString()).lt('starts_at',end.toISOString()).order('starts_at').limit(1000)
+    window.staffHubSupabase.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homes()).lte('starts_at',now.toISOString()).gt('ends_at',now.toISOString()).limit(1000),
+    window.staffHubSupabase.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homes()).gt('starts_at',now.toISOString()).lt('starts_at',end.toISOString()).order('starts_at').limit(1000)
    ]);
    if(active.error)throw active.error;if(future.error)throw future.error;
    const uncovered=homes().filter(id=>!(active.data||[]).some(x=>Number(x.home_id)===id&&x.employee_id!=null));
@@ -1257,7 +1257,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  }
  async function printWeek(){
   const status=$('hubPrintStatus'),preview=$('hubPrintPreview'),printNow=$('hubPrintNow');
-  status.textContent='Preparing print preview…';preview.hidden=true;printNow.hidden=true;
+  status.textContent='Preparing print preview…';preview.hidden=true;printNow.hidden=true; if(!window.staffHubSupabase){status.textContent='Connection is still loading. Please try again in a moment.';return;}
   const home=Number($('hubPrintHome').value);
   if(![1,2,3,4].includes(home)||!homes().includes(home)){
    status.textContent='Home access is not ready. Refresh the page and try again.';return;
@@ -1274,8 +1274,8 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
    const lower=new Date(weekStart.getTime()-2*86400000).toISOString();
    const upper=new Date(last.getTime()+2*86400000).toISOString();
    const [sh,em]=await Promise.all([
-    client.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',lower).lt('starts_at',upper).order('starts_at').limit(1000),
-    client.from('Employees').select('id,full_name,job_title').limit(1000)
+    window.staffHubSupabase.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',lower).lt('starts_at',upper).order('starts_at').limit(1000),
+    window.staffHubSupabase.from('Employees').select('id,full_name,job_title').limit(1000)
    ]);
    if(sh.error||em.error)throw(sh.error||em.error);
    const people=new Map((em.data||[]).map(e=>[Number(e.id),e]));
@@ -1292,7 +1292,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
   }catch(e){status.textContent='Unable to generate preview: '+(e?.message||String(e));}
  }
  $('hubPrintNow').onclick=()=>window.print();
- $('hubAlertRefresh').onclick=coverage;$('hubPrintBtn').onclick=printWeek;
+ $('hubAlertRefresh').onclick=coverage;$('hubPrintBtn').addEventListener('click',()=>{printWeek().catch(e=>{$('hubPrintStatus').textContent='Print preview error: '+(e?.message||String(e));});});
  const histBtn=tabs.querySelector('[data-mcc-tab="history"]');
  histBtn?.addEventListener('click',()=>{
   for(const b of tabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b===histBtn));
