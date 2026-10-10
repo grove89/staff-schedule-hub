@@ -1446,7 +1446,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
    if(!authorized.includes(Number(data.home_id)))throw new Error('You are not authorized to manage this home.');
    const details=`${homes[data.home_id]} · ${local(data.starts_at)} – ${endTime(data.ends_at)} (Central)`;
    el('sosDetails').textContent=details;
-   el('sosMessage').textContent=`🚨 SOS COVERAGE: ${details}. An urgent shift is OPEN. To request it, sign in to Staff Schedule Hub: https://grove89.github.io/staff-schedule-hub/ . Management approval required.`;
+   el('sosMessage').textContent=`🚨 SOS COVERAGE: ${details}. An urgent shift is OPEN. Contact management to request coverage. Management approval required.`;
    status.textContent='SOS preview ready. No text messages have been sent.';
   }catch(e){status.textContent='Unable to prepare SOS: '+(e?.message||String(e));el('sosDetails').textContent='';el('sosMessage').textContent='';}
  };
