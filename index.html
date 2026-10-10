@@ -1213,16 +1213,39 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
    $('hubAlertStatus').textContent=`${uncovered.length} uncovered home(s) now · ${all.length} OPEN shift(s)`;
   }catch(e){$('hubAlertStatus').textContent='Coverage check unavailable: '+e.message;}finally{busy=false}
  }
+ let notificationRun=0;
  async function notifications(){
-  const out=$('hubNotifyList');out.textContent='Checking requests…';let n=0,html='';
-  for(const id of homes()){
-   const {data,error}=await client.rpc('manager_open_shift_requests',{p_home_id:id});
-   if(error){html+=line(LS_HOMES[id]||'Home '+id,'Could not load: '+error.message);continue}
-   n+=(data||[]).length;
-   for(const r of data||[])html+=line('Pending · '+(LS_HOMES[id]||'Home '+id),`${r.employee_name||'Employee'} · ${r.starts_at?time(r.starts_at):'Open shift request'}`);
+  const run=++notificationRun;
+  const out=$('hubNotifyList'),badge=$('hubBellCount');
+  const ids=[...new Set(homes().filter(id=>[1,2,3,4].includes(id)))];
+  if(!ids.length){out.textContent='No managed homes available.';if(badge)badge.hidden=true;return;}
+  out.textContent='Checking requests…';
+  // Load all homes concurrently, with a deadline so the UI never hangs forever.
+  const results=await Promise.all(ids.map(async id=>{
+   let timeout;
+   try{
+    const response=await Promise.race([
+     client.rpc('manager_open_shift_requests',{p_home_id:id}),
+     new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Request timed out after 12 seconds')),12000)})
+    ]);
+    if(response.error)throw response.error;
+    return {id,data:response.data||[]};
+   }catch(error){return {id,error:error?.message||String(error)};}
+   finally{clearTimeout(timeout);}
+  }));
+  if(run!==notificationRun)return;
+  let n=0,html='',errors=0;
+  for(const result of results){
+   if(result.error){errors++;html+=line(LS_HOMES[result.id]||'Home '+result.id,'Could not load notifications: '+result.error);continue;}
+   n+=result.data.length;
+   for(const r of result.data){
+    const label=r.employee_name||'Employee';
+    const date=r.starts_at?time(r.starts_at):'Open shift request';
+    html+=line('Pending · '+(LS_HOMES[result.id]||'Home '+result.id),label+' · '+date);
+   }
   }
-  out.innerHTML=html||'<p>No pending open-shift requests found.</p>';
-  const badge=$('hubBellCount');if(badge){badge.textContent=n;badge.hidden=!n;}
+  out.innerHTML=html||(errors?' <p>Notifications could not be loaded. Tap Refresh notifications to retry.</p>':'<p>No pending open-shift requests found.</p>');
+  if(badge){badge.textContent=String(n);badge.hidden=n===0;}
  }
  function initPrint(){
   const sel=$('hubPrintHome');sel.replaceChildren();
