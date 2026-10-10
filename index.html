@@ -149,6 +149,23 @@ h2,h3,h4,.live-sched h3,.live-sched h2,#liveEmployeeEditor h3{color:#fff!importa
 #pathwaysWeeklyViewer .pwv-top h3{font-size:23px!important}
 #pathwaysManagementTools[hidden],#pathwaysWeeklyViewer[hidden],#pathwaysViewerControl[hidden],#pathwaysDashboardActions[hidden]{display:none!important}
 @media(max-width:650px){#pathwaysDashboardActions .btn{width:100%!important}#pathwaysWeeklyViewer{margin:8px -8px 18px!important;padding:12px!important}}
+</style><style id="managementCommandCenterStyles">
+#managementCommandCenter[hidden],#managerTabStrip[hidden],.mcc-tab-panel[hidden]{display:none!important}
+#managerTabStrip{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 0 16px;scrollbar-width:thin}
+#managerTabStrip button{white-space:nowrap;flex:0 0 auto;border-radius:10px;padding:12px 17px;background:#193e61;color:#f5f9ff;border:1px solid #527ba1;font-weight:750;cursor:pointer}
+#managerTabStrip button[aria-selected="true"]{background:#f5cf53;color:#29200c;border-color:#e0ad20}
+#managementCommandCenter{background:#071b32;border:1px solid #527da5;border-radius:15px;padding:16px;margin-bottom:16px;color:#f4f9ff}
+#managementCommandCenter h3{color:white;margin:0 0 6px}
+.mcc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:12px;margin:12px 0 20px}
+.mcc-home{background:#143452;border:1px solid #426e94;border-radius:12px;padding:14px;min-width:0}
+.mcc-home h4{color:#fff;margin:0 0 9px;font-size:17px}
+.mcc-entry{background:#244a6a;border-radius:8px;padding:10px;margin:7px 0;color:white;font-size:14px}
+.mcc-entry strong{display:block;color:#fff}
+.mcc-entry small{display:block;color:#dbeaf8;margin-top:3px}
+.mcc-empty{color:#d6e7f7;font-size:13px}
+.mcc-open{border-left:4px solid #f5cf53}
+.mcc-note{color:#d0e0ef;font-size:12px;margin:6px 0}
+@media(max-width:600px){#managementCommandCenter{padding:12px}.mcc-grid{grid-template-columns:1fr}}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" placeholder="Search employees or job titles…" oninput="render()"><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select required class="field" id="accountEmployee"></select><label for="accountPhone">Phone number (primary)</label><input class="field" id="accountPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="555-010-1234" required><label for="accountEmail">Email (secondary, optional)</label><input class="field" id="accountEmail" type="email" autocomplete="off" placeholder="employee@example.com"><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section id="schedulePage" class="schedule-wrap" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span id="modeLabel" class="tag"></span></div>
@@ -214,6 +231,8 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 .live-sched{max-width:1100px;margin:18px auto 30px;padding:0 16px}.live-sched .card{padding:18px}.live-sched h2{font-size:22px}.live-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:15px 0}.live-controls .field{width:auto;max-width:100%}.live-week{font-weight:700}.live-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.live-day{border:1px solid #dce5f0;border-radius:10px;padding:9px;min-height:135px;background:#f9fbff}.live-day h4{font-size:12px;margin:0 0 10px;color:#253c60}.live-shift{border:1px solid #d8e3f5;border-radius:8px;background:white;padding:7px;margin:6px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.live-shift button{font-size:11px;margin-top:5px}.live-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.live-form-grid label{font-size:12px;font-weight:650;display:block;margin-bottom:5px}.live-form-grid .field{width:100%}.live-history{max-height:330px;overflow:auto}.live-history-item{padding:10px;border-bottom:1px solid #e8edf4;font-size:12px;overflow-wrap:anywhere}.live-staff-item{border-bottom:1px solid #e8edf4;padding:11px 0;font-size:14px}.live-error{color:#a12626}.live-muted{color:#65738a;font-size:13px}@media(max-width:850px){.live-days{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.live-days{grid-template-columns:1fr}.live-form-grid{grid-template-columns:1fr}.live-controls .field{width:100%}}
 </style>
 <section class="live-sched" id="liveScheduling"><div class="card"><h2>Schedule</h2><p class="sub">Your upcoming shifts and, if authorized, your team schedule.</p><p id="liveScheduleStatus" class="live-muted" role="status" aria-live="polite">Sign in to load your live schedule.</p>
+<nav id="managerTabStrip" aria-label="Management sections" hidden><button type="button" data-mcc-tab="overview" aria-selected="true">🏠 Overview</button><button type="button" data-mcc-tab="schedules" aria-selected="false">📅 Schedules</button><button type="button" data-mcc-tab="requests" aria-selected="false">📨 Requests</button><button type="button" data-mcc-tab="staff" aria-selected="false">👥 Staff</button></nav>
+<section id="managementCommandCenter" class="mcc-tab-panel" hidden><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3>Management · Live Staffing</h3><p class="mcc-note">Published shifts at homes you manage · Times shown in your device's local time</p></div><button class="btn secondary" id="mccRefresh" type="button">↻ Refresh</button></div><p id="mccStatus" class="mcc-note" role="status">Loading staffing overview…</p><h3>🟢 Currently on Shift</h3><div id="mccCurrent" class="mcc-grid"></div><h3>🕒 Coming in Next</h3><div id="mccUpcoming" class="mcc-grid"></div><p class="mcc-note">Based on scheduled times, not employee clock-ins. OPEN slots are highlighted.</p></section>
 <div id="liveManagerSchedule" hidden><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select class="field" id="liveScheduleHome" aria-label="Home"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div>
 <div class="live-controls" id="pathwaysViewerControl"><button class="btn secondary" type="button" id="pathwaysViewerToggle">📅 Show / Hide Weekly Calendar</button></div>
 <section id="pathwaysWeeklyViewer" class="pathways-weekly-viewer" hidden>
@@ -798,6 +817,69 @@ const xOriginalLoadAccess=lsLoadAccess;
 lsLoadAccess=async function(...args){const result=await xOriginalLoadAccess(...args);const loggedIn=!!(await client.auth.getSession()).data.session;
  xById('staffExtraArea').hidden=!loggedIn;
  if(loggedIn)await Promise.all([xLoadForm(),xLoadTrades(),xLoadTimeOff()]);return result;};
+
+// Management command center: authenticated, RLS-governed published shifts only.
+const mccTabs=document.getElementById('managerTabStrip');
+const mccOverview=document.getElementById('managementCommandCenter');
+let mccActive='overview',mccTimer=null,mccGeneration=0;
+const mccRequests=document.createElement('section');mccRequests.id='mccRequestsPanel';mccRequests.className='mcc-tab-panel';mccRequests.hidden=true;
+const mccStaff=document.createElement('section');mccStaff.id='mccStaffPanel';mccStaff.className='mcc-tab-panel';mccStaff.hidden=true;
+const mccSchedules=document.getElementById('liveManagerSchedule');
+const mccParent=mccSchedules.parentNode;
+mccParent.insertBefore(mccRequests,mccSchedules.nextSibling);
+mccParent.insertBefore(mccStaff,mccRequests.nextSibling);
+mccStaff.innerHTML='<h3>Employee management</h3><p>Use the secure employee editor below to manage authorized staff records.</p><button type="button" class="btn secondary" id="mccJumpStaff">Open employee editor ↓</button>';
+document.getElementById('mccJumpStaff').addEventListener('click',()=>document.getElementById('liveEmployeeEditor')?.scrollIntoView({behavior:'smooth'}));
+for(const id of ['managerRequests','managerExtras']){const node=document.getElementById(id);if(node)mccRequests.append(node);}
+const historyTitle=document.querySelector('#liveLoadHistory')?.parentElement;if(historyTitle)mccRequests.append(historyTitle);
+const employeeEditor=document.getElementById('liveEmployeeEditor');
+// The employee editor stays in its original location so its existing permissions continue to work.
+function mccSelect(tab){
+ mccActive=tab;
+ for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b.dataset.mccTab===tab));
+ mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';
+ if(employeeEditor&&lsAllowed.length)employeeEditor.style.display=tab==='staff'?'':'none';
+ if(tab==='overview')mccLoad();
+}
+for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.addEventListener('click',()=>mccSelect(b.dataset.mccTab));
+document.getElementById('mccRefresh').addEventListener('click',()=>mccLoad());
+function mccEntry(parent,title,detail,open=false){const el=lsEl('div',undefined,'mcc-entry'+(open?' mcc-open':''));el.append(lsEl('strong',title));el.append(lsEl('small',detail));parent.append(el);}
+async function mccLoad(){
+ if(!lsAllowed.length||mccActive!=='overview')return;
+ const ticket=++mccGeneration,now=new Date(),nowIso=now.toISOString(),end=new Date(now.getTime()+48*3600000).toISOString();
+ const current=document.getElementById('mccCurrent'),upcoming=document.getElementById('mccUpcoming'),status=document.getElementById('mccStatus');
+ status.textContent='Refreshing published schedules…';
+ try{
+  const homeIds=[...lsAllowed];
+  const result=await Promise.all([
+   client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homeIds).lte('starts_at',nowIso).gt('ends_at',nowIso).order('starts_at',{ascending:true}).limit(1000),
+   client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homeIds).gt('starts_at',nowIso).lte('starts_at',end).order('starts_at',{ascending:true}).limit(1000),
+   client.from('Employees').select('id,full_name,job_title,home_id').in('home_id',homeIds).limit(1000)
+  ]);
+  if(ticket!==mccGeneration)return;
+  for(const r of result)if(r.error)throw r.error;
+  const active=result[0].data||[],future=result[1].data||[],people=new Map((result[2].data||[]).map(e=>[Number(e.id),e]));
+  current.replaceChildren();upcoming.replaceChildren();
+  for(const home of homeIds){
+   const name=LS_HOMES[home]||'Home';
+   const c=lsEl('article',undefined,'mcc-home');c.append(lsEl('h4',name));
+   const working=active.filter(x=>Number(x.home_id)===home);
+   if(!working.length)c.append(lsEl('p','No currently scheduled shifts.','mcc-empty'));
+   for(const sh of working){const person=people.get(Number(sh.employee_id));mccEntry(c,sh.employee_id==null?'OPEN SHIFT':person?.full_name||'Employee #'+sh.employee_id,(person?.job_title?person.job_title+' · ':'')+'Until '+lsTime(new Date(sh.ends_at)),sh.employee_id==null);}
+   current.append(c);
+   const n=lsEl('article',undefined,'mcc-home');n.append(lsEl('h4',name));
+   const next=future.filter(x=>Number(x.home_id)===home);
+   if(!next.length)n.append(lsEl('p','No upcoming shifts in the next 48 hours.','mcc-empty'));
+   else{const first=next[0].starts_at;const batch=next.filter(x=>x.starts_at===first);for(const sh of batch){const person=people.get(Number(sh.employee_id));const when=new Date(sh.starts_at);mccEntry(n,sh.employee_id==null?'OPEN SHIFT':person?.full_name||'Employee #'+sh.employee_id,(person?.job_title?person.job_title+' · ':'')+when.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+lsTime(when),sh.employee_id==null);}}
+   upcoming.append(n);
+  }
+  status.textContent='Updated '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' · '+homeIds.length+' authorized home(s)';
+ }catch(e){if(ticket===mccGeneration)status.textContent='Could not load overview: '+(e.message||String(e));}
+}
+const mccOriginalAccess=lsLoadAccess;
+lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
+// Refresh the overview once a minute while the page is open; no database writes.
+mccTimer=setInterval(()=>{if(!mccTabs.hidden&&mccActive==='overview')mccLoad();},60000);
 
 async function showAuthState(){
   const {data:{session}}=await client.auth.getSession();
