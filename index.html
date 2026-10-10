@@ -262,7 +262,25 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
 #liveScheduling .sub,#liveScheduling small{color:#c0d7f2}
 @media(max-width:700px){#liveScheduling .card,#liveScheduling .glass-staff-panel{border-radius:19px!important}#liveScheduling #liveMyShifts>*,#liveScheduling #openShiftList>*{border-radius:14px!important}}
 @media(prefers-reduced-motion:reduce){#liveScheduling button{transition:none!important}}
-</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">📨 Requests</button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
+</style>
+<style id="fourUpgradesStyles">
+#hubExtras{max-width:1240px;margin:0 auto;padding:0 16px 20px;color:#eef6ff}
+#hubExtras[hidden],#hubHistory[hidden],#hubAlerts[hidden],#hubNotifications[hidden]{display:none!important}
+.hub-glass{position:relative;overflow:hidden;border:1px solid #7abaff77;border-radius:19px;padding:17px;margin:14px 0;background:linear-gradient(135deg,#214f8d9c,#071a39d9 75%);box-shadow:0 12px 30px #0005,inset 0 1px #c5e7ff3d}
+.hub-glass:before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(120deg,transparent 4%,#b9e5ff1c 17%,transparent 33%);opacity:.85}
+.hub-glass>*{position:relative}
+.hub-glass h3{color:white;margin:0 0 10px}
+.hub-glass p,.hub-glass small{color:#c7ddf4}
+.hub-line{padding:10px 12px;border:1px solid #80baff35;border-radius:11px;margin:8px 0;background:#103b72a8;overflow-wrap:anywhere}
+.hub-line strong{display:block;color:#fff}
+.hub-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.hub-controls select,.hub-controls input{padding:11px;border:1px solid #83b9ee7d;border-radius:10px;background:#092649;color:white;max-width:100%}
+.hub-controls button,.hub-glass button{padding:10px 14px;border-radius:10px;border:1px solid #6fb6ff;color:white;background:linear-gradient(#246fc0,#11437e);font-weight:650}
+#hubBell{position:relative}#hubBellCount{display:inline-block;background:#ffcb55;color:#10233c;border-radius:20px;padding:1px 6px;margin-left:5px}
+#hubPrintPanel{margin-top:10px}
+@media print{#hubExtras,#hubBell{display:none!important}}
+</style>
+</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">📨 Requests</button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
 <div class="schedule-controls"><label for="scheduleHome">Home</label><select class="field" id="scheduleHome" onchange="renderSchedule()"><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><button class="btn secondary small" onclick="changeWeek(-1)">← Previous</button><b id="weekLabel"></b><button class="btn secondary small" onclick="changeWeek(1)">Next →</button></div>
@@ -1120,6 +1138,114 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  new MutationObserver(sync).observe(logout,{attributes:true,attributeFilter:['hidden']});
  new MutationObserver(sync).observe(status,{childList:true,subtree:true,characterData:true});
  sync();
+})();
+</script>
+
+<script id="fourUpgradesLogic">
+(function(){
+ const tabs=document.getElementById('managerTabStrip'),overview=document.getElementById('managementCommandCenter');
+ if(!tabs||!overview)return;
+ const root=document.createElement('div');root.id='hubExtras';root.hidden=true;
+ root.innerHTML=`
+ <section id="hubAlerts" class="hub-glass"><h3>⚠️ Coverage Alerts</h3><p>OPEN published shifts in the next 7 days, and homes with no staff scheduled right now. No inferred minimum staffing levels.</p><div class="hub-controls"><button id="hubAlertRefresh" type="button">↻ Refresh coverage</button><span id="hubAlertStatus"></span></div><div id="hubAlertList"></div></section>
+ <section id="hubNotifications" class="hub-glass" hidden><h3>🔔 Notification Center</h3><p>Pending open-shift requests across homes you manage. Staff decisions remain available in the existing Requests tools.</p><div class="hub-controls"><button id="hubNotifyRefresh" type="button">↻ Refresh notifications</button></div><div id="hubNotifyList"></div></section>
+ <section id="hubPrintPanel" class="hub-glass" hidden><h3>🖨️ Print / Export Schedule</h3><p>Print a published week or use your browser's Save as PDF option.</p><div class="hub-controls"><label for="hubPrintHome">Home</label><select id="hubPrintHome"></select><label for="hubPrintWeek">Week of</label><input id="hubPrintWeek" type="date"><button id="hubPrintBtn" type="button">Print / Save PDF</button></div><p id="hubPrintStatus" role="status"></p></section>
+ <section id="hubHistory" class="hub-glass" hidden><h3>🕘 Schedule Change History</h3><p>Management-only audit records from the existing schedule audit log.</p><div id="hubHistoryMount"></div></section>`;
+ overview.insertAdjacentElement('afterend',root);
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const homes=()=>Array.isArray(lsAllowed)?lsAllowed.map(Number):[];
+ const time=v=>new Date(v).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+ const line=(title,sub)=>`<div class="hub-line"><strong>${esc(title)}</strong><small>${esc(sub)}</small></div>`;
+ let busy=false;
+ async function coverage(){
+  if(busy||!homes().length)return;busy=true;$('hubAlertStatus').textContent='Checking…';
+  try{
+   const now=new Date(),end=new Date(now.getTime()+7*86400000);
+   const [active,future]=await Promise.all([
+    client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homes()).lte('starts_at',now.toISOString()).gt('ends_at',now.toISOString()).limit(1000),
+    client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').in('home_id',homes()).gt('starts_at',now.toISOString()).lt('starts_at',end.toISOString()).order('starts_at').limit(1000)
+   ]);
+   if(active.error)throw active.error;if(future.error)throw future.error;
+   const uncovered=homes().filter(id=>!(active.data||[]).some(x=>Number(x.home_id)===id&&x.employee_id!=null));
+   const opens=(future.data||[]).filter(x=>x.employee_id==null);
+   const currentOpens=(active.data||[]).filter(x=>x.employee_id==null);
+   const all=[...currentOpens,...opens];let html='';
+   for(const id of uncovered)html+=line('⚠️ '+(LS_HOMES[id]||'Home '+id),'No assigned employee currently scheduled (not a clock-in check)');
+   for(const sh of all)html+=line('OPEN · '+(LS_HOMES[sh.home_id]||'Home '+sh.home_id),time(sh.starts_at)+' – '+time(sh.ends_at));
+   $('hubAlertList').innerHTML=html||'<p>No uncovered homes right now or OPEN published shifts in the next 7 days.</p>';
+   $('hubAlertStatus').textContent=`${uncovered.length} uncovered home(s) now · ${all.length} OPEN shift(s)`;
+  }catch(e){$('hubAlertStatus').textContent='Coverage check unavailable: '+e.message;}finally{busy=false}
+ }
+ async function notifications(){
+  const out=$('hubNotifyList');out.textContent='Checking requests…';let n=0,html='';
+  for(const id of homes()){
+   const {data,error}=await client.rpc('manager_open_shift_requests',{p_home_id:id});
+   if(error){html+=line(LS_HOMES[id]||'Home '+id,'Could not load: '+error.message);continue}
+   n+=(data||[]).length;
+   for(const r of data||[])html+=line('Pending · '+(LS_HOMES[id]||'Home '+id),`${r.employee_name||'Employee'} · ${r.starts_at?time(r.starts_at):'Open shift request'}`);
+  }
+  out.innerHTML=html||'<p>No pending open-shift requests found.</p>';
+  const badge=$('hubBellCount');if(badge){badge.textContent=n;badge.hidden=!n;}
+ }
+ function initPrint(){
+  const sel=$('hubPrintHome');sel.replaceChildren();
+  for(const id of homes()){const o=document.createElement('option');o.value=id;o.textContent=LS_HOMES[id]||'Home '+id;sel.append(o)}
+  const now=new Date(),dow=(now.getDay()+6)%7;now.setDate(now.getDate()-dow);
+  $('hubPrintWeek').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+ }
+ async function printWeek(){
+  const home=Number($('hubPrintHome').value);if(!homes().includes(home))return;
+  const day=$('hubPrintWeek').value;if(!day){$('hubPrintStatus').textContent='Choose a date.';return}
+  const start=new Date(day+'T00:00:00'),end=new Date(start.getTime()+7*86400000);
+  $('hubPrintStatus').textContent='Loading published shifts…';
+  const [sh,em]=await Promise.all([
+   client.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',start.toISOString()).lt('starts_at',end.toISOString()).order('starts_at').limit(1000),
+   client.from('Employees').select('id,full_name,job_title').eq('home_id',home).limit(1000)
+  ]);
+  if(sh.error||em.error){$('hubPrintStatus').textContent=(sh.error||em.error).message;return}
+  const people=new Map((em.data||[]).map(e=>[Number(e.id),e]));
+  const rows=(sh.data||[]).map(x=>`<tr><td>${esc(new Date(x.starts_at).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))}</td><td>${esc(people.get(Number(x.employee_id))?.full_name|| (x.employee_id==null?'OPEN':'Employee'))}</td><td>${esc(people.get(Number(x.employee_id))?.job_title||'')}</td><td>${esc(time(x.starts_at))}</td><td>${esc(time(x.ends_at))}</td></tr>`).join('');
+  const doc=`<!doctype html><html><head><title>${esc(LS_HOMES[home])} Weekly Schedule</title><style>body{font:14px Arial,sans-serif;margin:25px;color:#13223a}h1{font-size:23px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #b7c4d6;text-align:left}th{background:#e8f0fa}@media print{body{margin:12mm}}</style></head><body><h1>${esc(LS_HOMES[home])} · Published Weekly Schedule</h1><p>Week beginning ${esc(day)}</p><table><thead><tr><th>Day</th><th>Employee</th><th>Position</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No published shifts for this week.</td></tr>'}</tbody></table><p>Generated ${esc(new Date().toLocaleString())}</p></body></html>`;
+  const frame=document.createElement('iframe');frame.style.cssText='position:fixed;left:-10000px;width:1px;height:1px';document.body.append(frame);
+  frame.onload=()=>{setTimeout(()=>{try{frame.contentWindow.focus();frame.contentWindow.print();$('hubPrintStatus').textContent='Print dialog opened. Select Save as PDF if available.'}catch(e){$('hubPrintStatus').textContent=e.message}setTimeout(()=>frame.remove(),60000)},250)};
+  frame.srcdoc=doc;
+ }
+ $('hubAlertRefresh').onclick=coverage;$('hubNotifyRefresh').onclick=notifications;$('hubPrintBtn').onclick=printWeek;
+ const bell=document.createElement('button');bell.id='hubBell';bell.type='button';bell.innerHTML='🔔 Alerts <span id="hubBellCount" hidden>0</span>';bell.className='btn secondary';bell.hidden=true;
+ tabs.append(bell);
+ bell.onclick=()=>{const requests=tabs.querySelector('[data-mcc-tab="requests"]');requests?.click();$('hubNotifications').hidden=false;$('hubNotifications').scrollIntoView({behavior:'smooth'});notifications()};
+ const histBtn=tabs.querySelector('[data-mcc-tab="history"]');
+ histBtn?.addEventListener('click',()=>{
+  for(const b of tabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b===histBtn));
+  overview.hidden=true;document.getElementById('liveManagerSchedule').hidden=true;
+  $('mccRequestsPanel').hidden=true;$('mccStaffPanel').hidden=true;
+  root.hidden=false;$('hubAlerts').hidden=true;$('hubNotifications').hidden=true;$('hubPrintPanel').hidden=true;$('hubHistory').hidden=false;
+  const editor=document.getElementById('liveEmployeeEditor');if(editor)editor.style.display='none';
+  const mount=$('hubHistoryMount'),history=document.getElementById('liveLoadHistory')?.parentElement;
+  if(history&&!mount.contains(history))mount.append(history);
+  document.getElementById('liveLoadHistory')?.click();
+ });
+ tabs.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-mcc-tab]');if(!btn||btn.dataset.mccTab==='history')return;
+  root.hidden=false;$('hubHistory').hidden=true;
+  $('hubAlerts').hidden=btn.dataset.mccTab!=='overview';
+  $('hubNotifications').hidden=btn.dataset.mccTab!=='requests';
+  $('hubPrintPanel').hidden=btn.dataset.mccTab!=='schedules';
+  if(btn.dataset.mccTab==='overview')coverage();
+  if(btn.dataset.mccTab==='requests')notifications();
+  if(btn.dataset.mccTab==='schedules')initPrint();
+ });
+ const accessObserver=new MutationObserver(()=>{
+  const allowed=!tabs.hidden&&homes().length>0;
+  root.hidden=!allowed;bell.hidden=!allowed;
+  if(allowed&&tabs.querySelector('[data-mcc-tab="overview"][aria-selected="true"]')){
+   $('hubAlerts').hidden=false;$('hubHistory').hidden=true;
+  }
+ });
+ accessObserver.observe(tabs,{attributes:true,attributeFilter:['hidden']});
+ setTimeout(()=>{if(!tabs.hidden&&homes().length){root.hidden=false;bell.hidden=false;coverage();notifications();}},800);
+ setInterval(()=>{if(!tabs.hidden&&homes().length){if(!$('hubAlerts').hidden)coverage();notifications()}},120000);
 })();
 </script>
 </body></html>
