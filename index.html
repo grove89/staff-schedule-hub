@@ -1191,6 +1191,24 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  @page{size:landscape;margin:12mm}
 }
 </style>
+
+<style id="hubSafariPrintRepair">
+@media print {
+  @page { size: letter portrait; margin: 12mm; }
+  html, body { background: #fff !important; color: #111 !important; width: auto !important; height: auto !important; min-height: 0 !important; overflow: visible !important; }
+  body, body * { background-image: none !important; box-shadow: none !important; text-shadow: none !important; }
+  body *::before, body *::after { content: none !important; display: none !important; }
+  body * { visibility: hidden !important; }
+  #hubPrintPreview, #hubPrintPreview *, #hubPrintPreview *::before, #hubPrintPreview *::after { visibility: visible !important; }
+  #hubExtras, #hubPrintPanel { overflow: visible !important; height: auto !important; min-height: 0 !important; max-height: none !important; transform: none !important; filter: none !important; background: transparent !important; border: 0 !important; padding: 0 !important; margin: 0 !important; }
+  #hubPrintPreview { position: fixed !important; inset: 0 auto auto 0 !important; display: block !important; width: 100% !important; max-width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; color: #111 !important; border: 0 !important; }
+  #hubPrintPreview .hub-print-sheet { background: #fff !important; color: #111 !important; }
+  #hubPrintPreview table { width: 100% !important; border-collapse: collapse !important; font: 10pt Arial, sans-serif !important; }
+  #hubPrintPreview th, #hubPrintPreview td { border: 1px solid #999 !important; color: #111 !important; background: #fff !important; padding: 5px !important; }
+  #hubPrintPreview th { background: #eaf0f7 !important; }
+  #hubPrintPreview tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+}
+</style>
 <script id="fourUpgradesLogic">
 (function(){
  const tabs=document.getElementById('managerTabStrip'),overview=document.getElementById('managementCommandCenter');
