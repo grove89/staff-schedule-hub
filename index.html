@@ -993,4 +993,43 @@ document.getElementById('pwvNext').onclick=async()=>{pwvWeek=lsDay(pwvWeek,7);aw
 document.getElementById('pwvRefresh').onclick=pwvLoad;
 </script>
 
+
+<style id="accountNavigationStyle">
+#accountNavButton{border:1px solid #5179a5;background:#153b67;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;white-space:nowrap}
+#accountNavButton[hidden],#accountSwitchPanel[hidden],#loginTest[hidden]{display:none!important}
+#accountSwitchPanel{max-width:1100px;margin:12px auto;padding:0 16px}
+#accountSwitchPanel .account-inner{background:#092a53;color:#f5f9ff;border:1px solid #24507d;border-radius:16px;padding:18px;box-shadow:0 12px 30px #0003}
+#accountSwitchPanel .account-inner p{color:#bed0e8;overflow-wrap:anywhere}
+#accountSwitchPanel #logoutTestButton{display:inline-flex!important;margin-top:10px}
+</style>
+<script id="accountNavigationScript">
+(function(){
+ const login=document.getElementById('loginTest');
+ const logout=document.getElementById('logoutTestButton');
+ const status=document.getElementById('loginTestStatus');
+ const header=document.querySelector('header');
+ if(!login||!logout||!header)return;
+ const nav=document.createElement('button');nav.id='accountNavButton';nav.type='button';nav.textContent='👤 Account';nav.hidden=true;header.appendChild(nav);
+ const panel=document.createElement('section');panel.id='accountSwitchPanel';panel.hidden=true;
+ panel.innerHTML='<div class="account-inner"><h3 style="margin:0 0 8px">Account</h3><p id="accountSwitchEmail" style="margin:0">Signed in</p><p style="font-size:13px">Switch accounts by signing out, then signing in with the other account.</p></div>';
+ header.insertAdjacentElement('afterend',panel);
+ panel.querySelector('.account-inner').appendChild(logout);
+ nav.addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!panel.hidden)panel.scrollIntoView({behavior:'smooth',block:'start'});});
+ function sync(){
+   const signedIn=!logout.hidden;
+   login.hidden=signedIn;
+   nav.hidden=!signedIn;
+   if(!signedIn)panel.hidden=true;
+   if(signedIn){
+     const email=document.getElementById('testEmail')?.value?.trim();
+     const match=status?.textContent?.match(/Signed in as ([^.]*)/i);
+     document.getElementById('accountSwitchEmail').textContent=match?.[1]||email||'Signed in to Staff Schedule Hub';
+   }
+ }
+ new MutationObserver(sync).observe(logout,{attributes:true,attributeFilter:['hidden']});
+ new MutationObserver(sync).observe(status,{childList:true,subtree:true,characterData:true});
+ sync();
+})();
+</script>
+
 </body></html>
