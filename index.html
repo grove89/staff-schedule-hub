@@ -1226,27 +1226,47 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  if(requestCount){new MutationObserver(syncNotificationBadge).observe(requestCount,{childList:true,characterData:true,subtree:true});}
  syncNotificationBadge();
  function initPrint(){
-  const sel=$('hubPrintHome');sel.replaceChildren();
-  for(const id of homes()){const o=document.createElement('option');o.value=id;o.textContent=LS_HOMES[id]||'Home '+id;sel.append(o)}
-  const now=new Date(),dow=(now.getDay()+6)%7;now.setDate(now.getDate()-dow);
-  $('hubPrintWeek').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const sel=$('hubPrintHome');
+  const ids=homes().length?homes():Array.from(document.querySelectorAll('#liveManagerHome option')).map(o=>Number(o.value)).filter(n=>n>=1&&n<=4);
+  const previous=Number(sel.value);
+  sel.replaceChildren();
+  for(const id of ids){const o=document.createElement('option');o.value=String(id);o.textContent=LS_HOMES[id]||'Home '+id;sel.append(o)}
+  if(ids.includes(previous))sel.value=String(previous);
+  else if(ids.includes(Number(lsHome?.value)))sel.value=String(Number(lsHome.value));
+  const week=$('hubPrintWeek');
+  if(!week.value){const now=new Date(),dow=(now.getDay()+6)%7;now.setDate(now.getDate()-dow);week.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')}
+  $('hubPrintStatus').textContent=ids.length?'':'Home permissions are still loading. Try again in a moment.';
  }
  async function printWeek(){
-  const home=Number($('hubPrintHome').value);if(!homes().includes(home))return;
-  const day=$('hubPrintWeek').value;if(!day){$('hubPrintStatus').textContent='Choose a date.';return}
-  const start=new Date(day+'T00:00:00'),end=new Date(start.getTime()+7*86400000);
+  initPrint();
+  const home=Number($('hubPrintHome').value);
+  if(!homes().includes(home)){$('hubPrintStatus').textContent='Select an authorized home first.';return}
+  const day=$('hubPrintWeek').value;
+  if(!day){$('hubPrintStatus').textContent='Choose a week.';return}
+  // Open synchronously from the button click: Safari blocks windows opened after async queries.
+  const win=window.open('','_blank');
+  if(!win){$('hubPrintStatus').textContent='Safari blocked the print preview. Allow pop-ups and try again.';return}
+  win.document.write('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preparing schedule</title></head><body style="font:16px system-ui;padding:24px">Preparing printable schedule…</body></html>');win.document.close();
   $('hubPrintStatus').textContent='Loading published shifts…';
-  const [sh,em]=await Promise.all([
-   client.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',start.toISOString()).lt('starts_at',end.toISOString()).order('starts_at').limit(1000),
-   client.from('Employees').select('id,full_name,job_title').eq('home_id',home).limit(1000)
-  ]);
-  if(sh.error||em.error){$('hubPrintStatus').textContent=(sh.error||em.error).message;return}
-  const people=new Map((em.data||[]).map(e=>[Number(e.id),e]));
-  const rows=(sh.data||[]).map(x=>`<tr><td>${esc(new Date(x.starts_at).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}))}</td><td>${esc(people.get(Number(x.employee_id))?.full_name|| (x.employee_id==null?'OPEN':'Employee'))}</td><td>${esc(people.get(Number(x.employee_id))?.job_title||'')}</td><td>${esc(time(x.starts_at))}</td><td>${esc(time(x.ends_at))}</td></tr>`).join('');
-  const doc=`<!doctype html><html><head><title>${esc(LS_HOMES[home])} Weekly Schedule</title><style>body{font:14px Arial,sans-serif;margin:25px;color:#13223a}h1{font-size:23px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #b7c4d6;text-align:left}th{background:#e8f0fa}@media print{body{margin:12mm}}</style></head><body><h1>${esc(LS_HOMES[home])} · Published Weekly Schedule</h1><p>Week beginning ${esc(day)}</p><table><thead><tr><th>Day</th><th>Employee</th><th>Position</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No published shifts for this week.</td></tr>'}</tbody></table><p>Generated ${esc(new Date().toLocaleString())}</p></body></html>`;
-  const frame=document.createElement('iframe');frame.style.cssText='position:fixed;left:-10000px;width:1px;height:1px';document.body.append(frame);
-  frame.onload=()=>{setTimeout(()=>{try{frame.contentWindow.focus();frame.contentWindow.print();$('hubPrintStatus').textContent='Print dialog opened. Select Save as PDF if available.'}catch(e){$('hubPrintStatus').textContent=e.message}setTimeout(()=>frame.remove(),60000)},250)};
-  frame.srcdoc=doc;
+  try{
+   // Calendar weeks are based on local America/Chicago dates, including daylight-saving transitions.
+   const weekStart=new Date(day+'T00:00:00');
+   const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+7);
+   const [sh,em]=await Promise.all([
+    client.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',new Date(weekStart.getTime()-86400000).toISOString()).lt('starts_at',new Date(weekEnd.getTime()+86400000).toISOString()).order('starts_at').limit(1000),
+    client.from('Employees').select('id,full_name,job_title').limit(1000)
+   ]);
+   if(sh.error||em.error)throw(sh.error||em.error);
+   const people=new Map((em.data||[]).map(e=>[Number(e.id),e]));
+   const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'});
+   const key=date=>{const parts=formatter.formatToParts(date);const obj=Object.fromEntries(parts.map(x=>[x.type,x.value]));return obj.year+'-'+obj.month+'-'+obj.day};
+   const last=new Date(day+'T12:00:00');last.setDate(last.getDate()+7);const endKey=last.getFullYear()+'-'+String(last.getMonth()+1).padStart(2,'0')+'-'+String(last.getDate()).padStart(2,'0');
+   const fmt=v=>new Date(v).toLocaleString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'});
+   const rows=(sh.data||[]).filter(x=>{const k=key(new Date(x.starts_at));return k>=day&&k<endKey}).map(x=>{const e=people.get(Number(x.employee_id));const k=key(new Date(x.starts_at));return `<tr><td>${esc(k)}</td><td>${esc(x.employee_id==null?'OPEN':e?.full_name||'Employee')}</td><td>${esc(e?.job_title||'CLI')}</td><td>${esc(fmt(x.starts_at))}</td><td>${esc(fmt(x.ends_at))}</td></tr>`}).join('');
+   const doc=`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(LS_HOMES[home])} Weekly Schedule</title><style>body{font:14px Arial,sans-serif;margin:24px;color:#13223a}h1{font-size:23px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #b7c4d6;text-align:left}th{background:#e8f0fa}.print-button{padding:12px 18px;background:#173d71;color:white;border:0;border-radius:8px;font-size:16px}@media print{body{margin:12mm}.print-button{display:none}}@media(max-width:650px){body{margin:12px}table{font-size:11px}th,td{padding:5px}}</style></head><body><button class="print-button" onclick="window.print()">🖨️ Print / Save PDF</button><h1>${esc(LS_HOMES[home])} · Published Weekly Schedule</h1><p>Week beginning ${esc(day)}</p><table><thead><tr><th>Day</th><th>Employee</th><th>Position</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No published shifts for this week.</td></tr>'}</tbody></table><p>Generated ${esc(new Date().toLocaleString())}</p></body></html>`;
+   win.document.open();win.document.write(doc);win.document.close();
+   $('hubPrintStatus').textContent='Printable schedule opened in a new tab. Tap Print / Save PDF there.';
+  }catch(e){win.document.body.textContent='Unable to load schedule: '+e.message;$('hubPrintStatus').textContent='Print error: '+e.message}
  }
  $('hubAlertRefresh').onclick=coverage;$('hubPrintBtn').onclick=printWeek;
  const histBtn=tabs.querySelector('[data-mcc-tab="history"]');
@@ -1276,7 +1296,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
   }
  });
  accessObserver.observe(tabs,{attributes:true,attributeFilter:['hidden']});
- setTimeout(()=>{if(!tabs.hidden&&homes().length){root.hidden=false;coverage();}},800);
+ setTimeout(()=>{if(!tabs.hidden&&homes().length){root.hidden=false;coverage();initPrint();}},800);
  setInterval(()=>{if(!tabs.hidden&&homes().length){if(!$('hubAlerts').hidden)coverage()}},120000);
 })();
 </script>
