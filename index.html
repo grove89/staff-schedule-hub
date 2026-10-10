@@ -309,6 +309,8 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
 #sosHub button{min-height:42px}#sosHub .sos-primary{background:#bb344f;color:#fff;border:1px solid #f27e91;border-radius:10px;padding:10px 15px;font-weight:700}
 #sosHub .sos-primary:disabled{opacity:.45}#sosHub .sos-preview{white-space:pre-wrap;background:#081b34;padding:14px;border:1px solid #547ba5;border-radius:12px;color:#fff}
 #sosHub [hidden]{display:none!important}
+.sos-inline{display:block;width:100%;margin-top:9px;padding:9px 12px;border-radius:9px;background:#a72d48;color:white;border:1px solid #f18b9d;font-weight:800;cursor:pointer}
+.sos-inline:active{transform:scale(.99)}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
@@ -383,16 +385,11 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="pwv-nav"><button class="btn secondary" id="pwvPrevious" type="button">← Previous week</button><button class="btn secondary" id="pwvNext" type="button">Next week →</button><button class="btn secondary" id="pwvRefresh" type="button">Refresh</button></div>
 <p class="pwv-note">Tap Edit on any shift to change its assigned employee or times. Only authorized managers can save changes.</p>
 <p class="pwv-swipe-hint">← Swipe sideways to see all seven days →</p><div aria-label="Weekly calendar, scroll horizontally" class="pwv-scroll" tabindex="0"><div class="pwv-days" id="pwvDays"></div></div></section>
-<section id="sosHub" hidden aria-label="SOS emergency coverage">
+<section id="sosHub" hidden aria-label="SOS emergency coverage confirmation">
 <h3>🚨 SOS · Emergency Shift Coverage</h3>
-<p class="sos-desc">Management-only emergency coverage preparation for all four homes. Choose an existing OPEN shift to preview the alert. No employee will receive a text until secure SMS delivery is connected.</p>
-<div class="sos-actions"><button type="button" class="btn secondary" id="sosRefresh">Refresh OPEN shifts</button></div>
-<label for="sosShift">Vacant shift needing urgent coverage</label>
-<select class="field" id="sosShift"><option value="">Loading available shifts…</option></select>
-<div class="sos-actions"><button type="button" class="sos-primary" id="sosPrepare">🚨 Prepare SOS</button></div>
-<div id="sosConfirm" hidden>
-<div class="sos-alert"><strong>Review before sending</strong><p id="sosDetails"></p><p><strong>Recipients:</strong> All eligible, SMS-opted-in employees across Pathways, Oasis, Freedom and Station. The eligible recipient count is not yet available because SMS onboarding is not connected.</p></div>
-<p class="sos-desc">This preview does not send any texts. When SMS is configured, this screen will require a final confirmation and the server will recheck eligibility and the 16-hour limit.</p>
+<div id="sosConfirm">
+<div class="sos-alert"><strong>Review emergency coverage alert</strong><p id="sosDetails"></p><p><strong>Recipients:</strong> All eligible, SMS-opted-in employees across Pathways, Oasis, Freedom and Station. Recipient count will be available after secure SMS setup.</p></div>
+<p class="sos-desc">SMS delivery is not connected yet. You can copy this alert; no text messages will be sent.</p>
 <div class="sos-preview" id="sosMessage"></div>
 <div class="sos-actions"><button type="button" class="btn secondary" id="sosCopy">Copy alert text</button><button type="button" class="sos-primary" disabled title="Connect a secure SMS provider first">Confirm &amp; Send SMS · Setup required</button><button type="button" class="btn secondary" id="sosCancel">Cancel</button></div>
 </div>
@@ -804,7 +801,9 @@ function lsRenderManager(){
   const records=lsShifts.filter(s=>{const a=new Date(s.starts_at),b=new Date(s.ends_at);return a<finish&&b>begin;});
   if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
   for(const shift of records){const card=lsEl('div',undefined,'live-shift');const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));
-   const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);day.append(card);}
+   const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);
+   if(shift.employee_id==null){const sos=lsEl('button','🚨 SOS','sos-inline');sos.type='button';sos.onclick=()=>window.openShiftSOS?.(shift.id);card.append(sos);}
+   day.append(card);}
   const add=lsEl('button','+ Shift','btn secondary small');add.type='button';add.onclick=()=>lsOpenForm(null,lsDate(date));day.append(add);lsDays.append(day);
  }
 }
@@ -1164,6 +1163,7 @@ function pwvRender(){
     }finally{editButton.disabled=false;}
    };
    card.append(editButton);
+   if(shift.employee_id==null){const sos=lsEl('button','🚨 SOS · Urgent coverage','sos-inline');sos.type='button';sos.onclick=()=>window.openShiftSOS?.(shift.id);card.append(sos);}
    list.append(card);
   }
   day.append(list);pwvDays.append(day);
@@ -1427,54 +1427,35 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
 </script>
 <script id="sos-logic">
 (()=>{
- const byId=id=>document.getElementById(id);
- const hub=byId('sosHub'), select=byId('sosShift'), status=byId('sosStatus');
+ const el=id=>document.getElementById(id);
+ const hub=el('sosHub'),status=el('sosStatus');
  const homes={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
- let openings=[],selected=null;
- const niceTime=v=>new Date(v).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
- const allowed=()=>{const strip=byId('managerTabStrip');return strip&&!strip.hidden&&byId('liveManagerSchedule')&&!byId('liveManagerSchedule').hidden;};
- function show(){hub.hidden=!allowed();}
- async function refresh(){
-  show();if(hub.hidden)return;
-  status.textContent='Loading vacant shifts…';byId('sosConfirm').hidden=true;selected=null;
-  select.replaceChildren(new Option('Choose an OPEN shift',''));
+ const local=v=>new Date(v).toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+ const endTime=v=>new Date(v).toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'});
+ window.openShiftSOS=async shiftId=>{
+  if(!window.staffHubSupabase){alert('Sign in to management first.');return;}
+  const manager=el('liveManagerSchedule');
+  if(!manager||manager.hidden){alert('SOS is available to authorized managers only.');return;}
+  hub.hidden=false;status.textContent='Checking OPEN shift…';
+  hub.scrollIntoView({behavior:'smooth',block:'center'});
   try{
-   if(!window.staffHubSupabase)throw new Error('Not signed in to the live schedule.');
-   const permitted=[...byId('liveScheduleHome').options].map(x=>Number(x.value)).filter(x=>homes[x]);
-   if(!permitted.length)throw new Error('No authorized homes available.');
-   const {data,error}=await window.staffHubSupabase.from('Shifts')
-    .select('id,home_id,employee_id,starts_at,ends_at').in('home_id',permitted)
-    .is('employee_id',null).gt('ends_at',new Date().toISOString())
-    .order('starts_at',{ascending:true}).limit(300);
+   const {data,error}=await window.staffHubSupabase.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').eq('id',shiftId).maybeSingle();
    if(error)throw error;
-   openings=data||[];
-   for(const shift of openings)select.add(new Option(`${homes[shift.home_id]} · ${niceTime(shift.starts_at)} – ${new Date(shift.ends_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`,String(shift.id)));
-   status.textContent=openings.length?`${openings.length} OPEN shift(s) found. Select one to prepare an SOS.`:'No upcoming OPEN shifts found. Publish a vacant shift first.';
-  }catch(e){status.textContent='Could not load OPEN shifts: '+e.message;}
- }
- byId('sosPrepare').onclick=async()=>{
-  selected=openings.find(s=>String(s.id)===select.value);
-  if(!selected){status.textContent='Select an OPEN shift first.';return;}
-  const {data,error}=await window.staffHubSupabase.from('Shifts').select('id,employee_id,home_id,starts_at,ends_at').eq('id',selected.id).maybeSingle();
-  if(error||!data||data.employee_id!==null){status.textContent='That shift is no longer OPEN. Refresh and try again.';byId('sosConfirm').hidden=true;return;}
-  selected=data;
-  const details=`${homes[data.home_id]} · ${niceTime(data.starts_at)} – ${new Date(data.ends_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
-  byId('sosDetails').textContent=details;
-  byId('sosMessage').textContent=`🚨 SOS COVERAGE: ${details}. An urgent shift is OPEN. To request it, sign in to Staff Schedule Hub: https://grove89.github.io/staff-schedule-hub/ . Management approval required.`;
-  byId('sosConfirm').hidden=false;
-  status.textContent='Preview ready. SMS sending is not yet configured.';
+   if(!data||data.employee_id!==null||new Date(data.ends_at)<=new Date())throw new Error('This shift is no longer OPEN and upcoming. Refresh the schedule.');
+   const authorized=[...el('liveScheduleHome').options].map(x=>Number(x.value));
+   if(!authorized.includes(Number(data.home_id)))throw new Error('You are not authorized to manage this home.');
+   const details=`${homes[data.home_id]} · ${local(data.starts_at)} – ${endTime(data.ends_at)} (Central)`;
+   el('sosDetails').textContent=details;
+   el('sosMessage').textContent=`🚨 SOS COVERAGE: ${details}. An urgent shift is OPEN. To request it, sign in to Staff Schedule Hub: https://grove89.github.io/staff-schedule-hub/ . Management approval required.`;
+   status.textContent='SOS preview ready. No text messages have been sent.';
+  }catch(e){status.textContent='Unable to prepare SOS: '+(e?.message||String(e));el('sosDetails').textContent='';el('sosMessage').textContent='';}
  };
- byId('sosCopy').onclick=async()=>{
-  const message=byId('sosMessage').textContent;
-  try{await navigator.clipboard.writeText(message);status.textContent='Alert text copied. No texts were sent.';}
-  catch(e){status.textContent='Copy unavailable on this browser. Select the preview text to copy it manually.';}
+ el('sosCopy').onclick=async()=>{
+  const message=el('sosMessage').textContent;
+  if(!message){status.textContent='Select a valid OPEN shift first.';return;}
+  try{await navigator.clipboard.writeText(message);status.textContent='SOS message copied. No texts were sent.';}
+  catch(e){status.textContent='Copy unavailable; select and copy the preview text manually.';}
  };
- byId('sosCancel').onclick=()=>{byId('sosConfirm').hidden=true;selected=null;};
- byId('sosRefresh').onclick=refresh;
- const tabs=byId('managerTabStrip');
- if(tabs)tabs.addEventListener('click',()=>setTimeout(()=>{show();if(!hub.hidden&&openings.length===0)refresh();},80));
- const observer=new MutationObserver(show);
- if(tabs)observer.observe(tabs,{attributes:true,attributeFilter:['hidden']});
- setTimeout(()=>{show();if(!hub.hidden)refresh();},1300);
+ el('sosCancel').onclick=()=>{hub.hidden=true;};
 })();
 </script></body></html>
