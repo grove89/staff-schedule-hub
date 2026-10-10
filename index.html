@@ -1313,7 +1313,38 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
    preview.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){status.textContent='Unable to generate preview: '+(e?.message||String(e));}
  }
- $('hubPrintNow').onclick=()=>window.print();
+ $('hubPrintNow').onclick=()=>{
+  const preview=$('hubPrintPreview');
+  if(preview.hidden || !preview.querySelector('.hub-print-sheet')){
+    $('hubPrintStatus').textContent='Generate a schedule preview first.';
+    return;
+  }
+  // Print a standalone document, not the 10-page dashboard.
+  const printMarkup=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff Schedule Hub - Weekly Schedule</title><style>
+    @page{size:letter landscape;margin:12mm}
+    html,body{margin:0;padding:0;background:white!important;color:#172334!important;font:12px Arial,sans-serif}
+    .hub-print-sheet{padding:18px 22px;max-width:1100px;margin:auto}
+    h1{font-size:22px;margin:0 0 8px;color:#172334}p{font-size:13px;margin:0 0 14px}
+    table{width:100%;border-collapse:collapse;table-layout:auto}
+    th,td{border:1px solid #9aabc0;padding:7px 8px;text-align:left;overflow-wrap:anywhere;color:#172334;background:white}
+    th{background:#eaf0f7;font-weight:bold}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}
+    .toolbar{padding:12px 22px;background:#edf3fb;display:flex;gap:10px;align-items:center}
+    button{background:#0d3c73;color:white;border:0;border-radius:7px;padding:12px 16px;font-size:16px}
+    @media print{.toolbar{display:none!important}.hub-print-sheet{padding:0}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body><div class="toolbar"><button onclick="window.print()">Print / Save PDF</button><span>Use Share → Print on iPhone if needed.</span></div>${preview.innerHTML}</body></html>`;
+  const popup=window.open('','_blank');
+  if(popup){
+    popup.document.open();popup.document.write(printMarkup);popup.document.close();
+    $('hubPrintStatus').textContent='Printable schedule opened in a separate tab. Use its Print / Save PDF button.';
+  }else{
+    // iOS popup fallback: download a standalone HTML file that can be printed.
+    const blob=new Blob([printMarkup],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='Staff-Schedule-Printable.html';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    $('hubPrintStatus').textContent='Safari blocked the new tab. A standalone printable schedule file was saved instead.';
+  }
+};
  $('hubAlertRefresh').onclick=coverage;$('hubPrintBtn').addEventListener('click',()=>{printWeek().catch(e=>{$('hubPrintStatus').textContent='Print preview error: '+(e?.message||String(e));});});
  const histBtn=tabs.querySelector('[data-mcc-tab="history"]');
  histBtn?.addEventListener('click',()=>{
