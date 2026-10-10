@@ -1177,6 +1177,20 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
 })();
 </script>
 
+<style id="hubPrintPageStyles">
+#hubPrintPreview{background:#fff;color:#152238;border-radius:10px;padding:14px;margin:16px 0;overflow-x:auto}
+#hubPrintPreview h1{font-size:20px;color:#152238;margin:0 0 8px}
+#hubPrintPreview p{color:#152238}
+#hubPrintPreview table{width:100%;border-collapse:collapse;font:12px Arial,sans-serif;color:#152238}
+#hubPrintPreview th,#hubPrintPreview td{border:1px solid #a8b6c6;padding:6px;text-align:left}
+#hubPrintPreview th{background:#e9f0f8}
+@media print{
+ body *{visibility:hidden!important}
+ #hubPrintPreview,#hubPrintPreview *{visibility:visible!important}
+ #hubPrintPreview{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important;overflow:visible!important;padding:0!important;margin:0!important;background:white!important;color:black!important}
+ @page{size:landscape;margin:12mm}
+}
+</style>
 <script id="fourUpgradesLogic">
 (function(){
  const tabs=document.getElementById('managerTabStrip'),overview=document.getElementById('managementCommandCenter');
@@ -1185,7 +1199,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  root.innerHTML=`
  <section id="hubAlerts" class="hub-glass"><h3>⚠️ Coverage Alerts</h3><p>OPEN published shifts in the next 7 days, and homes with no staff scheduled right now. No inferred minimum staffing levels.</p><div class="hub-controls"><button id="hubAlertRefresh" type="button">↻ Refresh coverage</button><span id="hubAlertStatus"></span></div><div id="hubAlertList"></div></section>
 
- <section id="hubPrintPanel" class="hub-glass" hidden><h3>🖨️ Print / Export Schedule</h3><p>Print a published week or use your browser's Save as PDF option.</p><div class="hub-controls"><label for="hubPrintHome">Home</label><select id="hubPrintHome"><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="hubPrintWeek">Week of</label><input id="hubPrintWeek" type="date"><button id="hubPrintBtn" type="button">Print / Save PDF</button></div><p id="hubPrintStatus" role="status"></p></section>
+ <section id="hubPrintPanel" class="hub-glass" hidden><h3>🖨️ Print / Export Schedule</h3><p>Print a published week or use your browser's Save as PDF option.</p><div class="hub-controls"><label for="hubPrintHome">Home</label><select id="hubPrintHome"><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="hubPrintWeek">Week of</label><input id="hubPrintWeek" type="date"><button id="hubPrintBtn" type="button">Generate print preview</button></div><p id="hubPrintStatus" role="status" aria-live="polite"></p><div id="hubPrintPreview" hidden></div><button id="hubPrintNow" type="button" hidden>🖨️ Print / Save PDF</button></section>
  <section id="hubHistory" class="hub-glass" hidden><h3>🕘 Schedule Change History</h3><p>Management-only audit records from the existing schedule audit log.</p><div id="hubHistoryMount"></div></section>`;
  overview.insertAdjacentElement('afterend',root);
  const $=id=>document.getElementById(id);
@@ -1242,35 +1256,42 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
   $('hubPrintStatus').textContent=ids.length?'':'Waiting for management access to load…';
  }
  async function printWeek(){
+  const status=$('hubPrintStatus'),preview=$('hubPrintPreview'),printNow=$('hubPrintNow');
+  status.textContent='Preparing print preview…';preview.hidden=true;printNow.hidden=true;
   const home=Number($('hubPrintHome').value);
-  if(!homes().includes(home)){$('hubPrintStatus').textContent='Select an authorized home first.';return}
+  if(![1,2,3,4].includes(home)||!homes().includes(home)){
+   status.textContent='Home access is not ready. Refresh the page and try again.';return;
+  }
   const day=$('hubPrintWeek').value;
-  if(!day){$('hubPrintStatus').textContent='Choose a week.';return}
-  // Open synchronously from the button click: Safari blocks windows opened after async queries.
-  const win=window.open('','_blank');
-  if(!win){$('hubPrintStatus').textContent='Safari blocked the print preview. Allow pop-ups and try again.';return}
-  win.document.write('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preparing schedule</title></head><body style="font:16px system-ui;padding:24px">Preparing printable schedule…</body></html>');win.document.close();
-  $('hubPrintStatus').textContent='Loading published shifts…';
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)){status.textContent='Select a week date first.';return;}
   try{
-   // Calendar weeks are based on local America/Chicago dates, including daylight-saving transitions.
-   const weekStart=new Date(day+'T00:00:00');
-   const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+7);
+   const weekStart=new Date(day+'T12:00:00');
+   const mondayOffset=(weekStart.getDay()+6)%7;
+   weekStart.setDate(weekStart.getDate()-mondayOffset);
+   const monday=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
+   const last=new Date(weekStart);last.setDate(last.getDate()+7);
+   const endKey=last.getFullYear()+'-'+String(last.getMonth()+1).padStart(2,'0')+'-'+String(last.getDate()).padStart(2,'0');
+   const lower=new Date(weekStart.getTime()-2*86400000).toISOString();
+   const upper=new Date(last.getTime()+2*86400000).toISOString();
    const [sh,em]=await Promise.all([
-    client.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',new Date(weekStart.getTime()-86400000).toISOString()).lt('starts_at',new Date(weekEnd.getTime()+86400000).toISOString()).order('starts_at').limit(1000),
+    client.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',lower).lt('starts_at',upper).order('starts_at').limit(1000),
     client.from('Employees').select('id,full_name,job_title').limit(1000)
    ]);
    if(sh.error||em.error)throw(sh.error||em.error);
    const people=new Map((em.data||[]).map(e=>[Number(e.id),e]));
-   const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'});
-   const key=date=>{const parts=formatter.formatToParts(date);const obj=Object.fromEntries(parts.map(x=>[x.type,x.value]));return obj.year+'-'+obj.month+'-'+obj.day};
-   const last=new Date(day+'T12:00:00');last.setDate(last.getDate()+7);const endKey=last.getFullYear()+'-'+String(last.getMonth()+1).padStart(2,'0')+'-'+String(last.getDate()).padStart(2,'0');
+   const formatter=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'});
+   const key=date=>{const obj=Object.fromEntries(formatter.formatToParts(date).map(x=>[x.type,x.value]));return obj.year+'-'+obj.month+'-'+obj.day};
    const fmt=v=>new Date(v).toLocaleString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'});
-   const rows=(sh.data||[]).filter(x=>{const k=key(new Date(x.starts_at));return k>=day&&k<endKey}).map(x=>{const e=people.get(Number(x.employee_id));const k=key(new Date(x.starts_at));return `<tr><td>${esc(k)}</td><td>${esc(x.employee_id==null?'OPEN':e?.full_name||'Employee')}</td><td>${esc(e?.job_title||'CLI')}</td><td>${esc(fmt(x.starts_at))}</td><td>${esc(fmt(x.ends_at))}</td></tr>`}).join('');
-   const doc=`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(LS_HOMES[home])} Weekly Schedule</title><style>body{font:14px Arial,sans-serif;margin:24px;color:#13223a}h1{font-size:23px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #b7c4d6;text-align:left}th{background:#e8f0fa}.print-button{padding:12px 18px;background:#173d71;color:white;border:0;border-radius:8px;font-size:16px}@media print{body{margin:12mm}.print-button{display:none}}@media(max-width:650px){body{margin:12px}table{font-size:11px}th,td{padding:5px}}</style></head><body><button class="print-button" onclick="window.print()">🖨️ Print / Save PDF</button><h1>${esc(LS_HOMES[home])} · Published Weekly Schedule</h1><p>Week beginning ${esc(day)}</p><table><thead><tr><th>Day</th><th>Employee</th><th>Position</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No published shifts for this week.</td></tr>'}</tbody></table><p>Generated ${esc(new Date().toLocaleString())}</p></body></html>`;
-   win.document.open();win.document.write(doc);win.document.close();
-   $('hubPrintStatus').textContent='Printable schedule opened in a new tab. Tap Print / Save PDF there.';
-  }catch(e){win.document.body.textContent='Unable to load schedule: '+e.message;$('hubPrintStatus').textContent='Print error: '+e.message}
+   const rows=(sh.data||[]).filter(x=>{const k=key(new Date(x.starts_at));return k>=monday&&k<endKey}).map(x=>{
+    const e=people.get(Number(x.employee_id));return `<tr><td>${esc(key(new Date(x.starts_at)))}</td><td>${esc(x.employee_id==null?'OPEN':e?.full_name||'Employee')}</td><td>${esc(e?.job_title||'CLI')}</td><td>${esc(fmt(x.starts_at))}</td><td>${esc(fmt(x.ends_at))}</td></tr>`;
+   }).join('');
+   preview.innerHTML=`<div class="hub-print-sheet"><h1>${esc(LS_HOMES[home])} · Weekly Schedule</h1><p>Week beginning ${esc(monday)}</p><table><thead><tr><th>Day</th><th>Employee</th><th>Position</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No published shifts for this week.</td></tr>'}</tbody></table></div>`;
+   preview.hidden=false;printNow.hidden=false;
+   status.textContent='Preview ready ('+(sh.data||[]).length+' shifts loaded). Tap Print / Save PDF below.';
+   preview.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){status.textContent='Unable to generate preview: '+(e?.message||String(e));}
  }
+ $('hubPrintNow').onclick=()=>window.print();
  $('hubAlertRefresh').onclick=coverage;$('hubPrintBtn').onclick=printWeek;
  const histBtn=tabs.querySelector('[data-mcc-tab="history"]');
  histBtn?.addEventListener('click',()=>{
