@@ -400,6 +400,8 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <section hidden="" id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Manage employees</h3><p class="sub">Changes are saved securely. Login associations are managed separately.</p><p aria-live="polite" class="sub" id="liveEditorStatus" role="status">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select class="field" id="liveEmployeeSelect" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input autocomplete="off" class="field" id="liveEmployeeName" maxlength="120" required="" style="width:100%;margin-bottom:12px"/><label for="liveEmployeeRole">Job title</label><select class="field" id="liveEmployeeRole" required="" style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select class="field" id="liveEmployeeHome" required="" style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><button class="btn" id="liveEmployeeSave" type="submit">Save to Supabase</button><button class="btn secondary" id="liveEmployeeRefresh" type="button">Refresh records</button><button class="btn secondary" hidden="" id="liveEmployeeDelete" style="border:1px solid #b91c1c;color:#b91c1c" type="button">Delete employee</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const staffInviteHash = new URLSearchParams(location.hash.replace(/^#/,''));
+const staffInviteFlow = staffInviteHash.get('type') === 'invite' || staffInviteHash.get('type') === 'recovery' || new URLSearchParams(location.search).get('type') === 'invite';
 const client=createClient('https://taerfxphcootfxzudvgv.supabase.co','sb_publishable_lPMIn3nPG7KSAqhvbO_NSQ_VubYq4WB');
 window.staffHubSupabase=client;
 const loginForm=document.getElementById('loginTestForm');
@@ -1050,6 +1052,52 @@ loginForm.addEventListener('submit',async e=>{
   if(error){loginStatus.textContent='Sign-in failed: '+error.message;return;}
   await showAuthState();
 });
+// Employee invitation acceptance: passwords are set only after Supabase has
+// authenticated the signed invitation token. This page never creates accounts.
+const activationPanel=document.createElement('section');
+activationPanel.id='staffActivationPanel';
+activationPanel.hidden=true;
+activationPanel.innerHTML=`<div class="card" style="padding:20px;border:1px solid #76b5ff;border-radius:20px;background:#0b254b;color:#fff">
+<h3 style="margin:0 0 8px">Activate your staff account</h3>
+<p style="color:#c7dcf5">Your invitation has been verified. Create a password to finish activating your account.</p>
+<form id="staffActivationForm"><label for="staffActivationPassword">New password</label>
+<input class="field" id="staffActivationPassword" type="password" autocomplete="new-password" minlength="12" required placeholder="At least 12 characters" style="display:block;width:100%;margin:8px 0 14px">
+<label for="staffActivationConfirm">Confirm password</label>
+<input class="field" id="staffActivationConfirm" type="password" autocomplete="new-password" minlength="12" required style="display:block;width:100%;margin:8px 0 14px">
+<button type="submit" class="btn" id="staffActivationSubmit">Set password &amp; activate</button></form>
+<p id="staffActivationStatus" role="status" aria-live="polite" style="color:#c7dcf5;margin-top:12px"></p></div>`;
+activationPanel.style.cssText='max-width:1100px;margin:0 auto 25px;padding:0 16px';
+document.getElementById('loginTest').after(activationPanel);
+const activationForm=activationPanel.querySelector('form');
+const activationStatus=activationPanel.querySelector('#staffActivationStatus');
+let activationReady=false;
+async function showActivationIfValid(){
+  if(!staffInviteFlow)return;
+  const {data:{session},error}=await client.auth.getSession();
+  if(error||!session){activationPanel.hidden=false;activationForm.hidden=true;activationStatus.textContent='This invitation could not be verified or has expired. Ask management for a new invitation.';return;}
+  activationReady=true;activationPanel.hidden=false;activationForm.hidden=false;
+  activationPanel.scrollIntoView({block:'start'});
+}
+activationForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(!activationReady){activationStatus.textContent='Your invitation has not been verified.';return;}
+  const first=activationPanel.querySelector('#staffActivationPassword');
+  const second=activationPanel.querySelector('#staffActivationConfirm');
+  if(first.value!==second.value){activationStatus.textContent='Passwords do not match.';return;}
+  const submit=activationPanel.querySelector('#staffActivationSubmit');submit.disabled=true;
+  activationStatus.textContent='Saving your password securely…';
+  const {error}=await client.auth.updateUser({password:first.value});
+  first.value='';second.value='';submit.disabled=false;
+  if(error){activationStatus.textContent='Could not activate: '+error.message;return;}
+  activationReady=false;activationForm.hidden=true;
+  activationStatus.textContent='Password created! Your account is active. Management must link your account to your employee record before schedules become available.';
+  history.replaceState(null,'',location.pathname);
+  await showAuthState();
+});
+if(staffInviteFlow){
+  client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='PASSWORD_RECOVERY')setTimeout(()=>showActivationIfValid().catch(()=>{}),0);});
+  setTimeout(()=>showActivationIfValid().catch(()=>{}),1000);
+}
 logoutButton.addEventListener('click',async()=>{logoutButton.disabled=true;const {error}=await client.auth.signOut();logoutButton.disabled=false;if(error){loginStatus.textContent='Sign-out failed: '+error.message;return;}await showAuthState();});
 showAuthState().catch(e=>loginStatus.textContent='Authentication check failed: '+e.message);
 const status=document.getElementById('dbStatus');
