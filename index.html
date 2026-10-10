@@ -397,7 +397,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="live-controls"><button class="btn" id="offSend" type="button">Submit time off</button><button class="btn secondary" id="offRefresh" type="button">Refresh time off</button></div><div id="offMine"></div>
 </section>
 </div></section>
-<section hidden="" id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Manage employees</h3><p class="sub">Changes are saved securely. Login associations are managed separately.</p><p aria-live="polite" class="sub" id="liveEditorStatus" role="status">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select class="field" id="liveEmployeeSelect" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input autocomplete="off" class="field" id="liveEmployeeName" maxlength="120" required="" style="width:100%;margin-bottom:12px"/><label for="liveEmployeeRole">Job title</label><select class="field" id="liveEmployeeRole" required="" style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select class="field" id="liveEmployeeHome" required="" style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="liveEmployeeEmail">Employee email (private to authorized management)</label><input autocomplete="email" class="field" id="liveEmployeeEmail" type="email" maxlength="254" placeholder="employee@example.com" style="width:100%;margin-bottom:12px"/><p class="sub" style="margin:0 0 12px">Save the employee first, then send an invitation. Invitations require secure server setup.</p><button class="btn" id="liveEmployeeSave" type="submit">Save to Supabase</button><button class="btn secondary" id="liveEmployeeInvite" type="button" disabled title="Complete server invitation setup before enabling">✉️ Invite employee · Setup required</button><button class="btn secondary" id="liveEmployeeRefresh" type="button">Refresh records</button><button class="btn secondary" hidden="" id="liveEmployeeDelete" style="border:1px solid #b91c1c;color:#b91c1c" type="button">Delete employee</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
+<section hidden="" id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Manage employees</h3><p class="sub">Changes are saved securely. Login associations are managed separately.</p><p aria-live="polite" class="sub" id="liveEditorStatus" role="status">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select class="field" id="liveEmployeeSelect" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input autocomplete="off" class="field" id="liveEmployeeName" maxlength="120" required="" style="width:100%;margin-bottom:12px"/><label for="liveEmployeeRole">Job title</label><select class="field" id="liveEmployeeRole" required="" style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select class="field" id="liveEmployeeHome" required="" style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="liveEmployeeEmail">Employee email (private to authorized management)</label><input autocomplete="email" class="field" id="liveEmployeeEmail" type="email" maxlength="254" placeholder="employee@example.com" style="width:100%;margin-bottom:12px"/><p class="sub" style="margin:0 0 12px">Save the employee first, then send an invitation. Invitations require secure server setup.</p><button class="btn" id="liveEmployeeSave" type="submit">Save to Supabase</button><button class="btn secondary" id="liveEmployeeInvite" type="button" disabled title="Save an employee with an email first">✉️ Invite employee</button><button class="btn secondary" id="liveEmployeeRefresh" type="button">Refresh records</button><button class="btn secondary" hidden="" id="liveEmployeeDelete" style="border:1px solid #b91c1c;color:#b91c1c" type="button">Delete employee</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const staffInviteHash = new URLSearchParams(location.hash.replace(/^#/,''));
@@ -502,8 +502,36 @@ function populateEditor(){
   editorHome.value=record?.home_id==null?'':String(record.home_id);
   editorDelete.hidden=!record;
   editorEmail.value=record?editorContactEmails.get(Number(record.id))||'':'';
-  editorInvite.disabled=true; // Server invitation function must be configured and verified first.
+  editorInvite.disabled=!editorAuthorized||!record||!editorEmail.value.trim()||!editorHomes.includes(Number(record.home_id));
+  editorInvite.title=editorInvite.disabled?'Select a saved employee with an email to invite':'Send a secure account invitation';
 }
+editorEmail.addEventListener('input',()=>{
+ const record=editorRecords.find(r=>String(r.id)===editorSelect.value);
+ // A changed email must be saved to the secure contact table before inviting.
+ const saved=record?editorContactEmails.get(Number(record.id))||'':'';
+ editorInvite.disabled=!editorAuthorized||!record||!saved||editorEmail.value.trim().toLowerCase()!==saved.toLowerCase();
+});
+editorInvite.addEventListener('click',async()=>{
+ if(!editorAuthorized)return;
+ const record=editorRecords.find(r=>String(r.id)===editorSelect.value);
+ const savedEmail=record?editorContactEmails.get(Number(record.id)):null;
+ if(!record||!editorHomes.includes(Number(record.home_id))||!savedEmail){editorMessage('Save an employee and their email before sending an invitation.');return;}
+ if(editorEmail.value.trim().toLowerCase()!==savedEmail.toLowerCase()){editorMessage('Save the updated email before inviting.');return;}
+ if(!window.confirm('Send an account invitation to '+record.full_name+' at '+savedEmail+'?'))return;
+ editorInvite.disabled=true;
+ editorMessage('Requesting secure invitation…');
+ try{
+  const {data,error}=await client.functions.invoke('invite-employee',{body:{employee_id:Number(record.id)}});
+  if(error){
+   let message=error.message||'Invitation failed';
+   if(error.context?.json){try{const detail=await error.context.json();message=detail.error||detail.message||message;}catch(_){}}
+   throw new Error(message);
+  }
+  if(!data?.success)throw new Error(data?.error||data?.message||'The server did not confirm the invitation.');
+  editorMessage('Invitation requested for '+record.full_name+'. Check their email inbox.');
+ }catch(err){editorMessage('Invitation failed: '+(err?.message||String(err))+'. Confirm the invite-employee Edge Function is deployed.');}
+ finally{editorInvite.disabled=false;}
+});
 editorSelect.addEventListener('change',populateEditor);
 editorRefresh.addEventListener('click',refreshEditorRecords);
 editorDelete.addEventListener('click',async()=>{
@@ -554,7 +582,7 @@ editorForm.addEventListener('submit',async event=>{
     await refreshEditorRecords();
     editorSelect.value=String(result.data.id);
     populateEditor();
-    editorMessage('Employee and email saved. Invitations remain disabled until the secure sending function is deployed.');
+    editorMessage('Employee and email saved. You can now use Invite employee if the secure Edge Function is deployed.');
   }catch(err){editorMessage('Save failed: '+(err?.message||String(err)));}
   finally{editorSave.disabled=false;}
 });
