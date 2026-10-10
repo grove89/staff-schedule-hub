@@ -377,8 +377,8 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="live-controls" id="pathwaysDashboardActions"><button aria-expanded="false" class="btn secondary" id="pathwaysToolsToggle" type="button">⚙️ Edit Schedule &amp; Management Tools</button></div>
 <div id="pathwaysManagementTools"><div class="live-days" id="liveScheduleDays"></div>
 <section class="card" hidden="" id="pathwaysBuilder" style="padding:16px;margin:18px 0;border:1px solid #2c527f">
-<h3 style="margin:0 0 6px">Pathways · Weekly Template Builder</h3>
-<p class="live-muted">Uses the existing Pathways standard shifts and required staffing counts. Each slot becomes a real shift when published. Drafts are saved for other authorized managers.</p>
+<h3 id="weeklyBuilderTitle" style="margin:0 0 6px">Pathways · Weekly Template Builder</h3>
+<p class="live-muted">Uses each home’s standard shifts and required staffing counts. Empty positions publish as OPEN shifts. Drafts are shared with authorized managers.</p>
 <div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Load week</button><button class="btn secondary" id="pathwaysBuilderCopy" type="button">Copy previous week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save draft</button><button class="btn" id="pathwaysBuilderPublish" type="button">Publish entire week</button></div>
 <p class="live-muted" id="pathwaysBuilderStatus" role="status"></p><div id="pathwaysBuilderSlots"></div>
 </section>
@@ -648,7 +648,7 @@ async function lsLoadManager(){
   document.getElementById('pathwaysViewerControl').hidden=!onPathways;
   if(!onPathways){pwvPanel.hidden=true;pwvTools.hidden=false;}
   else {pwvPanel.hidden=false;pwvTools.hidden=true;pwvToolsButton.setAttribute('aria-expanded','false');pwvToolsButton.textContent='⚙️ Edit Schedule & Management Tools';pwvRender();}
-  await pbLoad();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Empty templates are optional, not scheduled shifts.');
+  await pbLoad();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Publish the weekly builder to create OPEN positions.');
  }catch(e){lsMsg('Could not load live schedule: '+e.message,true);}
 }
 // Pathways weekly template builder: management-only, server-authorized RPCs.
@@ -669,7 +669,7 @@ function pbFriendlyTime(value){
 function pbDraw(){
  pbRows.replaceChildren();const week=lsDate(lsWeek);
  document.getElementById('pathwaysWeekName').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
- if(!lsTemplates.length){pbRows.append(lsEl('p','No standard staffing slots found for Pathways.','live-muted'));return;}
+ if(!lsTemplates.length){pbRows.append(lsEl('p','No standard staffing slots found for this home.','live-muted'));return;}
  for(let day=0;day<7;day++){
   const date=lsDay(lsWeek,day);const section=lsEl('div',undefined,'pb-day');
   section.style.cssText='';
@@ -695,25 +695,36 @@ function pbDraw(){
  }
  pbSave.disabled=pbPublished;pbPublish.disabled=pbPublished;pbCopy.disabled=pbPublished;
 }
+function pbHome(){return Number(lsHome.value);}
+function pbRpc(kind,week,assignments,home=pbHome()){
+ const pathways=home===1;
+ const names=pathways?{get:'pathways_get_week',save:'pathways_save_week',publish:'pathways_publish_week'}:{get:'home_get_week',save:'home_save_week',publish:'home_publish_week'};
+ const args=pathways?{p_week:week}:{p_home_id:home,p_week:week};
+ if(kind==='save')args.p_assignments=assignments;
+ return client.rpc(names[kind],args);
+}
 async function pbLoad(){
- const home=Number(lsHome.value);pbBox.hidden=home!==1||!lsAllowed.includes(1);if(pbBox.hidden)return;
- const week=lsDate(lsWeek);pbLoadedWeek='';pbMessage('Loading Pathways draft…');
- const {data,error}=await client.rpc('pathways_get_week',{p_week:week});
- if(week!==lsDate(lsWeek)||home!==Number(lsHome.value))return;
+ const home=pbHome();pbBox.hidden=!lsAllowed.includes(home);if(pbBox.hidden)return;
+ document.getElementById('weeklyBuilderTitle').textContent=LS_HOMES[home]+' · Weekly Template Builder';
+ pbCopy.hidden=home!==1;
+ const week=lsDate(lsWeek);pbLoadedWeek='';pbMessage('Loading '+LS_HOMES[home]+' draft…');
+ const {data,error}=await pbRpc('get',week,undefined,home);
+ if(week!==lsDate(lsWeek)||home!==pbHome())return;
  if(error){pbMessage('Builder unavailable: '+error.message,true);pbRows.replaceChildren();return;}
  pbAssignments=data?.[0]?.assignments||{};pbPublished=!!data?.[0]?.published_at;pbLoadedWeek=week;
- pbDraw();pbMessage(pbPublished?'Published · This week is locked. Use the regular schedule editor for changes.':'Draft ready · Fill blank slots, save, then publish.');
+ pbDraw();pbMessage(pbPublished?'Published · This week is locked. Use the regular schedule editor for changes.':'Draft ready · Fill blank slots, save, then publish. Unassigned slots become OPEN shifts.');
 }
 async function pbCopyPreviousWeek(){
+ if(pbHome()!==1)return;
  if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished){pbMessage('Choose an unpublished week first.',true);return;}
  const targetWeek=pbLoadedWeek;
  const previous=lsDate(lsDay(targetWeek,-7));
  if(!confirm('Copy staffing assignments from the week of '+previous+' into '+targetWeek+'? This replaces any unsaved assignments in the current draft.'))return;
  pbCopy.disabled=true;pbMessage('Copying previous week…');
  try{
-  const {data,error}=await client.rpc('pathways_get_week',{p_week:previous});
+  const {data,error}=await pbRpc('get',previous,undefined,1);
   if(error)throw error;
-  if(pbLoadedWeek!==targetWeek||pbPublished)return;
+  if(pbLoadedWeek!==targetWeek||pbPublished||pbHome()!==1)return;
   if(!data?.length)throw new Error('No saved or published Pathways schedule exists for the previous week.');
   const previousAssignments=data[0].assignments||{};
   const validTemplates=new Map(lsTemplates.map(t=>[String(t.id),Number(t.available_slots)||0]));
@@ -725,8 +736,7 @@ async function pbCopyPreviousWeek(){
    if(employee!==null&&String(employee)!==''&&!validEmployees.has(String(employee))){skipped++;continue;}
    if(employee!==null&&String(employee)!==''){copy[key]=String(employee);copied++;}
   }
-  // Save immediately, so a copied week is safely retained as a draft.
-  const saved=await client.rpc('pathways_save_week',{p_week:targetWeek,p_assignments:copy});
+  const saved=await pbRpc('save',targetWeek,copy,1);
   if(saved.error)throw saved.error;
   pbAssignments=copy;pbDraw();
   pbMessage('Copied '+copied+' assignments from '+previous+' and saved as a draft.'+(skipped?' '+skipped+' unavailable assignments were skipped.':''));
@@ -735,19 +745,23 @@ async function pbCopyPreviousWeek(){
 }
 async function pbSaveDraft(){
  if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished)return;
+ const home=pbHome(),week=pbLoadedWeek;
  pbSave.disabled=true;pbMessage('Saving draft…');
- const {error}=await client.rpc('pathways_save_week',{p_week:pbLoadedWeek,p_assignments:pbAssignments});
- pbSave.disabled=false;pbMessage(error?'Save failed: '+error.message:'Draft saved to Supabase for authorized Pathways managers.',!!error);
+ const {error}=await pbRpc('save',week,pbAssignments,home);
+ if(home!==pbHome()||week!==pbLoadedWeek)return;
+ pbSave.disabled=false;pbMessage(error?'Save failed: '+error.message:'Draft saved to Supabase for authorized '+LS_HOMES[home]+' managers.',!!error);
 }
 async function pbPublishWeek(){
  if(pbLoadedWeek!==lsDate(lsWeek)||pbPublished)return;
+ const home=pbHome(),week=pbLoadedWeek;
  const total=lsTemplates.reduce((n,t)=>n+Math.max(0,Number(t.available_slots)||0),0)*7;
- if(!confirm('Publish '+total+' Pathways shift slots for '+pbLoadedWeek+'? Blank slots become OPEN shifts. This cannot be undone as a batch.'))return;
+ if(!confirm('Publish '+total+' '+LS_HOMES[home]+' shift slots for '+week+'? Blank slots become OPEN shifts. This cannot be undone as a batch.'))return;
  pbPublish.disabled=true;pbSave.disabled=true;pbMessage('Saving draft and publishing…');
  try{
-  const saved=await client.rpc('pathways_save_week',{p_week:pbLoadedWeek,p_assignments:pbAssignments});if(saved.error)throw saved.error;
-  const published=await client.rpc('pathways_publish_week',{p_week:pbLoadedWeek});if(published.error)throw published.error;
-  pbPublished=true;pbDraw();pbMessage('Published '+published.data+' real Pathways shifts! Open slots are available to request.');
+  const saved=await pbRpc('save',week,pbAssignments,home);if(saved.error)throw saved.error;
+  const published=await pbRpc('publish',week,undefined,home);if(published.error)throw published.error;
+  if(home!==pbHome()||week!==pbLoadedWeek)return;
+  pbPublished=true;pbDraw();pbMessage('Published '+published.data+' real '+LS_HOMES[home]+' shifts! OPEN slots are available to request.');
   await lsLoadManager();
  }catch(err){pbMessage('Publish stopped safely: '+err.message,true);pbPublish.disabled=false;pbSave.disabled=false;}
 }
