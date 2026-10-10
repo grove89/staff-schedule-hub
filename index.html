@@ -300,7 +300,66 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
 #liveScheduling #openShiftArea .request-item:nth-child(4n+3){border-left:5px solid #a38bfa!important}
 #liveScheduling #openShiftArea .request-item:nth-child(4n){border-left:5px solid #6fc5b2!important}
 @media(max-width:650px){#liveScheduling .request-item{margin-bottom:22px!important}#liveScheduling .request-item button{margin-top:15px!important}}
-</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
+</style>
+
+<style id="thinWhiteGlassBorders2026">
+/* Subtle pearl-white outlines on compact glass windows; no functional changes. */
+#loginTest > .card,
+#staffActivationPanel .card,
+#accountSwitchPanel,
+#liveEmployeeEditor > .card,
+#liveScheduling .request-item,
+#liveScheduling .live-shift,
+#liveScheduling .mcc-entry,
+#liveScheduling .mcc-home,
+#liveScheduling .live-day,
+#liveScheduling .pwv-shift,
+#liveScheduling .hub-line,
+#liveScheduling .glass-staff-panel {
+  border:1px solid rgba(245,250,255,.75)!important;
+}
+</style>
+<style id="scheduleOuterPearlBorder2026">
+/* Match the Schedule window to the other thin white outlined glass panels. */
+#liveScheduling > .card {
+  border:1px solid rgba(245,250,255,.75)!important;
+  border-radius:19px!important;
+  padding:18px!important;
+  box-shadow:0 9px 26px rgba(0,5,25,.35)!important;
+}
+@media(max-width:650px){#liveScheduling > .card{padding:14px!important}}
+</style>
+<style id="scheduleCardInsetFix2026">
+/* Keep the Schedule heading and supporting text comfortably inside the lower glass panel. */
+#liveScheduling > .card > h2,
+#liveScheduling > .card > p.sub,
+#liveScheduling > .card > #liveScheduleStatus {
+  margin-left:18px!important;
+  margin-right:18px!important;
+}
+@media(max-width:650px){
+  #liveScheduling > .card > h2,
+  #liveScheduling > .card > p.sub,
+  #liveScheduling > .card > #liveScheduleStatus {
+    margin-left:16px!important;
+    margin-right:16px!important;
+  }
+}
+</style>
+<style id="matchingLoginScheduleGlass2026">
+/* Give the upper sign-in window the same glass background as the lower Schedule window. */
+#loginTest > .card,
+#liveScheduling > .card {
+  background-color:rgba(8,37,84,.74)!important;
+  background-image:linear-gradient(119deg,rgba(154,211,255,.21) 0%,rgba(44,126,222,.13) 15%,rgba(9,36,82,.05) 36%,rgba(20,77,151,.18) 70%,rgba(103,171,251,.10) 100%)!important;
+  border:1px solid rgba(245,250,255,.75)!important;
+  border-radius:19px!important;
+  box-shadow:inset 0 1px 0 rgba(223,244,255,.34),inset 1px 0 0 rgba(159,211,255,.13),0 9px 26px rgba(0,5,25,.35)!important;
+  backdrop-filter:blur(17px) saturate(1.3);
+  -webkit-backdrop-filter:blur(17px) saturate(1.3);
+}
+</style>
+</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
 <div class="schedule-controls"><label for="scheduleHome">Home</label><select class="field" id="scheduleHome" onchange="renderSchedule()"><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><button class="btn secondary small" onclick="changeWeek(-1)">← Previous</button><b id="weekLabel"></b><button class="btn secondary small" onclick="changeWeek(1)">Next →</button></div>
@@ -481,13 +540,19 @@ async function verifyEditorAccess(){
 async function refreshEditorRecords(){
   if(!editorAuthorized)return;
   editorMessage('Loading live employee records…');
-  const {data,error}=await client.from('Employees').select('id,full_name,job_title,home_id').order('id',{ascending:true}).limit(500);
+  const {data,error}=await client.from('Employees').select('id,full_name,job_title,home_id,email').order('id',{ascending:true}).limit(500);
   if(error){editorMessage('Unable to load records: '+error.message);return;}
   editorRecords=data||[];
+  // The invitation Edge Function reads public."Employees".email.
+  // Use that same source of truth for the management form and invite button.
   editorContactEmails=new Map();
+  for(const record of editorRecords){
+    if(record.email)editorContactEmails.set(Number(record.id),record.email);
+  }
+  // Backward-compatible display of older contact records, if they exist.
   const contacts=await client.from('employee_invitation_contacts').select('employee_id,email');
-  if(!contacts.error)for(const c of contacts.data||[])editorContactEmails.set(Number(c.employee_id),c.email);
-  else editorMessage('Contact email setup pending: '+contacts.error.message);
+  // Legacy contacts are not invitation-ready until copied to Employees.email.
+  // The invite button therefore relies exclusively on the canonical email field.
   const previous=editorSelect.value;
   editorSelect.replaceChildren(new Option('Add new employee',''));
   for(const record of editorRecords){editorSelect.add(new Option((record.full_name||'Unnamed employee')+' (#'+record.id+')',String(record.id)));}
@@ -570,19 +635,26 @@ editorForm.addEventListener('submit',async event=>{
     if(id&&(!original||!editorHomes.includes(original.home_id)))throw new Error('Employee outside your authorized homes.');
     const {data:allowed,error:permissionError}=await client.rpc('can_manage_home',{target_home_id:home_id});
     if(permissionError||allowed!==true)throw new Error('Not authorized for the selected home.');
-    const payload={full_name:name,job_title,home_id};
+    const email=editorEmail.value.trim().toLowerCase();
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Enter a valid employee email address.');
+    // Save email on Employees: this is the column the secure invite function reads.
+    const payload={full_name:name,job_title,home_id,email:email||null};
     const result=id
-      ? await client.from('Employees').update(payload).eq('id',Number(id)).select('id').single()
-      : await client.from('Employees').insert(payload).select('id').single();
+      ? await client.from('Employees').update(payload).eq('id',Number(id)).select('id,email').single()
+      : await client.from('Employees').insert(payload).select('id,email').single();
     if(result.error)throw result.error;
-    if(editorEmail.value.trim()){
-      const {error:contactError}=await client.from('employee_invitation_contacts').upsert({employee_id:result.data.id,email:editorEmail.value.trim().toLowerCase(),updated_by:(await client.auth.getUser()).data.user?.id,updated_at:new Date().toISOString()},{onConflict:'employee_id'});
-      if(contactError)throw new Error('Employee saved, but email was not saved: '+contactError.message);
+    if((result.data.email||'')!==email)throw new Error('Email was not saved to Employees. Check database update permissions.');
+    // Preserve compatibility with any existing contact-table consumers.
+    // A contact-table failure must not hide a successful canonical save.
+    if(email){
+      const {data:currentUser}=await client.auth.getUser();
+      const {error:contactError}=await client.from('employee_invitation_contacts').upsert({employee_id:result.data.id,email,updated_by:currentUser.user?.id,updated_at:new Date().toISOString()},{onConflict:'employee_id'});
+      if(contactError)console.warn('Legacy contact sync failed; Employees.email was saved:',contactError.message);
     }
     await refreshEditorRecords();
     editorSelect.value=String(result.data.id);
     populateEditor();
-    editorMessage('Employee and email saved. You can now use Invite employee if the secure Edge Function is deployed.');
+    editorMessage('Employee and email saved to Supabase. You can now invite this employee.');
   }catch(err){editorMessage('Save failed: '+(err?.message||String(err)));}
   finally{editorSave.disabled=false;}
 });
