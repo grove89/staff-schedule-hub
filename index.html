@@ -1204,7 +1204,11 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  overview.insertAdjacentElement('afterend',root);
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const homes=()=>Array.isArray(lsAllowed)?lsAllowed.map(Number):[];
+ const LS_HOMES={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
+ const lsHome=document.getElementById('liveScheduleHome');
+ const homes=()=>Array.from(lsHome?.options||[]).map(o=>Number(o.value)).filter(id=>[1,2,3,4].includes(id));
+ const lsDate=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ const currentMonday=()=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return d;};
  const time=v=>new Date(v).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
  const line=(title,sub)=>`<div class="hub-line"><strong>${esc(title)}</strong><small>${esc(sub)}</small></div>`;
  let busy=false;
@@ -1252,7 +1256,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
    else if(ids.includes(Number(lsHome?.value)))sel.value=lsHome.value;
   }
   const week=$('hubPrintWeek');
-  if(!week.value)week.value=lsDate(lsWeek);
+  if(!week.value)week.value=lsDate(currentMonday());
   $('hubPrintStatus').textContent=ids.length?'':'Waiting for management access to load…';
  }
  async function printWeek(){
