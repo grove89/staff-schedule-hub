@@ -598,6 +598,10 @@ const lsDays=document.getElementById('liveScheduleDays');
 const lsHistory=document.getElementById('liveHistory');
 const lsForm=document.getElementById('liveShiftForm');
 const lsPanel=document.getElementById('liveShiftPanel');
+// Keep the editor outside the collapsible management tools. A hidden ancestor
+// prevents Safari from displaying or scrolling to an otherwise visible form.
+const lsToolsContainer=document.getElementById('pathwaysManagementTools');
+lsToolsContainer.after(lsPanel);
 const lsTemplate=document.getElementById('liveShiftTemplate');
 const lsEmployee=document.getElementById('liveShiftEmployee');
 let lsWeek=lsMonday(new Date()),lsShifts=[],lsTemplates=[],lsEmployees=[],lsEditing=null,lsAllowed=[],lsSession=0;
@@ -795,7 +799,7 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  const e=shift?new Date(shift.ends_at):null;
  document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
  lsEmployee.value=shift?.employee_id==null?'':String(shift.employee_id);
- lsPanel.scrollIntoView({behavior:'smooth',block:'nearest'});
+ lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 lsTemplate.addEventListener('change',()=>{const t=lsTemplates.find(t=>String(t.id)===lsTemplate.value);if(t){document.getElementById('liveShiftStart').value=t.start_time.slice(0,5);document.getElementById('liveShiftEnd').value=t.end_time.slice(0,5);}});
 lsForm.addEventListener('submit',async e=>{
@@ -1128,6 +1132,9 @@ function pwvRender(){
      const current=lsShifts.find(s=>Number(s.id)===Number(shift.id));
      if(!current)throw new Error('That shift is not loaded. Tap Refresh and try again.');
      lsOpenForm(current);
+     // Opening the form must be visible even while the weekly viewer stays open.
+     lsPanel.hidden=false;
+     lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
      lsMsg('Editing Pathways shift. Make changes below, then tap Save shift.');
     }catch(err){
      lsMsg('Unable to open shift editor: '+(err?.message||String(err)),true);
