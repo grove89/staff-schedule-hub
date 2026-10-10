@@ -1110,10 +1110,28 @@ function pwvRender(){
    const editButton=lsEl('button','Edit shift','btn secondary small pwv-edit');
    editButton.type='button';
    editButton.setAttribute('aria-label','Edit '+(employee?.full_name||'open shift')+' on '+date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}));
-   editButton.onclick=()=>{
-    if(Number(lsHome.value)!==1||!lsAllowed.includes(1))return;
-    lsOpenForm(shift);
-    lsMsg('Editing Pathways shift. Make changes below, then tap Save shift.');
+   editButton.onclick=async()=>{
+    if(!lsAllowed.includes(1)){
+     lsMsg('Your account does not have permission to edit Pathways shifts.',true);
+     return;
+    }
+    editButton.disabled=true;
+    try{
+     // The weekly viewer and the live editor may be on different homes/weeks.
+     // Synchronize them before opening the edit form; never silently ignore a tap.
+     const targetWeek=lsMonday(new Date(shift.starts_at));
+     const weekChanged=lsDate(lsWeek)!==lsDate(targetWeek);
+     const homeChanged=Number(lsHome.value)!==1;
+     if(homeChanged)lsHome.value='1';
+     if(weekChanged)lsWeek=targetWeek;
+     if(homeChanged||weekChanged)await lsLoadManager();
+     const current=lsShifts.find(s=>Number(s.id)===Number(shift.id));
+     if(!current)throw new Error('That shift is not loaded. Tap Refresh and try again.');
+     lsOpenForm(current);
+     lsMsg('Editing Pathways shift. Make changes below, then tap Save shift.');
+    }catch(err){
+     lsMsg('Unable to open shift editor: '+(err?.message||String(err)),true);
+    }finally{editButton.disabled=false;}
    };
    card.append(editButton);
    list.append(card);
