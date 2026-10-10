@@ -213,8 +213,8 @@ body:has(#managerTabStrip:not([hidden])) #liveScheduling>.card>h2,body:has(#mana
 #managementCommandCenter .mcc-home{background:#092956b5!important;border:1px solid #82baff44!important;border-left:4px solid #73b7ff!important;border-radius:14px!important;padding:13px!important;min-width:0}
 #managementCommandCenter .mcc-entry{background:#35679b55!important;border:1px solid #90c5ff30!important;border-radius:10px!important;margin-top:7px!important}#managementCommandCenter .mcc-entry strong{color:white!important}#managementCommandCenter .mcc-entry small{color:#c0d7f5!important}
 #managementCommandCenter .mcc-open{border-left:4px solid #ff7187!important}
-#liveManagerSchedule,#mccRequestsPanel,#mccStaffPanel{background:linear-gradient(140deg,#103565bd,#071c3fbd)!important;border:1px solid #76b5ff70!important;border-radius:20px!important;padding:18px!important}
-#liveManagerSchedule[hidden],#mccRequestsPanel[hidden],#mccStaffPanel[hidden]{display:none!important}
+#liveManagerSchedule,#mccRequestsPanel,#mccStaffPanel,#mccHousesPanel{background:linear-gradient(140deg,#103565bd,#071c3fbd)!important;border:1px solid #76b5ff70!important;border-radius:20px!important;padding:18px!important}
+#liveManagerSchedule[hidden],#mccRequestsPanel[hidden],#mccStaffPanel[hidden],#mccHousesPanel[hidden],#godHousesTab[hidden]{display:none!important}
 @media(max-width:780px){.glass-staff-grid{grid-template-columns:1fr;gap:12px}.glass-staff-panel{padding:14px}#managementCommandCenter{padding:14px!important}#managerTabStrip button{padding:11px 14px!important}header{padding:18px 16px!important}}
 </style><style id="reflectiveGlassUpgrade">
 /* Midnight Reflective Glass · visual-only upgrade */
@@ -359,7 +359,7 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
   -webkit-backdrop-filter:blur(17px) saturate(1.3);
 }
 </style>
-</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
+</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
 <div class="schedule-controls"><label for="scheduleHome">Home</label><select class="field" id="scheduleHome" onchange="renderSchedule()"><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><button class="btn secondary small" onclick="changeWeek(-1)">← Previous</button><b id="weekLabel"></b><button class="btn secondary small" onclick="changeWeek(1)">Next →</button></div>
@@ -513,7 +513,7 @@ let editorHomes=[];
 function editorMessage(message){editorStatus.textContent=message;}
 function clearEditor(){editorAuthorized=false;editorHomes=[];editorSection.hidden=true;editorRecords=[];editorContactEmails=new Map();editorForm.reset();editorSelect.replaceChildren(new Option('Add new employee',''));editorDelete.hidden=true;}
 function restrictEditorHomes(){
- const names={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
+ const names=window.staffHubHomes||{1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
  editorHome.replaceChildren(new Option('Select home',''));
  for(const id of editorHomes)editorHome.add(new Option(names[id],String(id)));
 }
@@ -524,8 +524,8 @@ async function verifyEditorAccess(){
   if(userError||!user)return;
   const {data:isAdmin,error:adminError}=await client.rpc('is_app_admin');
   if(adminError)throw adminError;
-  if(isAdmin===true)editorHomes=[1,2,3,4];
-  else for(const id of [1,2,3,4]){
+  if(isAdmin===true)editorHomes=Object.keys(window.staffHubHomes||{}).map(Number);
+  else for(const id of Object.keys(window.staffHubHomes||{}).map(Number)){
    const {data:allowed,error}=await client.rpc('can_manage_home',{target_home_id:id});
    if(error)throw error;
    if(allowed===true)editorHomes.push(id);
@@ -704,7 +704,7 @@ employeeAccessButton.addEventListener('click',async()=>{
 
 
 // Live schedule: all reads and writes go through authenticated Supabase RLS.
-const LS_HOMES={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
+const LS_HOMES=window.staffHubHomes||(window.staffHubHomes={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'});
 const lsStatus=document.getElementById('liveScheduleStatus');
 const lsManager=document.getElementById('liveManagerSchedule');
 const lsMine=document.getElementById('liveMySchedule');
@@ -736,8 +736,8 @@ async function lsLoadAccess(){
  const {data:{user},error:ue}=await client.auth.getUser();if(ue||!user){lsMsg('Sign in to view your live schedule.');return;}
  try{
   const {data:admin,error:ae}=await client.rpc('is_app_admin');if(ae)throw ae;
-  if(admin===true)lsAllowed=[1,2,3,4];
-  else for(const id of [1,2,3,4]){const {data,error}=await client.rpc('can_manage_home',{target_home_id:id});if(error)throw error;if(data===true)lsAllowed.push(id);}
+  if(admin===true)lsAllowed=Object.keys(LS_HOMES).map(Number);
+  else for(const id of Object.keys(LS_HOMES).map(Number)){const {data,error}=await client.rpc('can_manage_home',{target_home_id:id});if(error)throw error;if(data===true)lsAllowed.push(id);}
   if(ticket!==lsSession)return;
   if(lsAllowed.length){
    lsManager.hidden=false;const previous=Number(lsHome.value);lsHome.replaceChildren();for(const id of lsAllowed)lsOption(lsHome,id,LS_HOMES[id]);if(lsAllowed.includes(previous))lsHome.value=String(previous);
@@ -1091,22 +1091,48 @@ const mccOverview=document.getElementById('managementCommandCenter');
 let mccActive='overview',mccTimer=null,mccGeneration=0;
 const mccRequests=document.createElement('section');mccRequests.id='mccRequestsPanel';mccRequests.className='mcc-tab-panel';mccRequests.hidden=true;
 const mccStaff=document.createElement('section');mccStaff.id='mccStaffPanel';mccStaff.className='mcc-tab-panel';mccStaff.hidden=true;
+const mccHouses=document.createElement('section');mccHouses.id='mccHousesPanel';mccHouses.className='mcc-tab-panel';mccHouses.hidden=true;
+mccHouses.innerHTML='<h3>🏘️ Manage Houses</h3><p class="sub">God Mode only · Each new house gets its own 1/2/2 weekly staffing template.</p><div id="godHouseList" class="mcc-grid"></div><form id="godHouseForm" class="hub-controls"><label for="godHouseName">New house name</label><input id="godHouseName" class="field" maxlength="80" minlength="2" required placeholder="e.g. Liberty"><button class="btn" type="submit">+ Add House</button></form><p id="godHouseStatus" role="status"></p>';
 const mccSchedules=document.getElementById('liveManagerSchedule');
 const mccParent=mccSchedules.parentNode;
 mccParent.insertBefore(mccRequests,mccSchedules.nextSibling);
 mccParent.insertBefore(mccStaff,mccRequests.nextSibling);
+mccParent.insertBefore(mccHouses,mccStaff.nextSibling);
 mccStaff.innerHTML='<h3>Employee management</h3><p>Use the secure employee editor below to manage authorized staff records.</p><button type="button" class="btn secondary" id="mccJumpStaff">Open employee editor ↓</button>';
 document.getElementById('mccJumpStaff').addEventListener('click',()=>document.getElementById('liveEmployeeEditor')?.scrollIntoView({behavior:'smooth'}));
 for(const id of ['managerRequests','managerExtras']){const node=document.getElementById(id);if(node)mccRequests.append(node);}
 const historyTitle=document.querySelector('#liveLoadHistory')?.parentElement;if(historyTitle)mccRequests.append(historyTitle);
 const employeeEditor=document.getElementById('liveEmployeeEditor');
 // The employee editor stays in its original location so its existing permissions continue to work.
+function hubDrawHouses(){
+ const list=document.getElementById('godHouseList');list.replaceChildren();
+ for(const [id,name] of Object.entries(LS_HOMES)){
+  const item=lsEl('div',undefined,'mcc-home');item.append(lsEl('h4',name),lsEl('small','House ID '+id+' · Independent weekly schedule'));list.append(item);
+ }
+}
+document.getElementById('godHouseForm').addEventListener('submit',async e=>{
+ e.preventDefault();const form=e.currentTarget,button=form.querySelector('button'),status=document.getElementById('godHouseStatus');
+ const name=document.getElementById('godHouseName').value.trim();
+ if(name.length<2)return;
+ button.disabled=true;status.textContent='Creating house and staffing template…';
+ try{
+  const {data:admin,error:checkError}=await client.rpc('is_app_admin');
+  if(checkError)throw checkError;if(admin!==true)throw new Error('God Mode authorization required.');
+  const {data,error}=await client.rpc('add_house',{new_house_name:name});if(error)throw error;
+  const created=Array.isArray(data)?data[0]:data;
+  await hubRefreshHomes();hubDrawHouses();
+  form.reset();status.textContent='House '+(created?.house_name||name)+' created! Refreshing management access…';
+  await verifyEditorAccess();await lsLoadAccess();mccSelect('houses');
+  status.textContent='✓ '+name+' added. Its independent schedule and standard 1/2/2 template are ready.';
+ }catch(err){status.textContent='Could not add house: '+(err?.message||String(err));}
+ finally{button.disabled=false;}
+});
 function mccSelect(tab){
  mccActive=tab;
  for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b.dataset.mccTab===tab));
- mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';
+ mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccHouses.hidden=tab!=='houses';
  if(employeeEditor&&lsAllowed.length)employeeEditor.style.display=tab==='staff'?'':'none';
- if(tab==='overview')mccLoad();
+ if(tab==='overview')mccLoad();if(tab==='houses')hubDrawHouses();
 }
 for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.addEventListener('click',()=>mccSelect(b.dataset.mccTab));
 document.getElementById('mccRefresh').addEventListener('click',()=>mccLoad());
@@ -1144,10 +1170,17 @@ async function mccLoad(){
  }catch(e){if(ticket===mccGeneration)status.textContent='Could not load overview: '+(e.message||String(e));}
 }
 const mccOriginalAccess=lsLoadAccess;
-lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
+lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;const {data:godMode}=await client.rpc('is_app_admin');document.getElementById('godHousesTab').hidden=godMode!==true;if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
 // Refresh the overview once a minute while the page is open; no database writes.
 mccTimer=setInterval(()=>{if(!mccTabs.hidden&&mccActive==='overview')mccLoad();},60000);
 
+async function hubRefreshHomes(){
+ const {data,error}=await client.from('Homes').select('id,Name').order('id').limit(500);
+ if(error)throw error;
+ for(const [id] of Object.entries(LS_HOMES))delete LS_HOMES[id];
+ for(const home of data||[])LS_HOMES[Number(home.id)]=home.Name;
+ window.staffHubHomes=LS_HOMES;
+}
 async function showAuthState(){
   const {data:{session}}=await client.auth.getSession();
   if(!session){++lsSession;lsManager.hidden=true;lsMine.hidden=true;document.getElementById('openShiftArea').hidden=true;xById('staffExtraArea').hidden=true;lsMsg('Sign in to view your live schedule.');clearEditor();clearLiveDirectory('Sign in, then load the directory.');loginStatus.textContent='Not signed in.';logoutButton.hidden=true;loginButton.hidden=false;emailInput.disabled=false;passwordInput.disabled=false;return;}
@@ -1155,6 +1188,7 @@ async function showAuthState(){
   loginStatus.textContent='Signed in as '+(session.user.email||'staff member')+'.';
   const {data,error}=await client.from('Homes').select('id,Name').limit(10);
   loginStatus.textContent=error?'Signed in, but Homes query failed: '+error.message:'Signed in successfully. Your schedule is loading…';
+  await hubRefreshHomes();
   await verifyEditorAccess();
   await lsLoadAccess();
 }
@@ -1409,9 +1443,9 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  overview.insertAdjacentElement('afterend',root);
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const LS_HOMES={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
+ const LS_HOMES=window.staffHubHomes||{1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
  const lsHome=document.getElementById('liveScheduleHome');
- const homes=()=>Array.from(lsHome?.options||[]).map(o=>Number(o.value)).filter(id=>[1,2,3,4].includes(id));
+ const homes=()=>Array.from(lsHome?.options||[]).map(o=>Number(o.value)).filter(id=>Object.prototype.hasOwnProperty.call(LS_HOMES,id));
  const lsDate=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
  const currentMonday=()=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return d;};
  const time=v=>new Date(v).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
