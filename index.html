@@ -1185,7 +1185,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  root.innerHTML=`
  <section id="hubAlerts" class="hub-glass"><h3>⚠️ Coverage Alerts</h3><p>OPEN published shifts in the next 7 days, and homes with no staff scheduled right now. No inferred minimum staffing levels.</p><div class="hub-controls"><button id="hubAlertRefresh" type="button">↻ Refresh coverage</button><span id="hubAlertStatus"></span></div><div id="hubAlertList"></div></section>
 
- <section id="hubPrintPanel" class="hub-glass" hidden><h3>🖨️ Print / Export Schedule</h3><p>Print a published week or use your browser's Save as PDF option.</p><div class="hub-controls"><label for="hubPrintHome">Home</label><select id="hubPrintHome"></select><label for="hubPrintWeek">Week of</label><input id="hubPrintWeek" type="date"><button id="hubPrintBtn" type="button">Print / Save PDF</button></div><p id="hubPrintStatus" role="status"></p></section>
+ <section id="hubPrintPanel" class="hub-glass" hidden><h3>🖨️ Print / Export Schedule</h3><p>Print a published week or use your browser's Save as PDF option.</p><div class="hub-controls"><label for="hubPrintHome">Home</label><select id="hubPrintHome"><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="hubPrintWeek">Week of</label><input id="hubPrintWeek" type="date"><button id="hubPrintBtn" type="button">Print / Save PDF</button></div><p id="hubPrintStatus" role="status"></p></section>
  <section id="hubHistory" class="hub-glass" hidden><h3>🕘 Schedule Change History</h3><p>Management-only audit records from the existing schedule audit log.</p><div id="hubHistoryMount"></div></section>`;
  overview.insertAdjacentElement('afterend',root);
  const $=id=>document.getElementById(id);
@@ -1227,18 +1227,21 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  syncNotificationBadge();
  function initPrint(){
   const sel=$('hubPrintHome');
-  const ids=homes().length?homes():Array.from(document.querySelectorAll('#liveManagerHome option')).map(o=>Number(o.value)).filter(n=>n>=1&&n<=4);
-  const previous=Number(sel.value);
-  sel.replaceChildren();
-  for(const id of ids){const o=document.createElement('option');o.value=String(id);o.textContent=LS_HOMES[id]||'Home '+id;sel.append(o)}
-  if(ids.includes(previous))sel.value=String(previous);
-  else if(ids.includes(Number(lsHome?.value)))sel.value=String(Number(lsHome.value));
+  // Keep four real options in the DOM, even before asynchronous permissions load.
+  // The schedule's existing home selector is the authoritative source for manager access.
+  const ids=homes();
+  const previous=sel.value;
+  if(ids.length){
+   sel.replaceChildren();
+   for(const id of ids)sel.add(new Option(LS_HOMES[id]||'Home '+id,String(id)));
+   if(ids.includes(Number(previous)))sel.value=previous;
+   else if(ids.includes(Number(lsHome?.value)))sel.value=lsHome.value;
+  }
   const week=$('hubPrintWeek');
-  if(!week.value){const now=new Date(),dow=(now.getDay()+6)%7;now.setDate(now.getDate()-dow);week.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')}
-  $('hubPrintStatus').textContent=ids.length?'':'Home permissions are still loading. Try again in a moment.';
+  if(!week.value)week.value=lsDate(lsWeek);
+  $('hubPrintStatus').textContent=ids.length?'':'Waiting for management access to load…';
  }
  async function printWeek(){
-  initPrint();
   const home=Number($('hubPrintHome').value);
   if(!homes().includes(home)){$('hubPrintStatus').textContent='Select an authorized home first.';return}
   const day=$('hubPrintWeek').value;
