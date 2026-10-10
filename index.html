@@ -277,7 +277,7 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
 .hub-controls select,.hub-controls input{padding:11px;border:1px solid #83b9ee7d;border-radius:10px;background:#092649;color:white;max-width:100%}
 .hub-controls button,.hub-glass button{padding:10px 14px;border-radius:10px;border:1px solid #6fb6ff;color:white;background:linear-gradient(#246fc0,#11437e);font-weight:650}
 .manager-notification-badge{display:inline-block;min-width:22px;padding:2px 7px;margin-left:6px;border-radius:999px;background:#f5cf53;color:#10233c;font-weight:900;text-align:center}.manager-notification-badge[hidden]{display:none!important}
-#hubPrintPanel{margin-top:10px}
+
 @media print{#hubExtras,#hubBell{display:none!important}}
 </style>
 <style id="glassSeparationAndSpacing">
@@ -1398,38 +1398,6 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
 })();
 </script>
 
-<style id="hubPrintPageStyles">
-#hubPrintPreview{background:#fff;color:#152238;border-radius:10px;padding:14px;margin:16px 0;overflow-x:auto}
-#hubPrintPreview h1{font-size:20px;color:#152238;margin:0 0 8px}
-#hubPrintPreview p{color:#152238}
-#hubPrintPreview table{width:100%;border-collapse:collapse;font:12px Arial,sans-serif;color:#152238}
-#hubPrintPreview th,#hubPrintPreview td{border:1px solid #a8b6c6;padding:6px;text-align:left}
-#hubPrintPreview th{background:#e9f0f8}
-@media print{
- body *{visibility:hidden!important}
- #hubPrintPreview,#hubPrintPreview *{visibility:visible!important}
- #hubPrintPreview{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important;overflow:visible!important;padding:0!important;margin:0!important;background:white!important;color:black!important}
- @page{size:landscape;margin:12mm}
-}
-</style>
-
-<style id="hubSafariPrintRepair">
-@media print {
-  @page { size: letter portrait; margin: 12mm; }
-  html, body { background: #fff !important; color: #111 !important; width: auto !important; height: auto !important; min-height: 0 !important; overflow: visible !important; }
-  body, body * { background-image: none !important; box-shadow: none !important; text-shadow: none !important; }
-  body *::before, body *::after { content: none !important; display: none !important; }
-  body * { visibility: hidden !important; }
-  #hubPrintPreview, #hubPrintPreview *, #hubPrintPreview *::before, #hubPrintPreview *::after { visibility: visible !important; }
-  #hubExtras, #hubPrintPanel { overflow: visible !important; height: auto !important; min-height: 0 !important; max-height: none !important; transform: none !important; filter: none !important; background: transparent !important; border: 0 !important; padding: 0 !important; margin: 0 !important; }
-  #hubPrintPreview { position: fixed !important; inset: 0 auto auto 0 !important; display: block !important; width: 100% !important; max-width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: #fff !important; color: #111 !important; border: 0 !important; }
-  #hubPrintPreview .hub-print-sheet { background: #fff !important; color: #111 !important; }
-  #hubPrintPreview table { width: 100% !important; border-collapse: collapse !important; font: 10pt Arial, sans-serif !important; }
-  #hubPrintPreview th, #hubPrintPreview td { border: 1px solid #999 !important; color: #111 !important; background: #fff !important; padding: 5px !important; }
-  #hubPrintPreview th { background: #eaf0f7 !important; }
-  #hubPrintPreview tr { break-inside: avoid !important; page-break-inside: avoid !important; }
-}
-</style>
 <script id="fourUpgradesLogic">
 (function(){
  const tabs=document.getElementById('managerTabStrip'),overview=document.getElementById('managementCommandCenter');
@@ -1437,8 +1405,6 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  const root=document.createElement('div');root.id='hubExtras';root.hidden=true;
  root.innerHTML=`
  <section id="hubAlerts" class="hub-glass"><h3>⚠️ Coverage Alerts</h3><p>OPEN published shifts in the next 7 days, and homes with no staff scheduled right now. No inferred minimum staffing levels.</p><div class="hub-controls"><button id="hubAlertRefresh" type="button">↻ Refresh coverage</button><span id="hubAlertStatus"></span></div><div id="hubAlertList"></div></section>
-
- <section id="hubPrintPanel" class="hub-glass" hidden><h3>🖨️ Print / Export Schedule</h3><p>Print a published week or use your browser's Save as PDF option.</p><div class="hub-controls"><label for="hubPrintHome">Home</label><select id="hubPrintHome"><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="hubPrintWeek">Week of</label><input id="hubPrintWeek" type="date"><button id="hubPrintBtn" type="button">Generate print preview</button></div><p id="hubPrintStatus" role="status" aria-live="polite"></p><div id="hubPrintPreview" hidden></div><button id="hubPrintNow" type="button" hidden>🖨️ Print / Save PDF</button></section>
  <section id="hubHistory" class="hub-glass" hidden><h3>🕘 Schedule Change History</h3><p>Management-only audit records from the existing schedule audit log.</p><div id="hubHistoryMount"></div></section>`;
  overview.insertAdjacentElement('afterend',root);
  const $=id=>document.getElementById(id);
@@ -1482,97 +1448,13 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  }
  if(requestCount){new MutationObserver(syncNotificationBadge).observe(requestCount,{childList:true,characterData:true,subtree:true});}
  syncNotificationBadge();
- function initPrint(){
-  const sel=$('hubPrintHome');
-  // Keep four real options in the DOM, even before asynchronous permissions load.
-  // The schedule's existing home selector is the authoritative source for manager access.
-  const ids=homes();
-  const previous=sel.value;
-  if(ids.length){
-   sel.replaceChildren();
-   for(const id of ids)sel.add(new Option(LS_HOMES[id]||'Home '+id,String(id)));
-   if(ids.includes(Number(previous)))sel.value=previous;
-   else if(ids.includes(Number(lsHome?.value)))sel.value=lsHome.value;
-  }
-  const week=$('hubPrintWeek');
-  if(!week.value)week.value=lsDate(currentMonday());
-  $('hubPrintStatus').textContent=ids.length?'':'Waiting for management access to load…';
- }
- async function printWeek(){
-  const status=$('hubPrintStatus'),preview=$('hubPrintPreview'),printNow=$('hubPrintNow');
-  status.textContent='Preparing print preview…';preview.hidden=true;printNow.hidden=true; if(!window.staffHubSupabase){status.textContent='Connection is still loading. Please try again in a moment.';return;}
-  const home=Number($('hubPrintHome').value);
-  if(![1,2,3,4].includes(home)||!homes().includes(home)){
-   status.textContent='Home access is not ready. Refresh the page and try again.';return;
-  }
-  const day=$('hubPrintWeek').value;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)){status.textContent='Select a week date first.';return;}
-  try{
-   const weekStart=new Date(day+'T12:00:00');
-   const mondayOffset=(weekStart.getDay()+6)%7;
-   weekStart.setDate(weekStart.getDate()-mondayOffset);
-   const monday=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
-   const last=new Date(weekStart);last.setDate(last.getDate()+7);
-   const endKey=last.getFullYear()+'-'+String(last.getMonth()+1).padStart(2,'0')+'-'+String(last.getDate()).padStart(2,'0');
-   const lower=new Date(weekStart.getTime()-2*86400000).toISOString();
-   const upper=new Date(last.getTime()+2*86400000).toISOString();
-   const [sh,em]=await Promise.all([
-    window.staffHubSupabase.from('Shifts').select('id,employee_id,starts_at,ends_at').eq('home_id',home).gte('starts_at',lower).lt('starts_at',upper).order('starts_at').limit(1000),
-    window.staffHubSupabase.from('Employees').select('id,full_name,job_title').limit(1000)
-   ]);
-   if(sh.error||em.error)throw(sh.error||em.error);
-   const people=new Map((em.data||[]).map(e=>[Number(e.id),e]));
-   const formatter=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'});
-   const key=date=>{const obj=Object.fromEntries(formatter.formatToParts(date).map(x=>[x.type,x.value]));return obj.year+'-'+obj.month+'-'+obj.day};
-   const fmt=v=>new Date(v).toLocaleString('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'});
-   const rows=(sh.data||[]).filter(x=>{const k=key(new Date(x.starts_at));return k>=monday&&k<endKey}).map(x=>{
-    const e=people.get(Number(x.employee_id));return `<tr><td>${esc(key(new Date(x.starts_at)))}</td><td>${esc(x.employee_id==null?'OPEN':e?.full_name||'Employee')}</td><td>${esc(e?.job_title||'CLI')}</td><td>${esc(fmt(x.starts_at))}</td><td>${esc(fmt(x.ends_at))}</td></tr>`;
-   }).join('');
-   preview.innerHTML=`<div class="hub-print-sheet"><h1>${esc(LS_HOMES[home])} · Weekly Schedule</h1><p>Week beginning ${esc(monday)}</p><table><thead><tr><th>Day</th><th>Employee</th><th>Position</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${rows||'<tr><td colspan="5">No published shifts for this week.</td></tr>'}</tbody></table></div>`;
-   preview.hidden=false;printNow.hidden=false;
-   status.textContent='Preview ready ('+(sh.data||[]).length+' shifts loaded). Tap Print / Save PDF below.';
-   preview.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }catch(e){status.textContent='Unable to generate preview: '+(e?.message||String(e));}
- }
- $('hubPrintNow').onclick=()=>{
-  const preview=$('hubPrintPreview');
-  if(preview.hidden || !preview.querySelector('.hub-print-sheet')){
-    $('hubPrintStatus').textContent='Generate a schedule preview first.';
-    return;
-  }
-  // Print a standalone document, not the 10-page dashboard.
-  const printMarkup=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff Schedule Hub - Weekly Schedule</title><style>
-    @page{size:letter landscape;margin:12mm}
-    html,body{margin:0;padding:0;background:white!important;color:#172334!important;font:12px Arial,sans-serif}
-    .hub-print-sheet{padding:18px 22px;max-width:1100px;margin:auto}
-    h1{font-size:22px;margin:0 0 8px;color:#172334}p{font-size:13px;margin:0 0 14px}
-    table{width:100%;border-collapse:collapse;table-layout:auto}
-    th,td{border:1px solid #9aabc0;padding:7px 8px;text-align:left;overflow-wrap:anywhere;color:#172334;background:white}
-    th{background:#eaf0f7;font-weight:bold}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}
-    .toolbar{padding:12px 22px;background:#edf3fb;display:flex;gap:10px;align-items:center}
-    button{background:#0d3c73;color:white;border:0;border-radius:7px;padding:12px 16px;font-size:16px}
-    @media print{.toolbar{display:none!important}.hub-print-sheet{padding:0}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-  </style></head><body><div class="toolbar"><button onclick="window.print()">Print / Save PDF</button><span>Use Share → Print on iPhone if needed.</span></div>${preview.innerHTML}</body></html>`;
-  const popup=window.open('','_blank');
-  if(popup){
-    popup.document.open();popup.document.write(printMarkup);popup.document.close();
-    $('hubPrintStatus').textContent='Printable schedule opened in a separate tab. Use its Print / Save PDF button.';
-  }else{
-    // iOS popup fallback: download a standalone HTML file that can be printed.
-    const blob=new Blob([printMarkup],{type:'text/html;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='Staff-Schedule-Printable.html';document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),60000);
-    $('hubPrintStatus').textContent='Safari blocked the new tab. A standalone printable schedule file was saved instead.';
-  }
-};
- $('hubAlertRefresh').onclick=coverage;$('hubPrintBtn').addEventListener('click',()=>{printWeek().catch(e=>{$('hubPrintStatus').textContent='Print preview error: '+(e?.message||String(e));});});
+ $('hubAlertRefresh').onclick=coverage;
  const histBtn=tabs.querySelector('[data-mcc-tab="history"]');
  histBtn?.addEventListener('click',()=>{
   for(const b of tabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b===histBtn));
   overview.hidden=true;document.getElementById('liveManagerSchedule').hidden=true;
   $('mccRequestsPanel').hidden=true;$('mccStaffPanel').hidden=true;
-  root.hidden=false;$('hubAlerts').hidden=true;$('hubPrintPanel').hidden=true;$('hubHistory').hidden=false;
+  root.hidden=false;$('hubAlerts').hidden=true;$('hubHistory').hidden=false;
   const editor=document.getElementById('liveEmployeeEditor');if(editor)editor.style.display='none';
   const mount=$('hubHistoryMount'),history=document.getElementById('liveLoadHistory')?.parentElement;
   if(history&&!mount.contains(history))mount.append(history);
@@ -1582,9 +1464,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
   const btn=e.target.closest('[data-mcc-tab]');if(!btn||btn.dataset.mccTab==='history')return;
   root.hidden=false;$('hubHistory').hidden=true;
   $('hubAlerts').hidden=btn.dataset.mccTab!=='overview';
-  $('hubPrintPanel').hidden=btn.dataset.mccTab!=='schedules';
   if(btn.dataset.mccTab==='overview')coverage();
-  if(btn.dataset.mccTab==='schedules')initPrint();
  });
  const accessObserver=new MutationObserver(()=>{
   const allowed=!tabs.hidden&&homes().length>0;
@@ -1594,7 +1474,7 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
   }
  });
  accessObserver.observe(tabs,{attributes:true,attributeFilter:['hidden']});
- setTimeout(()=>{if(!tabs.hidden&&homes().length){root.hidden=false;coverage();initPrint();}},800);
+ setTimeout(()=>{if(!tabs.hidden&&homes().length){root.hidden=false;coverage();}},800);
  setInterval(()=>{if(!tabs.hidden&&homes().length){if(!$('hubAlerts').hidden)coverage()}},120000);
 })();
 </script>
