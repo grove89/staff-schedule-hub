@@ -397,7 +397,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="live-controls"><button class="btn" id="offSend" type="button">Submit time off</button><button class="btn secondary" id="offRefresh" type="button">Refresh time off</button></div><div id="offMine"></div>
 </section>
 </div></section>
-<section hidden="" id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Manage employees</h3><p class="sub">Changes are saved securely. Login associations are managed separately.</p><p aria-live="polite" class="sub" id="liveEditorStatus" role="status">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select class="field" id="liveEmployeeSelect" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input autocomplete="off" class="field" id="liveEmployeeName" maxlength="120" required="" style="width:100%;margin-bottom:12px"/><label for="liveEmployeeRole">Job title</label><select class="field" id="liveEmployeeRole" required="" style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select class="field" id="liveEmployeeHome" required="" style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><button class="btn" id="liveEmployeeSave" type="submit">Save to Supabase</button><button class="btn secondary" id="liveEmployeeRefresh" type="button">Refresh records</button><button class="btn secondary" hidden="" id="liveEmployeeDelete" style="border:1px solid #b91c1c;color:#b91c1c" type="button">Delete employee</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
+<section hidden="" id="liveEmployeeEditor" style="max-width:1100px;margin:0 auto 30px;padding:0 16px"><div class="card" style="padding:18px"><h3 style="margin:0 0 8px">Manage employees</h3><p class="sub">Changes are saved securely. Login associations are managed separately.</p><p aria-live="polite" class="sub" id="liveEditorStatus" role="status">Checking management access…</p><form id="liveEditorForm"><label for="liveEmployeeSelect">Employee</label><select class="field" id="liveEmployeeSelect" style="width:100%;margin-bottom:12px"><option value="">Add new employee</option></select><label for="liveEmployeeName">Full name</label><input autocomplete="off" class="field" id="liveEmployeeName" maxlength="120" required="" style="width:100%;margin-bottom:12px"/><label for="liveEmployeeRole">Job title</label><select class="field" id="liveEmployeeRole" required="" style="width:100%;margin-bottom:12px"><option value="">Select job title</option><option>Director</option><option>Regional Director</option><option>Program Director</option><option>Program Manager</option><option>Home Supervisor</option><option>Community Living Instructor Lead</option><option>Community Living Instructor</option><option>Cook</option></select><label for="liveEmployeeHome">Home</label><select class="field" id="liveEmployeeHome" required="" style="width:100%;margin-bottom:12px"><option value="">Select home</option><option value="1">Pathways</option><option value="2">Oasis</option><option value="3">Freedom</option><option value="4">Station</option></select><label for="liveEmployeeEmail">Employee email (private to authorized management)</label><input autocomplete="email" class="field" id="liveEmployeeEmail" type="email" maxlength="254" placeholder="employee@example.com" style="width:100%;margin-bottom:12px"/><p class="sub" style="margin:0 0 12px">Save the employee first, then send an invitation. Invitations require secure server setup.</p><button class="btn" id="liveEmployeeSave" type="submit">Save to Supabase</button><button class="btn secondary" id="liveEmployeeInvite" type="button" disabled title="Complete server invitation setup before enabling">✉️ Invite employee · Setup required</button><button class="btn secondary" id="liveEmployeeRefresh" type="button">Refresh records</button><button class="btn secondary" hidden="" id="liveEmployeeDelete" style="border:1px solid #b91c1c;color:#b91c1c" type="button">Delete employee</button></form><p class="sub" style="margin-top:12px">New employees are directory records only. They cannot sign in until an account is created and securely linked separately.</p></div></section>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const staffInviteHash = new URLSearchParams(location.hash.replace(/^#/,''));
@@ -443,13 +443,16 @@ const editorName=document.getElementById('liveEmployeeName');
 const editorRole=document.getElementById('liveEmployeeRole');
 const editorHome=document.getElementById('liveEmployeeHome');
 const editorSave=document.getElementById('liveEmployeeSave');
+const editorEmail=document.getElementById('liveEmployeeEmail');
+const editorInvite=document.getElementById('liveEmployeeInvite');
 const editorRefresh=document.getElementById('liveEmployeeRefresh');
 const editorDelete=document.getElementById('liveEmployeeDelete');
 let editorRecords=[];
+let editorContactEmails=new Map();
 let editorAuthorized=false;
 let editorHomes=[];
 function editorMessage(message){editorStatus.textContent=message;}
-function clearEditor(){editorAuthorized=false;editorHomes=[];editorSection.hidden=true;editorRecords=[];editorForm.reset();editorSelect.replaceChildren(new Option('Add new employee',''));editorDelete.hidden=true;}
+function clearEditor(){editorAuthorized=false;editorHomes=[];editorSection.hidden=true;editorRecords=[];editorContactEmails=new Map();editorForm.reset();editorSelect.replaceChildren(new Option('Add new employee',''));editorDelete.hidden=true;}
 function restrictEditorHomes(){
  const names={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'};
  editorHome.replaceChildren(new Option('Select home',''));
@@ -481,6 +484,10 @@ async function refreshEditorRecords(){
   const {data,error}=await client.from('Employees').select('id,full_name,job_title,home_id').order('id',{ascending:true}).limit(500);
   if(error){editorMessage('Unable to load records: '+error.message);return;}
   editorRecords=data||[];
+  editorContactEmails=new Map();
+  const contacts=await client.from('employee_invitation_contacts').select('employee_id,email');
+  if(!contacts.error)for(const c of contacts.data||[])editorContactEmails.set(Number(c.employee_id),c.email);
+  else editorMessage('Contact email setup pending: '+contacts.error.message);
   const previous=editorSelect.value;
   editorSelect.replaceChildren(new Option('Add new employee',''));
   for(const record of editorRecords){editorSelect.add(new Option((record.full_name||'Unnamed employee')+' (#'+record.id+')',String(record.id)));}
@@ -494,6 +501,8 @@ function populateEditor(){
   editorRole.value=record?.job_title||'';
   editorHome.value=record?.home_id==null?'':String(record.home_id);
   editorDelete.hidden=!record;
+  editorEmail.value=record?editorContactEmails.get(Number(record.id))||'':'';
+  editorInvite.disabled=true; // Server invitation function must be configured and verified first.
 }
 editorSelect.addEventListener('change',populateEditor);
 editorRefresh.addEventListener('click',refreshEditorRecords);
@@ -538,10 +547,14 @@ editorForm.addEventListener('submit',async event=>{
       ? await client.from('Employees').update(payload).eq('id',Number(id)).select('id').single()
       : await client.from('Employees').insert(payload).select('id').single();
     if(result.error)throw result.error;
+    if(editorEmail.value.trim()){
+      const {error:contactError}=await client.from('employee_invitation_contacts').upsert({employee_id:result.data.id,email:editorEmail.value.trim().toLowerCase(),updated_by:(await client.auth.getUser()).data.user?.id,updated_at:new Date().toISOString()},{onConflict:'employee_id'});
+      if(contactError)throw new Error('Employee saved, but email was not saved: '+contactError.message);
+    }
     await refreshEditorRecords();
     editorSelect.value=String(result.data.id);
     populateEditor();
-    editorMessage(id?'Employee updated in Supabase.':'Employee added to Supabase. No login was created.');
+    editorMessage('Employee and email saved. Invitations remain disabled until the secure sending function is deployed.');
   }catch(err){editorMessage('Save failed: '+(err?.message||String(err)));}
   finally{editorSave.disabled=false;}
 });
