@@ -772,6 +772,10 @@ async function lsLoadManager(){
 }
 // Pathways weekly template builder: management-only, server-authorized RPCs.
 const pbBox=document.getElementById('pathwaysBuilder');
+// Keep the weekly template builder visible for every managed house, including newly added houses.
+// It must not inherit the Pathways-only management-tools collapse state.
+const pbToolsParent=document.getElementById('pathwaysManagementTools');
+pbToolsParent.after(document.getElementById('pathwaysBuilder'));
 const pbRows=document.getElementById('pathwaysBuilderSlots');
 const pbStatus=document.getElementById('pathwaysBuilderStatus');
 const pbPublish=document.getElementById('pathwaysBuilderPublish');
