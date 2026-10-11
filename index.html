@@ -1945,7 +1945,7 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
 </style>
 <script id="alyssaHotdogSurprise">
 (()=>{
- let busy=false;
+ let lastShownUser='',lastShownAt=0;
  function dropHotdogs(){
   for(let i=0;i<9;i++){
    const dog=document.createElement('span');dog.className='alyssa-hotdog';dog.textContent='🌭';dog.setAttribute('aria-hidden','true');
@@ -1953,28 +1953,28 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
    dog.style.animationDelay=(i*.13)+'s';document.body.append(dog);setTimeout(()=>dog.remove(),4900);
   }
  }
- async function checkAlyssa(session){
-  if(busy||!session?.user?.id)return;busy=true;
+ async function checkSurprise(session){
+  const userId=session?.user?.id;
+  if(!userId || (lastShownUser===userId && Date.now()-lastShownAt<10000))return;
+  const api=window.staffHubSupabase;
+  if(!api)return;
   try{
-   const api=window.staffHubSupabase;if(!api)return;
-   const key='hotdog-surprise-'+session.user.id;
-   if(sessionStorage.getItem(key))return;
-   const {data,error}=await api.from('Employees').select('full_name').eq('auth_user_id',session.user.id).maybeSingle();
-   if(error)return;
-   if(String(data?.full_name||'').trim().toLocaleLowerCase('en-US')==='alyssa kindle'){
-    sessionStorage.setItem(key,'1');dropHotdogs();
+   // God Mode is explicitly included, even when its employee display name is Test Employee #1.
+   const {data:isAdmin,error:adminError}=await api.rpc('is_app_admin');
+   let eligible=!adminError&&isAdmin===true;
+   if(!eligible){
+    const {data:employee,error}=await api.from('Employees').select('full_name').eq('auth_user_id',userId).maybeSingle();
+    if(!error)eligible=String(employee?.full_name||'').trim().toLocaleLowerCase('en-US')==='alyssa kindle';
    }
-  }catch(e){console.warn('Login animation unavailable',e)}finally{busy=false}
+   if(eligible){lastShownUser=userId;lastShownAt=Date.now();dropHotdogs();}
+  }catch(e){console.warn('Login animation unavailable',e)}
  }
  function attach(){
   const api=window.staffHubSupabase;
   if(!api){setTimeout(attach,300);return}
   api.auth.onAuthStateChange((event,session)=>{
-   if(event==='SIGNED_IN')setTimeout(()=>checkAlyssa(session),150);
-   if(event==='SIGNED_OUT'){
-    // Allow another surprise on her next fresh login, not on every page load.
-    for(let i=sessionStorage.length-1;i>=0;i--){const k=sessionStorage.key(i);if(k?.startsWith('hotdog-surprise-'))sessionStorage.removeItem(k)}
-   }
+   if(event==='SIGNED_IN')setTimeout(()=>checkSurprise(session),250);
+   if(event==='SIGNED_OUT'){lastShownUser='';lastShownAt=0;}
   });
  }
  attach();
