@@ -1725,6 +1725,9 @@ header{flex-wrap:wrap}
 </style><script>
 // Isolated God Mode activity reader. All reads are re-authorized by Supabase.
 let godActivityOffset=0;
+let godActivityPage=1;
+let godActivityBack=[];
+let godActivityNext=null;
 async function godLoadActivity(){
  const host=document.getElementById('godActivityPanel');if(!host||host.hidden)return;
  const status=document.getElementById('godActivityStatus');status.textContent='Loading activity…';
@@ -1734,8 +1737,29 @@ async function godLoadActivity(){
  const days=document.getElementById('godDays').value;
  const since=days==='all'?null:new Date(Date.now()-Number(days)*86400000).toISOString();
  try{
-  const {data,error}=await window.staffHubSupabase.rpc('hub_activity_page',{p_type:type,p_home:home?Number(home):null,p_search:search,p_since:since,p_offset:godActivityOffset,p_limit:30});
-  if(error)throw error;
+  const api=window.staffHubSupabase;
+  const {data:authData,error:authError}=await api.auth.getUser();
+  if(authError)throw authError;
+  const myId=authData?.user?.id;
+  let cursor=godActivityOffset;
+  const data=[];
+  let hasMore=false;
+  // Read consecutive server pages to fill the screen without showing the God Mode user's events.
+  for(let batch=0;batch<25 && data.length<31;batch++){
+   const {data:chunk,error}=await api.rpc('hub_activity_page',{p_type:type,p_home:home?Number(home):null,p_search:search,p_since:since,p_offset:cursor,p_limit:100});
+   if(error)throw error;
+   const records=chunk||[];
+   for(let i=0;i<records.length;i++){
+    cursor++;
+    if(myId && records[i].actor_user_id===myId)continue;
+    data.push(records[i]);
+    if(data.length===31){cursor--;break;}
+   }
+   if(data.length===31){hasMore=true;break;}
+   if(records.length<100)break;
+  }
+  godActivityNext=hasMore?cursor:null;
+  if(data.length>30)data.pop();
   const feed=document.getElementById('godActivityFeed');feed.replaceChildren();
   for(const a of data||[]){
    const item=document.createElement('div');item.className='god-event';
@@ -1744,10 +1768,10 @@ async function godLoadActivity(){
    const detail=document.createElement('small');detail.textContent=Object.entries(a.details||{}).map(([k,v])=>k+': '+String(v)).join(' · ');
    item.append(heading,info,detail);feed.append(item);
   }
-  status.textContent=(data||[]).length+' entries loaded · Page '+(Math.floor(godActivityOffset/30)+1);
+  status.textContent=data.length+' entries loaded · Page '+godActivityPage+' · Your own activity hidden';
   if(!data?.length)feed.textContent='No activity found for these filters.';
-  document.getElementById('godNext').disabled=(data||[]).length<30;
-  document.getElementById('godPrev').disabled=godActivityOffset===0;
+  document.getElementById('godNext').disabled=godActivityNext===null;
+  document.getElementById('godPrev').disabled=godActivityBack.length===0;
  }catch(e){status.textContent='Could not load activity: '+(e.message||String(e));}
 }
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1755,9 +1779,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  host.innerHTML='<h3>🛡️ God Mode · Activity Log</h3><p>Private, filterable audit records. Newest first.</p><div class="god-filters"><input id="godSearch" class="field" placeholder="Search employee or action"><select id="godType" class="field"><option value="">All activities</option><option value="login">Logins</option><option value="shift_added">Shift added</option><option value="shift_updated">Shift updated</option><option value="shift_deleted">Shift deleted</option></select><select id="godHome" class="field"><option value="">All houses</option></select><select id="godDays" class="field"><option value="1">Past 24 hours</option><option value="7" selected>Past 7 days</option><option value="30">Past 30 days</option><option value="all">All time</option></select></div><button type="button" class="btn secondary" id="godApply">Apply filters</button><p id="godActivityStatus" role="status"></p><div id="godActivityFeed"></div><div class="god-actions"><button type="button" class="btn secondary" id="godPrev">← Previous</button><button type="button" class="btn secondary" id="godNext">Next →</button></div>';
  const homes=document.getElementById('godHome');
  for(const [id,name] of Object.entries({1:'Pathways',2:'Oasis',3:'Freedom',4:'Station',5:'Liberty'})){const opt=document.createElement('option');opt.value=id;opt.textContent=name;homes.append(opt);}
- document.getElementById('godApply').addEventListener('click',()=>{godActivityOffset=0;godLoadActivity()});
- document.getElementById('godPrev').addEventListener('click',()=>{godActivityOffset=Math.max(0,godActivityOffset-30);godLoadActivity()});
- document.getElementById('godNext').addEventListener('click',()=>{godActivityOffset+=30;godLoadActivity()});
+ document.getElementById('godApply').addEventListener('click',()=>{godActivityOffset=0;godActivityPage=1;godActivityBack=[];godLoadActivity()});
+ document.getElementById('godPrev').addEventListener('click',()=>{if(!godActivityBack.length)return;godActivityOffset=godActivityBack.pop();godActivityPage--;godLoadActivity()});
+ document.getElementById('godNext').addEventListener('click',()=>{if(godActivityNext===null)return;godActivityBack.push(godActivityOffset);godActivityOffset=godActivityNext;godActivityPage++;godLoadActivity()});
 });
 // Record one login per authenticated browser session, not on every tab click.
 document.addEventListener('DOMContentLoaded',()=>{
