@@ -776,11 +776,11 @@ async function lsLoadManager(){
  try{
   const [sh,em,tm]=await Promise.all([
    client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').eq('home_id',home).lt('starts_at',end).gt('ends_at',start).order('starts_at',{ascending:true}).limit(500),
-   client.from('Employees').select('id,full_name,home_id,auth_user_id,user_id').eq('home_id',home).order('full_name').limit(500),
+   client.from('Employees').select('id,full_name,home_id,job_title,auth_user_id,user_id').order('full_name').limit(1000),
    client.from('shift_templates').select('id,home_id,shift_label,start_time,end_time,available_slots').eq('home_id',home).order('id')
   ]);
   for(const r of [sh,em,tm])if(r.error)throw r.error;
-  lsShifts=sh.data||[];lsEmployees=em.data||[];lsTemplates=tm.data||[];
+  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));lsTemplates=tm.data||[];
   lsRenderManager();
   // The Pathways-style weekly calendar is the primary view for EVERY managed home.
   document.getElementById('pathwaysDashboardActions').hidden=false;
@@ -832,7 +832,7 @@ function pbDraw(){
    for(let slot=1;slot<=count;slot++){
     const key=pbSlotKey(template,day,slot);const wrap=lsEl('label','Slot '+slot);wrap.style.cssText='font-size:12px;display:block';
     const sel=lsEl('select',undefined,'field');sel.style.cssText='display:block;width:100%;margin-top:4px';sel.disabled=pbPublished;
-    lsOption(sel,'','OPEN — unassigned');for(const emp of lsEmployees)lsOption(sel,emp.id,emp.full_name);
+    lsOption(sel,'','OPEN — unassigned');for(const emp of lsEmployees)lsOption(sel,emp.id,emp.full_name+(Number(emp.home_id)===Number(lsHome.value)?'':' · '+(LS_HOMES[emp.home_id]||'Other home')));
     sel.value=String(pbAssignments[key]||'');sel.onchange=()=>{if(sel.value)pbAssignments[key]=sel.value;else delete pbAssignments[key];pbMessage('Unsaved changes — tap Save draft.');};
     wrap.append(sel);grid.append(wrap);
    }
@@ -936,7 +936,7 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  document.getElementById('liveShiftDelete').hidden=!shift;
  lsTemplate.replaceChildren();lsOption(lsTemplate,'','Custom times / choose a template');
  for(const t of lsTemplates)lsOption(lsTemplate,t.id,t.shift_label+' · '+t.start_time.slice(0,5)+'–'+t.end_time.slice(0,5)+' · '+t.available_slots+' slots');
- lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name);
+ lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name+(Number(e.home_id)===home?'':' · '+(LS_HOMES[e.home_id]||'Other home')));
  const d=shift?new Date(shift.starts_at):null;
  document.getElementById('liveShiftDate').value=d?lsDate(d):date;
  document.getElementById('liveShiftStart').value=d?`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'08:00';
@@ -953,7 +953,7 @@ lsForm.addEventListener('submit',async e=>{
  const a=lsLocalTime(date,start),b=lsLocalTime(date,end);if(b<=a)b.setDate(b.getDate()+1);
  if(b-a>24*60*60*1000){lsMsg('A shift cannot exceed 24 hours.',true);return;}
  const employee_id=lsEmployee.value?Number(lsEmployee.value):null;
- if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)){lsMsg('Select an employee from this home.',true);return;}
+ if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)){lsMsg('Select an eligible employee.',true);return;}
  const payload={home_id:home,employee_id,starts_at:a.toISOString(),ends_at:b.toISOString()};
  const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving live shift…');
  try{
