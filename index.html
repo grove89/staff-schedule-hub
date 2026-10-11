@@ -1331,7 +1331,7 @@ async function mccLoad(){
  }catch(e){if(ticket===mccGeneration)status.textContent='Could not load overview: '+(e.message||String(e));}
 }
 const mccOriginalAccess=lsLoadAccess;
-lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;const {data:godMode}=await client.rpc('is_app_admin');document.getElementById('godHousesTab').hidden=godMode!==true;document.getElementById('godActivityTab').hidden=godMode!==true;document.getElementById('godHoursTab').hidden=godMode!==true;document.body.classList.toggle('god-obsidian',godMode===true);if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
+lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;const {data:godMode}=await client.rpc('is_app_admin');document.getElementById('godHousesTab').hidden=godMode!==true;document.getElementById('godActivityTab').hidden=godMode!==true;document.getElementById('godHoursTab').hidden=!hasAccess;document.body.classList.toggle('god-obsidian',godMode===true);if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
 // Refresh the overview once a minute while the page is open; no database writes.
 mccTimer=setInterval(()=>{if(!mccTabs.hidden&&mccActive==='overview')mccLoad();},60000);
 
@@ -1936,5 +1936,48 @@ function initializeGodHoursPanel(){
 }
 initializeGodHoursPanel();
 document.getElementById('godHoursTab')?.addEventListener('click',()=>{initializeGodHoursPanel();setTimeout(()=>window.hubLoadHours?.(),100);});
+</script>
+
+<style id="alyssaHotdogStyle">
+.alyssa-hotdog{position:fixed;top:-85px;z-index:99999;pointer-events:none;font-size:clamp(34px,8vw,58px);filter:drop-shadow(0 4px 4px #0007);animation:alyssa-hotdog-fall var(--duration) cubic-bezier(.28,.02,.7,1) forwards;left:var(--left)}
+@keyframes alyssa-hotdog-fall{0%{transform:translateY(-100px) rotate(-35deg);opacity:0}10%{opacity:1}75%{transform:translateY(65vh) rotate(210deg);opacity:1}88%{transform:translateY(62vh) rotate(230deg)}100%{transform:translateY(115vh) rotate(280deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.alyssa-hotdog{animation-duration:1.4s!important}}
+</style>
+<script id="alyssaHotdogSurprise">
+(()=>{
+ let busy=false;
+ function dropHotdogs(){
+  for(let i=0;i<9;i++){
+   const dog=document.createElement('span');dog.className='alyssa-hotdog';dog.textContent='🌭';dog.setAttribute('aria-hidden','true');
+   dog.style.setProperty('--left',(5+Math.random()*84)+'vw');dog.style.setProperty('--duration',(2.3+Math.random()*1.1)+'s');
+   dog.style.animationDelay=(i*.13)+'s';document.body.append(dog);setTimeout(()=>dog.remove(),4900);
+  }
+ }
+ async function checkAlyssa(session){
+  if(busy||!session?.user?.id)return;busy=true;
+  try{
+   const api=window.staffHubSupabase;if(!api)return;
+   const key='hotdog-surprise-'+session.user.id;
+   if(sessionStorage.getItem(key))return;
+   const {data,error}=await api.from('Employees').select('full_name').eq('auth_user_id',session.user.id).maybeSingle();
+   if(error)return;
+   if(String(data?.full_name||'').trim().toLocaleLowerCase('en-US')==='alyssa kindle'){
+    sessionStorage.setItem(key,'1');dropHotdogs();
+   }
+  }catch(e){console.warn('Login animation unavailable',e)}finally{busy=false}
+ }
+ function attach(){
+  const api=window.staffHubSupabase;
+  if(!api){setTimeout(attach,300);return}
+  api.auth.onAuthStateChange((event,session)=>{
+   if(event==='SIGNED_IN')setTimeout(()=>checkAlyssa(session),150);
+   if(event==='SIGNED_OUT'){
+    // Allow another surprise on her next fresh login, not on every page load.
+    for(let i=sessionStorage.length-1;i>=0;i--){const k=sessionStorage.key(i);if(k?.startsWith('hotdog-surprise-'))sessionStorage.removeItem(k)}
+   }
+  });
+ }
+ attach();
+})();
 </script>
 </body></html>
