@@ -379,7 +379,98 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
 }
 #managementCommandCenter .mcc-home[data-home-id] h4 { color:var(--home-accent,#fff)!important; }
 </style>
-</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
+
+<style id="obsidianGoldGodMode">
+/* Obsidian Gold — admin-only appearance. Other users retain Midnight Reflective Glass. */
+body.god-obsidian{
+  --rg-edge:rgba(220,178,93,.66);--rg-glow:rgba(218,164,64,.22);
+  --rg-sheen:rgba(255,240,206,.12);
+  background:radial-gradient(ellipse 90% 50% at 95% 0%,rgba(143,102,37,.19),transparent 70%),
+    linear-gradient(155deg,#050506,#12110f 55%,#080808)!important;
+  color:#f7f5ef!important;
+}
+body.god-obsidian header{
+  background:linear-gradient(120deg,#090909,#242018 55%,#0c0c0d)!important;
+  border-bottom:1px solid #b38b4d!important;
+}
+body.god-obsidian header h1,body.god-obsidian h1,body.god-obsidian h2,
+body.god-obsidian h3,body.god-obsidian h4{color:#f9f7f2!important}
+body.god-obsidian .sub,body.god-obsidian .muted,body.god-obsidian p,
+body.god-obsidian label{color:#d6d0c4}
+body.god-obsidian #liveScheduling .card,
+body.god-obsidian #liveScheduling .mcc-home,
+body.god-obsidian #liveScheduling .mcc-entry,
+body.god-obsidian #liveScheduling .glass-staff-panel,
+body.god-obsidian #liveScheduling #managementCommandCenter,
+body.god-obsidian #liveScheduling #liveManagerSchedule,
+body.god-obsidian #liveScheduling #liveMySchedule,
+body.god-obsidian #liveScheduling #openShiftArea,
+body.god-obsidian #liveScheduling #liveMyShifts>*,
+body.god-obsidian #liveScheduling #openShiftList>*,
+body.god-obsidian #liveScheduling #mccRequestsPanel,
+body.god-obsidian #liveScheduling #mccStaffPanel,
+body.god-obsidian #liveScheduling .live-home,
+body.god-obsidian #liveScheduling .live-shift,
+body.god-obsidian #liveScheduling .open-shift,
+body.god-obsidian #liveDirectory .card,
+body.god-obsidian #liveEmployeeEditor .card,
+body.god-obsidian .card,
+body.god-obsidian #godActivityPanel,
+body.god-obsidian .god-event{
+  background-color:rgba(21,20,19,.94)!important;
+  background-image:linear-gradient(120deg,rgba(226,191,120,.13),rgba(18,18,19,.12) 35%,rgba(165,125,54,.09))!important;
+  border-color:rgba(198,158,84,.59)!important;
+  box-shadow:inset 0 1px 0 rgba(255,236,193,.16),0 8px 25px rgba(0,0,0,.38)!important;
+  color:#f5f3ee!important;
+}
+body.god-obsidian .card::before,
+body.god-obsidian #liveScheduling .card::before{
+  background:linear-gradient(112deg,rgba(255,232,183,.11),transparent 38%,rgba(217,171,91,.06))!important;
+}
+body.god-obsidian .btn:not(.danger),
+body.god-obsidian button:not(.danger):not([disabled]){
+  border-color:#a9874d!important;
+}
+body.god-obsidian .btn:not(.secondary):not(.danger),
+body.god-obsidian #managerTabStrip button[aria-selected="true"]{
+  background:linear-gradient(130deg,#b58a43,#f1d394 50%,#aa7932)!important;
+  color:#17120b!important;
+  text-shadow:none!important;
+}
+body.god-obsidian .btn.secondary,
+body.god-obsidian #managerTabStrip button:not([aria-selected="true"]){
+  background:#211e19!important;color:#f8f4eb!important;
+}
+body.god-obsidian .field,
+body.god-obsidian input,
+body.god-obsidian select,
+body.god-obsidian textarea{
+  background-color:#1c1b19!important;
+  color:#fffaf0!important;
+  border-color:#79613e!important;
+}
+body.god-obsidian input::placeholder,
+body.god-obsidian textarea::placeholder{color:#b9ad99!important}
+body.god-obsidian table th{background:#29241d!important;color:#f0d59c!important}
+body.god-obsidian table td{color:#f8f4eb!important;border-color:#504331!important}
+body.god-obsidian .tag,
+body.god-obsidian .pill,
+body.god-obsidian .badge{
+  background:#40311c!important;color:#ffe1a0!important;
+  border:1px solid #93713c!important;
+}
+body.god-obsidian a{color:#f1cb81}
+body.god-obsidian .hint,
+body.god-obsidian .notice,
+body.god-obsidian .preview{
+  background:#26221b!important;color:#f3e9d5!important;
+  border-color:#86683b!important;
+}
+body.god-obsidian dialog,
+body.god-obsidian .editor-panel{background:#181715!important;color:#f6f3eb!important}
+body.god-obsidian :focus-visible{outline:2px solid #f1cf88!important;outline-offset:2px}
+</style>
+</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
 <div class="schedule-controls"><label for="scheduleHome">Home</label><select class="field" id="scheduleHome" onchange="renderSchedule()"><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><button class="btn secondary small" onclick="changeWeek(-1)">← Previous</button><b id="weekLabel"></b><button class="btn secondary small" onclick="changeWeek(1)">Next →</button></div>
@@ -1130,13 +1221,14 @@ const mccOverview=document.getElementById('managementCommandCenter');
 let mccActive='overview',mccTimer=null,mccGeneration=0;
 const mccRequests=document.createElement('section');mccRequests.id='mccRequestsPanel';mccRequests.className='mcc-tab-panel';mccRequests.hidden=true;
 const mccStaff=document.createElement('section');mccStaff.id='mccStaffPanel';mccStaff.className='mcc-tab-panel';mccStaff.hidden=true;
+const godActivity=document.createElement('section');godActivity.id='godActivityPanel';godActivity.className='mcc-tab-panel';godActivity.hidden=true;
 const mccHouses=document.createElement('section');mccHouses.id='mccHousesPanel';mccHouses.className='mcc-tab-panel';mccHouses.hidden=true;
 mccHouses.innerHTML='<h3>🏘️ Manage Houses</h3><p class="sub">God Mode only · Each new house gets its own 1/2/2 weekly staffing template.</p><div id="godHouseList" class="mcc-grid"></div><form id="godHouseForm" class="hub-controls"><label for="godHouseName">New house name</label><input id="godHouseName" class="field" maxlength="80" minlength="2" required placeholder="e.g. Liberty"><button class="btn" type="submit">+ Add House</button></form><p id="godHouseStatus" role="status"></p>';
 const mccSchedules=document.getElementById('liveManagerSchedule');
 const mccParent=mccSchedules.parentNode;
 mccParent.insertBefore(mccRequests,mccSchedules.nextSibling);
 mccParent.insertBefore(mccStaff,mccRequests.nextSibling);
-mccParent.insertBefore(mccHouses,mccStaff.nextSibling);
+mccParent.insertBefore(mccHouses,mccStaff.nextSibling);mccParent.insertBefore(godActivity,mccHouses.nextSibling);
 mccStaff.innerHTML='<h3>Employee management</h3><p>Use the secure employee editor below to manage authorized staff records.</p><button type="button" class="btn secondary" id="mccJumpStaff">Open employee editor ↓</button>';
 document.getElementById('mccJumpStaff').addEventListener('click',()=>document.getElementById('liveEmployeeEditor')?.scrollIntoView({behavior:'smooth'}));
 for(const id of ['managerRequests','managerExtras']){const node=document.getElementById(id);if(node)mccRequests.append(node);}
@@ -1169,9 +1261,9 @@ document.getElementById('godHouseForm').addEventListener('submit',async e=>{
 function mccSelect(tab){
  mccActive=tab;
  for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b.dataset.mccTab===tab));
- mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccHouses.hidden=tab!=='houses';
+ mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccHouses.hidden=tab!=='houses';godActivity.hidden=tab!=='activity';
  if(employeeEditor&&lsAllowed.length)employeeEditor.style.display=tab==='staff'?'':'none';
- if(tab==='overview')mccLoad();if(tab==='houses')hubDrawHouses();
+ if(tab==='overview')mccLoad();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();
  window.scrollTo({top:0,behavior:'instant'});
 }
 for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.addEventListener('click',()=>mccSelect(b.dataset.mccTab));
@@ -1210,7 +1302,7 @@ async function mccLoad(){
  }catch(e){if(ticket===mccGeneration)status.textContent='Could not load overview: '+(e.message||String(e));}
 }
 const mccOriginalAccess=lsLoadAccess;
-lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;const {data:godMode}=await client.rpc('is_app_admin');document.getElementById('godHousesTab').hidden=godMode!==true;if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
+lsLoadAccess=async function(...args){await mccOriginalAccess(...args);const hasAccess=lsAllowed.length>0;mccTabs.hidden=!hasAccess;const {data:godMode}=await client.rpc('is_app_admin');document.getElementById('godHousesTab').hidden=godMode!==true;document.getElementById('godActivityTab').hidden=godMode!==true;document.body.classList.toggle('god-obsidian',godMode===true);if(hasAccess){mccSelect('overview');}else{++mccGeneration;mccOverview.hidden=true;mccRequests.hidden=true;mccStaff.hidden=true;}};
 // Refresh the overview once a minute while the page is open; no database writes.
 mccTimer=setInterval(()=>{if(!mccTabs.hidden&&mccActive==='overview')mccLoad();},60000);
 
@@ -1594,4 +1686,59 @@ header{flex-wrap:wrap}
  });
 })();
 </script>
-</body></html>
+<style id="godActivityStyles">
+#godActivityPanel{padding:20px;border:1px solid #37628c;border-radius:20px;background:linear-gradient(145deg,#0b3158,#071b37);color:#f4f9ff}
+#godActivityPanel .god-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:16px 0}
+#godActivityPanel .god-filters .field{width:100%;min-width:0}
+#godActivityPanel .god-event{padding:14px;margin:9px 0;border:1px solid #2b527a;border-radius:12px;background:#0b2748}
+#godActivityPanel .god-event small{display:block;color:#b8cee5;margin-top:5px}
+#godActivityPanel .god-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:15px}
+</style><script>
+// Isolated God Mode activity reader. All reads are re-authorized by Supabase.
+let godActivityOffset=0;
+async function godLoadActivity(){
+ const host=document.getElementById('godActivityPanel');if(!host||host.hidden)return;
+ const status=document.getElementById('godActivityStatus');status.textContent='Loading activity…';
+ const type=document.getElementById('godType').value||null;
+ const home=document.getElementById('godHome').value||null;
+ const search=document.getElementById('godSearch').value.trim()||null;
+ const days=document.getElementById('godDays').value;
+ const since=days==='all'?null:new Date(Date.now()-Number(days)*86400000).toISOString();
+ try{
+  const {data,error}=await window.staffHubSupabase.rpc('hub_activity_page',{p_type:type,p_home:home?Number(home):null,p_search:search,p_since:since,p_offset:godActivityOffset,p_limit:30});
+  if(error)throw error;
+  const feed=document.getElementById('godActivityFeed');feed.replaceChildren();
+  for(const a of data||[]){
+   const item=document.createElement('div');item.className='god-event';
+   const heading=document.createElement('strong');heading.textContent=(a.actor_name||'System')+' · '+a.activity_type.replaceAll('_',' ');
+   const info=document.createElement('small');info.textContent=new Date(a.occurred_at).toLocaleString()+(a.home_name?' · '+a.home_name:'');
+   const detail=document.createElement('small');detail.textContent=Object.entries(a.details||{}).map(([k,v])=>k+': '+String(v)).join(' · ');
+   item.append(heading,info,detail);feed.append(item);
+  }
+  status.textContent=(data||[]).length+' entries loaded · Page '+(Math.floor(godActivityOffset/30)+1);
+  if(!data?.length)feed.textContent='No activity found for these filters.';
+  document.getElementById('godNext').disabled=(data||[]).length<30;
+  document.getElementById('godPrev').disabled=godActivityOffset===0;
+ }catch(e){status.textContent='Could not load activity: '+(e.message||String(e));}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+ const host=document.getElementById('godActivityPanel');if(!host)return;
+ host.innerHTML='<h3>🛡️ God Mode · Activity Log</h3><p>Private, filterable audit records. Newest first.</p><div class="god-filters"><input id="godSearch" class="field" placeholder="Search employee or action"><select id="godType" class="field"><option value="">All activities</option><option value="login">Logins</option><option value="shift_added">Shift added</option><option value="shift_updated">Shift updated</option><option value="shift_deleted">Shift deleted</option></select><select id="godHome" class="field"><option value="">All houses</option></select><select id="godDays" class="field"><option value="1">Past 24 hours</option><option value="7" selected>Past 7 days</option><option value="30">Past 30 days</option><option value="all">All time</option></select></div><button type="button" class="btn secondary" id="godApply">Apply filters</button><p id="godActivityStatus" role="status"></p><div id="godActivityFeed"></div><div class="god-actions"><button type="button" class="btn secondary" id="godPrev">← Previous</button><button type="button" class="btn secondary" id="godNext">Next →</button></div>';
+ const homes=document.getElementById('godHome');
+ for(const [id,name] of Object.entries({1:'Pathways',2:'Oasis',3:'Freedom',4:'Station',5:'Liberty'})){const opt=document.createElement('option');opt.value=id;opt.textContent=name;homes.append(opt);}
+ document.getElementById('godApply').addEventListener('click',()=>{godActivityOffset=0;godLoadActivity()});
+ document.getElementById('godPrev').addEventListener('click',()=>{godActivityOffset=Math.max(0,godActivityOffset-30);godLoadActivity()});
+ document.getElementById('godNext').addEventListener('click',()=>{godActivityOffset+=30;godLoadActivity()});
+});
+// Record one login per authenticated browser session, not on every tab click.
+document.addEventListener('DOMContentLoaded',()=>{
+ let lastUser=null;
+ window.staffHubSupabase.auth.onAuthStateChange((event,session)=>{
+  if(!session?.user){lastUser=null;return;}
+  if((event==='SIGNED_IN'||event==='INITIAL_SESSION')&&lastUser!==session.user.id){
+   lastUser=session.user.id;
+   setTimeout(()=>window.staffHubSupabase.rpc('hub_record_login').then(({error})=>{if(error)console.warn('Activity login logging:',error.message)}),0);
+  }
+ });
+});
+</script></body></html>
