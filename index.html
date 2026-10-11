@@ -461,7 +461,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Load week</button><button class="btn secondary" id="pathwaysBuilderCopy" type="button">Copy previous week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save draft</button><button class="btn" id="pathwaysBuilderPublish" type="button">Publish entire week</button></div>
 <p class="live-muted" id="pathwaysBuilderStatus" role="status"></p><div id="pathwaysBuilderSlots"></div>
 </section>
-<div class="card" hidden="" id="liveShiftPanel" style="padding:16px;margin-top:18px"><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm"><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" id="liveShiftDate" required="" type="date"/></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" id="liveShiftStart" required="" type="time"/></div><div><label for="liveShiftEnd">End time</label><input class="field" id="liveShiftEnd" required="" type="time"/></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" id="liveShiftSave" type="submit">Save shift</button><button class="btn danger" hidden="" id="liveShiftDelete" type="button">Delete shift</button><button class="btn secondary" id="liveShiftCancel" type="button">Cancel</button></div></form></div>
+<div class="card" hidden="" id="liveShiftPanel" style="padding:16px;margin-top:18px"><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm" novalidate><div id="liveShiftFeedback" role="status" aria-live="polite" style="display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #86bfff;border-radius:12px;background:#0a2c54;color:#fff;font-weight:700"></div><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" id="liveShiftDate" required="" type="date"/></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" id="liveShiftStart" required="" type="time"/></div><div><label for="liveShiftEnd">End time</label><input class="field" id="liveShiftEnd" required="" type="time"/></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" id="liveShiftSave" type="submit">Save shift</button><button class="btn danger" hidden="" id="liveShiftDelete" type="button">Delete shift</button><button class="btn secondary" id="liveShiftCancel" type="button">Cancel</button></div></form></div>
 <div id="managerRequests"><h3>Open-shift requests <span class="request-count" id="managerRequestCount">0</span></h3><button class="btn secondary" id="managerRequestsRefresh" type="button">Refresh requests</button><div aria-live="polite" id="managerRequestList"></div></div><div class="staff-extra" id="managerExtras" style="margin-top:20px"><h3>Trade approvals <span class="request-count" id="tradeManagerCount">0</span></h3><button class="btn secondary" id="tradeManagerRefresh" type="button">Refresh trade approvals</button><div id="tradeManagerList"></div><h3 style="margin-top:22px">Time-off approvals <span class="request-count" id="offManagerCount">0</span></h3><button class="btn secondary" id="offManagerRefresh" type="button">Refresh time-off approvals</button><div id="offManagerList"></div></div><div style="margin-top:20px"><h3>Management-only change history</h3><p class="live-muted">Only authorized management can retrieve these records. The database records the account, timestamp, and before/after values.</p><button class="btn secondary" id="liveLoadHistory" type="button">Load change history</button><div class="live-history" id="liveHistory"></div></div>
 </div><!-- /pathwaysManagementTools --></div>
 <div hidden="" id="liveMySchedule"><h3>My upcoming shifts</h3><div class="live-controls"><button class="btn secondary" id="liveMyRefresh" type="button">Refresh my shifts</button></div><div id="liveMyShifts"></div></div>
@@ -745,7 +745,14 @@ function lsDate(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'
 function lsDay(date,delta){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());d.setDate(d.getDate()+delta);return d;}
 function lsNice(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 function lsTime(d){return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
-function lsMsg(m,bad=false){lsStatus.textContent=m;lsStatus.classList.toggle('live-error',bad);}
+function lsMsg(m,bad=false){
+ lsStatus.textContent=m;lsStatus.classList.toggle('live-error',bad);
+ const feedback=document.getElementById('liveShiftFeedback');
+ if(feedback&&!lsPanel.hidden){
+   feedback.style.display='block';feedback.textContent=m;
+   feedback.style.borderColor=bad?'#ff8b9d':'#86bfff';
+ }
+}
 function lsEl(tag,value,cls){const e=document.createElement(tag);if(value!==undefined)e.textContent=value;if(cls)e.className=cls;return e;}
 function lsOption(select,value,label){select.add(new Option(label,String(value)));}
 function lsLocalTime(date,time){const [y,m,d]=date.split('-').map(Number),[h,min]=time.split(':').map(Number);return new Date(y,m-1,d,h,min);}
@@ -943,11 +950,15 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  const e=shift?new Date(shift.ends_at):null;
  document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
  lsEmployee.value=shift?.employee_id==null?'':String(shift.employee_id);
+ const feedback=document.getElementById('liveShiftFeedback');
+ if(feedback){feedback.style.display='none';feedback.textContent='';}
  lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 lsTemplate.addEventListener('change',()=>{const t=lsTemplates.find(t=>String(t.id)===lsTemplate.value);if(t){document.getElementById('liveShiftStart').value=t.start_time.slice(0,5);document.getElementById('liveShiftEnd').value=t.end_time.slice(0,5);}});
 lsForm.addEventListener('submit',async e=>{
- e.preventDefault();const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;
+ e.preventDefault();
+ const home=Number(lsHome.value);
+ if(!lsAllowed.includes(home)){lsMsg('Save blocked: You do not have management access to this home.',true);return;}
  const date=document.getElementById('liveShiftDate').value,start=document.getElementById('liveShiftStart').value,end=document.getElementById('liveShiftEnd').value;
  if(!date||!start||!end){lsMsg('Enter a date and start/end times.',true);return;}
  const a=lsLocalTime(date,start),b=lsLocalTime(date,end);if(b<=a)b.setDate(b.getDate()+1);
