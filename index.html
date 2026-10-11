@@ -1482,4 +1482,63 @@ document.getElementById('pwvRefresh').onclick=pwvLoad;
  setInterval(()=>{if(!tabs.hidden&&homes().length){if(!$('hubAlerts').hidden)coverage()}},120000);
 })();
 </script>
+
+<style id="signedInIdentityStyle">
+header{flex-wrap:wrap}
+#accountNavButton{display:flex!important;align-items:center;gap:9px;max-width:100%;text-align:left;border:1px solid rgba(235,247,255,.72)!important;background:linear-gradient(125deg,rgba(52,109,180,.43),rgba(8,39,85,.8))!important;border-radius:15px!important;padding:9px 12px!important;box-shadow:inset 0 1px #ffffff30,0 5px 18px #0004}
+#accountNavButton[hidden]{display:none!important}
+#accountNavButton .identity-icon{font-size:21px;flex-shrink:0}
+#accountNavButton .identity-text{display:flex;flex-direction:column;min-width:0;gap:2px}
+#accountNavButton .identity-name{font-size:13px;color:#fff;font-weight:800;overflow-wrap:anywhere}
+#accountNavButton .identity-role{font-size:11px;color:#cce3ff;font-weight:550}
+#accountSwitchPanel .identity-detail{font-size:13px;color:#d3e8ff;margin-top:8px;overflow-wrap:anywhere}
+@media(max-width:650px){#accountNavButton{width:100%;justify-content:flex-start}header>div:first-child{flex:1 1 100%}}
+</style>
+<script id="signedInIdentityScript">
+(function(){
+ const client=window.staffHubSupabase;
+ const nav=document.getElementById('accountNavButton');
+ const logout=document.getElementById('logoutTestButton');
+ const panel=document.getElementById('accountSwitchPanel');
+ if(!client||!nav||!logout||!panel)return;
+ const inner=panel.querySelector('.account-inner');
+ const detail=document.createElement('p');detail.className='identity-detail';
+ detail.id='signedInIdentityDetail';inner.insertBefore(detail,inner.querySelector('#logoutTestButton'));
+ let version=0;
+ const draw=(name,role,email)=>{
+  nav.replaceChildren();
+  const icon=document.createElement('span');icon.className='identity-icon';icon.textContent='👤';
+  const wrap=document.createElement('span');wrap.className='identity-text';
+  const primary=document.createElement('span');primary.className='identity-name';primary.textContent=name;
+  const secondary=document.createElement('span');secondary.className='identity-role';secondary.textContent=role;
+  wrap.append(primary,secondary);nav.append(icon,wrap);
+  nav.setAttribute('aria-label','Signed in as '+name+', '+role+'. Account details');
+  const emailField=document.getElementById('accountSwitchEmail');
+  if(emailField)emailField.textContent='Signed in as '+name;
+  detail.textContent='Role: '+role+(email?' · Login: '+email:'');
+ };
+ async function refresh(){
+  const run=++version;
+  if(logout.hidden){nav.hidden=true;panel.hidden=true;return;}
+  draw('Checking account…','Signed in','');
+  try{
+   const {data:{user},error}=await client.auth.getUser();
+   if(run!==version)return;
+   if(error||!user){draw('Account','Session unavailable','');return;}
+   const email=user.email||'';
+   let admin=false;
+   try{const result=await client.rpc('is_app_admin');admin=result.error==null&&result.data===true;}catch(e){}
+   if(run!==version)return;
+   if(admin){draw('grove_8912','Administrator · God Mode',email);return;}
+   const result=await client.from('Employees').select('full_name,job_title').eq('auth_user_id',user.id).limit(1).maybeSingle();
+   if(run!==version)return;
+   const person=result.error?null:result.data;
+   draw(person?.full_name||email||'Staff account',person?.job_title||'Employee',email);
+  }catch(e){if(run===version)draw('Account','Unable to load profile','');}
+ }
+ new MutationObserver(()=>{if(logout.hidden){++version;nav.hidden=true;panel.hidden=true;}else refresh();}).observe(logout,{attributes:true,attributeFilter:['hidden']});
+ client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='INITIAL_SESSION'||event==='SIGNED_OUT'||event==='USER_UPDATED')setTimeout(refresh,0);});
+ setTimeout(refresh,0);
+})();
+</script>
 </body></html>
