@@ -1289,7 +1289,7 @@ function mccSelect(tab){
  for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b.dataset.mccTab===tab));
  mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccHouses.hidden=tab!=='houses';godActivity.hidden=tab!=='activity';godHours.hidden=tab!=='hours';
  if(employeeEditor&&lsAllowed.length)employeeEditor.style.display=tab==='staff'?'':'none';
- if(tab==='overview')mccLoad();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();if(tab==='hours')window.hubLoadHours?.();
+ if(tab==='overview')mccLoad();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();if(tab==='hours'){initializeGodHoursPanel?.();window.hubLoadHours?.();}
  window.scrollTo({top:0,behavior:'instant'});
 }
 for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.addEventListener('click',()=>mccSelect(b.dataset.mccTab));
@@ -1876,10 +1876,12 @@ body.god-obsidian #godModeCornerMascot{display:block}
 #godHoursPanel .hours-summary{color:#e5d3b0}
 </style>
 <script id="godHoursScript">
-document.addEventListener("DOMContentLoaded",()=>{
+function initializeGodHoursPanel(){
  const panel=document.getElementById('godHoursPanel');
  const activity=document.getElementById('godActivityPanel');
- if(!panel||!activity)return;
+ if(!panel||!activity)return false;
+ if(panel.dataset.hoursInitialized==='yes')return true;
+ panel.dataset.hoursInitialized='yes';
  activity.parentElement.insertBefore(panel,activity);
  const today=new Date();const monday=new Date(today);monday.setDate(today.getDate()-(today.getDay()+6)%7);
  const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1901,6 +1903,12 @@ document.addEventListener("DOMContentLoaded",()=>{
   }catch(e){status.textContent='Unable to load hours: '+(e.message||String(e));}
  };
  panel.querySelector('#hoursRefresh').addEventListener('click',window.hubLoadHours);
-})();
+ return true;
+}
+document.addEventListener('DOMContentLoaded',initializeGodHoursPanel);
+document.getElementById('godHoursTab')?.addEventListener('click',()=>{initializeGodHoursPanel();window.hubLoadHours?.();});
+// The management UI is constructed by a module; it can finish after DOMContentLoaded.
+let hoursInitAttempts=0;
+const hoursInitTimer=setInterval(()=>{hoursInitAttempts++;if(initializeGodHoursPanel()||hoursInitAttempts>40)clearInterval(hoursInitTimer);},250);
 </script>
 </body></html>
