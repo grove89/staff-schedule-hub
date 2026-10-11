@@ -1943,38 +1943,72 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
 @keyframes alyssa-hotdog-fall{0%{transform:translateY(-100px) rotate(-35deg);opacity:0}10%{opacity:1}75%{transform:translateY(65vh) rotate(210deg);opacity:1}88%{transform:translateY(62vh) rotate(230deg)}100%{transform:translateY(115vh) rotate(280deg);opacity:0}}
 @media(prefers-reduced-motion:reduce){.alyssa-hotdog{animation-duration:1.4s!important}}
 </style>
-<script id="alyssaHotdogSurprise">
+<style id="loginSpecialEffectsStyle">
+.login-raccoon{position:fixed;bottom:9px;left:0;z-index:99999;pointer-events:none;font-size:clamp(56px,14vw,88px);line-height:1;filter:drop-shadow(0 8px 5px #0008);animation:raccoon-dash 3.5s ease-in-out forwards;transform:translateX(-140px);will-change:transform}
+.login-raccoon .raccoon-legs{display:block;animation:raccoon-bob .17s ease-in-out infinite alternate}
+@keyframes raccoon-dash{0%{transform:translateX(-150px)}100%{transform:translateX(calc(100vw + 150px))}}
+@keyframes raccoon-bob{to{transform:translateY(-12px) rotate(-4deg)}}
+#godRobotIntro{position:fixed;inset:0;z-index:100000;pointer-events:none;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at center,rgba(15,48,67,.9),rgba(2,5,12,.95));animation:robot-overlay-exit 3.4s ease forwards}
+#godRobotIntro .robot-core{position:relative;display:grid;place-items:center;gap:12px;color:#c6faff;text-align:center;animation:robot-entry .85s cubic-bezier(.16,1.4,.3,1) both}
+#godRobotIntro .robot-face{width:130px;height:112px;border:3px solid #83faff;border-radius:27px;display:grid;place-items:center;background:linear-gradient(145deg,#142b41,#08121e);box-shadow:0 0 25px #00eaff9c,inset 0 0 30px #00eaff40;position:relative}
+#godRobotIntro .robot-face:before{content:"";position:absolute;top:-24px;width:4px;height:21px;background:#b1faff;box-shadow:0 0 12px cyan}
+#godRobotIntro .robot-face:after{content:"";position:absolute;top:-32px;width:12px;height:12px;border-radius:50%;background:#e6ca83;box-shadow:0 0 16px #f5d283}
+#godRobotIntro .robot-eyes{font-size:42px;font-weight:900;letter-spacing:8px;color:#b3fbff;text-shadow:0 0 18px #12e9ff;animation:robot-blink 1s ease-in-out 1.2s}
+#godRobotIntro .robot-title{font:800 20px/1.3 system-ui,sans-serif;letter-spacing:.22em;color:#fff;text-shadow:0 0 20px #4bdfff}
+#godRobotIntro .robot-sub{font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.3em;color:#e8c98b}
+#godRobotIntro .robot-ring{position:absolute;width:280px;height:280px;border:2px dashed #4edffb80;border-radius:50%;animation:robot-spin 3s linear infinite;box-shadow:0 0 30px #02c9ed33}
+#godRobotIntro .robot-scan{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 7px,#40e5ff0d 8px 9px);animation:robot-scan 1.5s linear infinite}
+@keyframes robot-entry{from{opacity:0;transform:scale(.3) translateY(50px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes robot-overlay-exit{0%,73%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes robot-spin{to{transform:rotate(360deg)}}
+@keyframes robot-blink{50%{opacity:.12}}
+@keyframes robot-scan{to{transform:translateY(20px)}}
+@media(prefers-reduced-motion:reduce){.login-raccoon{animation-duration:1.5s}.login-raccoon .raccoon-legs,#godRobotIntro .robot-ring,#godRobotIntro .robot-scan{animation:none}#godRobotIntro{animation-duration:1.7s}}
+</style>
+<script id="staffLoginSurprises">
 (()=>{
- let lastShownUser='',lastShownAt=0;
- function dropHotdogs(){
+ let lastUser='',lastTime=0,loginSequence=0;
+ function hotdogs(){
   for(let i=0;i<9;i++){
    const dog=document.createElement('span');dog.className='alyssa-hotdog';dog.textContent='🌭';dog.setAttribute('aria-hidden','true');
    dog.style.setProperty('--left',(5+Math.random()*84)+'vw');dog.style.setProperty('--duration',(2.3+Math.random()*1.1)+'s');
    dog.style.animationDelay=(i*.13)+'s';document.body.append(dog);setTimeout(()=>dog.remove(),4900);
   }
  }
- async function checkSurprise(session){
-  const userId=session?.user?.id;
-  if(!userId || (lastShownUser===userId && Date.now()-lastShownAt<10000))return;
-  const api=window.staffHubSupabase;
-  if(!api)return;
+ function raccoon(){
+  const el=document.createElement('div');el.className='login-raccoon';el.setAttribute('aria-hidden','true');
+  el.innerHTML='<span class="raccoon-legs">🦝</span>';document.body.append(el);setTimeout(()=>el.remove(),4300);
+ }
+ function robot(){
+  document.getElementById('godRobotIntro')?.remove();
+  const el=document.createElement('div');el.id='godRobotIntro';el.setAttribute('aria-hidden','true');
+  el.innerHTML='<div class="robot-scan"></div><div class="robot-ring"></div><div class="robot-core"><div class="robot-face"><div class="robot-eyes">• •</div></div><div class="robot-title">GOD MODE ONLINE</div><div class="robot-sub">COMMAND SYSTEM ACTIVATED</div></div>';
+  document.body.append(el);setTimeout(()=>el.remove(),3700);
+ }
+ async function check(session){
+  const userId=session?.user?.id,seq=++loginSequence;
+  if(!userId||(lastUser===userId&&Date.now()-lastTime<15000))return;
+  const api=window.staffHubSupabase;if(!api)return;
   try{
-   // God Mode is explicitly included, even when its employee display name is Test Employee #1.
-   const {data:isAdmin,error:adminError}=await api.rpc('is_app_admin');
-   let eligible=!adminError&&isAdmin===true;
-   if(!eligible){
-    const {data:employee,error}=await api.from('Employees').select('full_name').eq('auth_user_id',userId).maybeSingle();
-    if(!error)eligible=String(employee?.full_name||'').trim().toLocaleLowerCase('en-US')==='alyssa kindle';
+   const {data:admin,error:adminError}=await api.rpc('is_app_admin');
+   if(seq!==loginSequence)return;
+   if(!adminError&&admin===true){
+    lastUser=userId;lastTime=Date.now();robot();return;
    }
-   if(eligible){lastShownUser=userId;lastShownAt=Date.now();dropHotdogs();}
-  }catch(e){console.warn('Login animation unavailable',e)}
+   const {data:employee,error}=await api.from('Employees').select('full_name').eq('auth_user_id',userId).maybeSingle();
+   if(seq!==loginSequence||error)return;
+   const name=String(employee?.full_name||'').trim().replace(/\\s+/g,' ').toLocaleLowerCase('en-US');
+   lastUser=userId;lastTime=Date.now();
+   if(name==='alyssa kindle')hotdogs();
+   else if(name==='austin janes')raccoon();
+  }catch(e){console.warn('Login effect unavailable',e)}
  }
  function attach(){
   const api=window.staffHubSupabase;
   if(!api){setTimeout(attach,300);return}
   api.auth.onAuthStateChange((event,session)=>{
-   if(event==='SIGNED_IN')setTimeout(()=>checkSurprise(session),250);
-   if(event==='SIGNED_OUT'){lastShownUser='';lastShownAt=0;}
+   if(event==='SIGNED_IN')setTimeout(()=>check(session),300);
+   if(event==='SIGNED_OUT'){lastUser='';lastTime=0;loginSequence++;}
   });
  }
  attach();
