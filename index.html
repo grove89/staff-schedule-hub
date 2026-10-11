@@ -359,6 +359,26 @@ body{background:radial-gradient(ellipse 80% 35% at 95% 5%,rgba(13,90,204,.25),tr
   -webkit-backdrop-filter:blur(17px) saturate(1.3);
 }
 </style>
+<style id="unifiedHomeCalendarAndOverviewAccents">
+/* Consistent Pathways calendar across every managed home. */
+#pathwaysWeeklyViewer .pwv-day-title { background:linear-gradient(135deg,#174f82,#216da7)!important; }
+#pathwaysWeeklyViewer .pwv-day { box-shadow:0 8px 22px #00172b55; }
+#pathwaysWeeklyViewer .pwv-shift { border-top:1px solid #ffffff66!important; border-right:1px solid #ffffff66!important; border-bottom:1px solid #ffffff66!important; }
+#pathwaysWeeklyViewer .pwv-shift.pwv-morning { background:linear-gradient(155deg,#ffe27a,#f4c94c)!important; }
+#pathwaysWeeklyViewer .pwv-shift.pwv-evening { background:linear-gradient(145deg,#65518a,#49386e)!important; }
+#pathwaysWeeklyViewer .pwv-shift.pwv-overnight { background:linear-gradient(145deg,#38516c,#273a52)!important; }
+/* House identity accents are subtle, not full-theme replacements. */
+#managementCommandCenter .mcc-home[data-home-id="1"] { --home-accent:#7db8ff; --home-tint:#0d3765; }
+#managementCommandCenter .mcc-home[data-home-id="2"] { --home-accent:#72d5cc; --home-tint:#10484d; }
+#managementCommandCenter .mcc-home[data-home-id="3"] { --home-accent:#c5a3ff; --home-tint:#39345d; }
+#managementCommandCenter .mcc-home[data-home-id="4"] { --home-accent:#f3c77f; --home-tint:#4b3d34; }
+#managementCommandCenter .mcc-home[data-home-id="5"] { --home-accent:#94d7a5; --home-tint:#254d43; }
+#managementCommandCenter .mcc-home[data-home-id] {
+ border-left:4px solid var(--home-accent,#7db8ff)!important;
+ background:linear-gradient(120deg,var(--home-tint,#0d3765),#092956 78%)!important;
+}
+#managementCommandCenter .mcc-home[data-home-id] h4 { color:var(--home-accent,#fff)!important; }
+</style>
 </head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
@@ -762,11 +782,15 @@ async function lsLoadManager(){
   for(const r of [sh,em,tm])if(r.error)throw r.error;
   lsShifts=sh.data||[];lsEmployees=em.data||[];lsTemplates=tm.data||[];
   lsRenderManager();
-  const onPathways=home===1;
-  document.getElementById('pathwaysDashboardActions').hidden=!onPathways;
-  document.getElementById('pathwaysViewerControl').hidden=!onPathways;
-  if(!onPathways){pwvPanel.hidden=true;pwvTools.hidden=false;}
-  else {pwvPanel.hidden=false;pwvTools.hidden=true;pwvToolsButton.setAttribute('aria-expanded','false');pwvToolsButton.textContent='⚙️ Edit Schedule & Management Tools';pwvRender();}
+  // The Pathways-style weekly calendar is the primary view for EVERY managed home.
+  document.getElementById('pathwaysDashboardActions').hidden=false;
+  document.getElementById('pathwaysViewerControl').hidden=true;
+  pwvPanel.hidden=false;
+  pwvTools.hidden=true;
+  pwvToolsButton.setAttribute('aria-expanded','false');
+  pwvToolsButton.textContent='⚙️ Edit Schedule & Management Tools';
+  pwvWeek=new Date(lsWeek.getFullYear(),lsWeek.getMonth(),lsWeek.getDate());
+  pwvRender();
   await pbLoad();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Publish the weekly builder to create OPEN positions.');
  }catch(e){lsMsg('Could not load live schedule: '+e.message,true);}
 }
@@ -1159,12 +1183,12 @@ async function mccLoad(){
   current.replaceChildren();upcoming.replaceChildren();
   for(const home of homeIds){
    const name=LS_HOMES[home]||'Home';
-   const c=lsEl('article',undefined,'mcc-home');c.append(lsEl('h4',name));
+   const c=lsEl('article',undefined,'mcc-home');c.dataset.homeId=String(home);c.append(lsEl('h4',name));
    const working=active.filter(x=>Number(x.home_id)===home);
    if(!working.length)c.append(lsEl('p','No currently scheduled shifts.','mcc-empty'));
    for(const sh of working){const person=people.get(Number(sh.employee_id));mccEntry(c,sh.employee_id==null?'OPEN SHIFT':person?.full_name||'Employee #'+sh.employee_id,(person?.job_title?person.job_title+' · ':'')+'Until '+lsTime(new Date(sh.ends_at)),sh.employee_id==null);}
    current.append(c);
-   const n=lsEl('article',undefined,'mcc-home');n.append(lsEl('h4',name));
+   const n=lsEl('article',undefined,'mcc-home');n.dataset.homeId=String(home);n.append(lsEl('h4',name));
    const next=future.filter(x=>Number(x.home_id)===home);
    if(!next.length)n.append(lsEl('p','No upcoming shifts in the next 48 hours.','mcc-empty'));
    else{const first=next[0].starts_at;const batch=next.filter(x=>x.starts_at===first);for(const sh of batch){const person=people.get(Number(sh.employee_id));const when=new Date(sh.starts_at);mccEntry(n,sh.employee_id==null?'OPEN SHIFT':person?.full_name||'Employee #'+sh.employee_id,(person?.job_title?person.job_title+' · ':'')+when.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+lsTime(when),sh.employee_id==null);}}
@@ -1289,10 +1313,11 @@ function pwvShiftColor(shift){
 }
 function pwvRender(){
  if(pwvPanel.hidden)return;
- if(!lsAllowed.includes(1)){pwvPanel.hidden=true;return;}
+ if(!lsAllowed.includes(Number(lsHome.value))){pwvPanel.hidden=true;return;}
+ document.querySelector('#pathwaysWeeklyViewer .pwv-top h3').textContent=(LS_HOMES[Number(lsHome.value)]||'Home')+' · Published Weekly Schedule';
  document.getElementById('pwvWeekLabel').textContent=lsNice(pwvWeek)+' – '+lsNice(lsDay(pwvWeek,6));
  pwvDays.replaceChildren();
- const all=lsShifts.filter(s=>Number(s.home_id)===1);
+ const all=lsShifts.filter(s=>Number(s.home_id)===Number(lsHome.value));
  for(let i=0;i<7;i++){
   const date=lsDay(pwvWeek,i),start=new Date(date.getFullYear(),date.getMonth(),date.getDate()),end=lsDay(date,1);
   const day=lsEl('article',undefined,'pwv-day');
@@ -1315,8 +1340,8 @@ function pwvRender(){
    editButton.type='button';
    editButton.setAttribute('aria-label','Edit '+(employee?.full_name||'open shift')+' on '+date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}));
    editButton.onclick=async()=>{
-    if(!lsAllowed.includes(1)){
-     lsMsg('Your account does not have permission to edit Pathways shifts.',true);
+    if(!lsAllowed.includes(Number(shift.home_id))){
+     lsMsg('Your account does not have permission to edit this home’s shifts.',true);
      return;
     }
     editButton.disabled=true;
@@ -1325,8 +1350,8 @@ function pwvRender(){
      // Synchronize them before opening the edit form; never silently ignore a tap.
      const targetWeek=lsMonday(new Date(shift.starts_at));
      const weekChanged=lsDate(lsWeek)!==lsDate(targetWeek);
-     const homeChanged=Number(lsHome.value)!==1;
-     if(homeChanged)lsHome.value='1';
+     const homeChanged=Number(lsHome.value)!==Number(shift.home_id);
+     if(homeChanged)lsHome.value=String(shift.home_id);
      if(weekChanged)lsWeek=targetWeek;
      if(homeChanged||weekChanged)await lsLoadManager();
      const current=lsShifts.find(s=>Number(s.id)===Number(shift.id));
@@ -1335,7 +1360,7 @@ function pwvRender(){
      // Opening the form must be visible even while the weekly viewer stays open.
      lsPanel.hidden=false;
      lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
-     lsMsg('Editing Pathways shift. Make changes below, then tap Save shift.');
+     lsMsg('Editing shift. Make changes below, then tap Save shift.');
     }catch(err){
      lsMsg('Unable to open shift editor: '+(err?.message||String(err)),true);
     }finally{editButton.disabled=false;}
@@ -1347,15 +1372,13 @@ function pwvRender(){
  }
 }
 async function pwvLoad(){
- if(pwvPanel.hidden||!lsAllowed.includes(1))return;
- const original=Number(lsHome.value);
- if(original!==1){lsHome.value='1';}
+ if(pwvPanel.hidden||!lsAllowed.includes(Number(lsHome.value)))return;
  lsWeek=new Date(pwvWeek.getFullYear(),pwvWeek.getMonth(),pwvWeek.getDate());
  await lsLoadManager();
  pwvRender();
 }
 document.getElementById('pathwaysViewerToggle').onclick=async()=>{
- if(!lsAllowed.includes(1)){alert('Pathways management access is required.');return;}
+ if(!lsAllowed.includes(Number(lsHome.value))){alert('Management access is required.');return;}
  pwvPanel.hidden=!pwvPanel.hidden;
  if(!pwvPanel.hidden){pwvWeek=lsMonday(lsWeek);await pwvLoad();pwvPanel.scrollIntoView({behavior:'smooth',block:'start'});}
 };
