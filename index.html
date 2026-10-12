@@ -1988,7 +1988,7 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
    if(seq!==loginSequence||error)return;
    const name=String(employee?.full_name||'').trim().replace(/\\s+/g,' ').toLocaleLowerCase('en-US');
    lastUser=userId;lastTime=Date.now();
-   if(name==='alyssa kindle')hotdogs();
+   if(name==='alyssa kindle'){hotdogs();godHeadRain();}
    else if(name==='austin janes')raccoon();
   }catch(e){console.warn('Login effect unavailable',e)}
  }
