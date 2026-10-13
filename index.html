@@ -602,7 +602,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Reload roster</button><button class="btn secondary" id="pathwaysBuilderCopy" type="button" hidden>Copy previous week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save Master Roster</button><button class="btn" id="pathwaysBuilderPublish" type="button">Build Weekly Schedule</button></div>
 <p class="live-muted" id="pathwaysBuilderStatus" role="status"></p><div id="pathwaysBuilderSlots"></div>
 </section>
-<div class="card" hidden="" id="liveShiftPanel" style="padding:16px;margin-top:18px"><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm" novalidate><div id="liveShiftFeedback" role="status" aria-live="polite" style="display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #86bfff;border-radius:12px;background:#0a2c54;color:#fff;font-weight:700"></div><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" id="liveShiftDate" required="" type="date"/></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" id="liveShiftStart" required="" type="time"/></div><div><label for="liveShiftEnd">End time</label><input class="field" id="liveShiftEnd" required="" type="time"/></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" id="liveShiftSave" type="submit">Save shift</button><button class="btn danger" hidden="" id="liveShiftDelete" type="button">Delete shift</button><button class="btn secondary" id="liveShiftCancel" type="button">Cancel</button></div></form></div>
+<div class="card" hidden="" id="liveShiftPanel" style="padding:16px;margin-top:18px"><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm" novalidate><div id="liveShiftFeedback" role="status" aria-live="polite" style="display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #86bfff;border-radius:12px;background:#0a2c54;color:#fff;font-weight:700"></div><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" id="liveShiftDate" required="" type="date"/></div><div><label for="liveShiftEndDate">Through date (optional)</label><input class="field" id="liveShiftEndDate" type="date"/></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" id="liveShiftStart" required="" type="time"/></div><div><label for="liveShiftEnd">End time</label><input class="field" id="liveShiftEnd" required="" type="time"/></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><div id="liveShiftRepeatOptions" style="margin:12px 0"><strong>Days to schedule</strong><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px"><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="0" checked/> Mon</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="1" checked/> Tue</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="2" checked/> Wed</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="3" checked/> Thu</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="4" checked/> Fri</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="5" checked/> Sat</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="6" checked/> Sun</label></div><p class="live-muted">Choose a date range and the weekdays to include. For five consecutive weekdays, select Monday–Friday. Existing shifts are never overwritten.</p></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" id="liveShiftSave" type="submit">Save shift</button><button class="btn danger" hidden="" id="liveShiftDelete" type="button">Delete shift</button><button class="btn secondary" id="liveShiftCancel" type="button">Cancel</button></div></form></div>
 <div id="managerRequests"><h3>Open-shift requests <span class="request-count" id="managerRequestCount">0</span></h3><button class="btn secondary" id="managerRequestsRefresh" type="button">Refresh requests</button><div aria-live="polite" id="managerRequestList"></div></div><div class="staff-extra" id="managerExtras" style="margin-top:20px"><div id="retiredManagerTrades" hidden><h3>Trade approvals <span class="request-count" id="tradeManagerCount">0</span></h3><button class="btn secondary" id="tradeManagerRefresh" type="button">Refresh trade approvals</button><div id="tradeManagerList"></div></div><h3 style="margin-top:22px">Time-off approvals <span class="request-count" id="offManagerCount">0</span></h3><button class="btn secondary" id="offManagerRefresh" type="button">Refresh time-off approvals</button><div id="offManagerList"></div></div><div style="margin-top:20px"><h3>Management-only change history</h3><p class="live-muted">Only authorized management can retrieve these records. The database records the account, timestamp, and before/after values.</p><button class="btn secondary" id="liveLoadHistory" type="button">Load change history</button><div class="live-history" id="liveHistory"></div></div>
 </div><!-- /pathwaysManagementTools --></div>
 <div hidden="" id="liveMySchedule"><h3>My Shifts</h3><p class="sub">Current week and the next two weeks · Monday–Sunday</p><div class="my-three-week-tabs" id="myThreeWeekTabs" role="tablist" aria-label="My schedule weeks"></div><div class="my-calendar-scroll"><div class="my-calendar-days" id="myCalendarDays" aria-label="My shifts calendar"></div></div><div class="live-controls"><button class="btn secondary" id="liveMyRefresh" type="button">Refresh my shifts</button></div><div id="liveMyShifts"></div></div>
@@ -1047,11 +1047,14 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  lsEditing=shift?Number(shift.id):null;lsPanel.hidden=false;
  document.getElementById('liveShiftPanelTitle').textContent=shift?'Edit shift':'Add shift';
  document.getElementById('liveShiftDelete').hidden=!shift;
+ document.getElementById('liveShiftRepeatOptions').hidden=!!shift;
+ document.getElementById('liveShiftEndDate').disabled=!!shift;
  lsTemplate.replaceChildren();lsOption(lsTemplate,'','Custom times / choose a template');
  for(const t of lsTemplates)lsOption(lsTemplate,t.id,t.shift_label+' · '+t.start_time.slice(0,5)+'–'+t.end_time.slice(0,5)+' · '+t.available_slots+' slots');
  lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name+(Number(e.home_id)===home?'':' · '+(LS_HOMES[e.home_id]||'Other home')));
  const d=shift?new Date(shift.starts_at):null;
  document.getElementById('liveShiftDate').value=d?lsDate(d):date;
+ document.getElementById('liveShiftEndDate').value=d?lsDate(d):date;
  document.getElementById('liveShiftStart').value=d?`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:'08:00';
  const e=shift?new Date(shift.ends_at):null;
  document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
@@ -1067,17 +1070,45 @@ lsForm.addEventListener('submit',async e=>{
  if(!lsAllowed.includes(home)){lsMsg('Save blocked: You do not have management access to this home.',true);return;}
  const date=document.getElementById('liveShiftDate').value,start=document.getElementById('liveShiftStart').value,end=document.getElementById('liveShiftEnd').value;
  if(!date||!start||!end){lsMsg('Enter a date and start/end times.',true);return;}
- const a=lsLocalTime(date,start),b=lsLocalTime(date,end);if(b<=a)b.setDate(b.getDate()+1);
- if(b-a>24*60*60*1000){lsMsg('A shift cannot exceed 24 hours.',true);return;}
+ const through=lsEditing?date:(document.getElementById('liveShiftEndDate').value||date);
+ if(through<date){lsMsg('Through date cannot precede the start date.',true);return;}
+ const first=lsLocalTime(date,'12:00'),last=lsLocalTime(through,'12:00');
+ const count=Math.round((last-first)/86400000)+1;
+ if(count>93){lsMsg('Choose a range of 93 days or fewer.',true);return;}
+ const days=new Set([...document.querySelectorAll('.liveShiftDay:checked')].map(el=>Number(el.value)));
  const employee_id=lsEmployee.value?Number(lsEmployee.value):null;
  if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)){lsMsg('Select an eligible employee.',true);return;}
- const payload={home_id:home,employee_id,starts_at:a.toISOString(),ends_at:b.toISOString()};
- const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving live shift…');
+ const payloads=[];
+ for(let i=0;i<count;i++){
+  const day=lsDay(first,i),key=lsDate(day),weekday=(day.getDay()+6)%7;
+  if(!lsEditing&&!days.has(weekday))continue;
+  const a=lsLocalTime(key,start),b=lsLocalTime(key,end);if(b<=a)b.setDate(b.getDate()+1);
+  if(b-a>86400000){lsMsg('A shift cannot exceed 24 hours.',true);return;}
+  payloads.push({home_id:home,employee_id,starts_at:a.toISOString(),ends_at:b.toISOString()});
+ }
+ if(!payloads.length){lsMsg('No dates selected. Check your weekday choices.',true);return;}
+ if(!lsEditing){
+  const overlaps=payloads.filter(p=>lsShifts.some(s=>Number(s.home_id)===home&&s.employee_id===p.employee_id&&new Date(s.starts_at)<new Date(p.ends_at)&&new Date(s.ends_at)>new Date(p.starts_at)));
+  if(overlaps.length){lsMsg('Save blocked: '+overlaps.length+' selected date(s) overlap an existing shift for this employee. No changes made.',true);return;}
+  if(!confirm('Add '+payloads.length+' shift(s) to '+LS_HOMES[home]+'?\n\n'+(employee_id?(lsEmployees.find(e=>Number(e.id)===employee_id)?.full_name||'Selected employee'):'OPEN / Vacant')+' · '+start+'–'+end+'\n'+date+' through '+through))return;
+ }
+ const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving '+payloads.length+' shift(s)…');
  try{
-  const result=lsEditing?await client.from('Shifts').update(payload).eq('id',lsEditing).eq('home_id',home).select('id'):await client.from('Shifts').insert(payload).select('id');
-  if(result.error)throw result.error;if(result.data?.length!==1)throw new Error('No shift saved. Check database permissions.');
-  await lsLoadManager();lsMsg('Shift saved in Supabase. Change recorded in management history.');
- }catch(err){lsMsg('Save failed: '+err.message,true);}finally{save.disabled=false;}
+  if(lsEditing){
+   const result=await client.from('Shifts').update(payloads[0]).eq('id',lsEditing).eq('home_id',home).select('id');
+   if(result.error)throw result.error;if(result.data?.length!==1)throw new Error('No shift saved. Check database permissions.');
+  }else{
+   // Insert individually so a failed row can be identified and successful dates are reported.
+   let saved=0;
+   for(const payload of payloads){
+    const result=await client.from('Shifts').insert(payload).select('id');
+    if(result.error){throw new Error(saved+' of '+payloads.length+' saved before error on '+payload.starts_at.slice(0,10)+': '+result.error.message);}
+    if(result.data?.length!==1)throw new Error(saved+' shifts saved; next shift could not be confirmed.');
+    saved++;
+   }
+  }
+  await lsLoadManager();lsMsg((lsEditing?'Shift updated.':payloads.length+' shifts added.')+' Changes recorded in management history.');
+ }catch(err){await lsLoadManager();lsMsg('Save failed: '+err.message,true);}finally{save.disabled=false;}
 });
 document.getElementById('liveShiftDelete').addEventListener('click',async()=>{
  const home=Number(lsHome.value);if(!lsEditing||!lsAllowed.includes(home))return;
