@@ -1281,7 +1281,7 @@ async function mccLoadTimeOffTab(){const out=document.getElementById('ptoTabList
  for(const r of group){const item=lsEl('div',undefined,'request-item');item.append(lsEl('strong',(r.employee_name||'Employee')+' · '+r.start_date+' to '+r.end_date+(r.start_time?' · '+r.start_time.slice(0,5)+'–'+r.end_time.slice(0,5):' · All day')));if(r.note)item.append(lsEl('small',r.note));
  if(status==='Pending')for(const [label,approve] of [['Approve',true],['Deny',false]])item.append(reqButton(label,async()=>{if(!confirm(label+' PTO?'))return;await xRpc('staff_decide_time_off',{p_id:r.id,p_approve:approve});await Promise.all([mccLoadTimeOffTab(),xLoadManagerTimeOff(),lsLoadManager(),lsLoadMine()]);},!approve));sec.append(item);}out.append(sec);}
  }catch(e){out.replaceChildren(lsEl('p','Time off: '+e.message,'live-error'));}}
-document.getElementById('ptoTabRefresh').addEventListener('click',mccLoadTimeOffTab);
+
 const mccStaff=document.createElement('section');mccStaff.id='mccStaffPanel';mccStaff.className='mcc-tab-panel';mccStaff.hidden=true;
 const godHours=document.getElementById('godHoursPanel');
 const godActivity=document.createElement('section');godActivity.id='godActivityPanel';godActivity.className='mcc-tab-panel';godActivity.hidden=true;
@@ -1290,7 +1290,7 @@ mccHouses.innerHTML='<h3>🏘️ Manage Houses</h3><p class="sub">God Mode only 
 const mccSchedules=document.getElementById('liveManagerSchedule');
 const mccParent=mccSchedules.parentNode;
 mccParent.insertBefore(mccRequests,mccSchedules.nextSibling);
-mccParent.insertBefore(mccStaff,mccRequests.nextSibling);mccParent.insertBefore(mccTimeOff,mccStaff.nextSibling);
+mccParent.insertBefore(mccStaff,mccRequests.nextSibling);mccParent.insertBefore(mccTimeOff,mccStaff.nextSibling);document.getElementById('ptoTabRefresh').addEventListener('click',mccLoadTimeOffTab);
 mccParent.insertBefore(mccHouses,mccStaff.nextSibling);mccParent.insertBefore(godActivity,mccHouses.nextSibling);
 mccStaff.innerHTML='<h3>Employee management</h3><p>Use the secure employee editor below to manage authorized staff records.</p><button type="button" class="btn secondary" id="mccJumpStaff">Open employee editor ↓</button>';
 document.getElementById('mccJumpStaff').addEventListener('click',()=>document.getElementById('liveEmployeeEditor')?.scrollIntoView({behavior:'smooth'}));
