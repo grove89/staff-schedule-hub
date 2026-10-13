@@ -507,16 +507,13 @@ body.god-activity-active #godActivityPanel{display:block!important;visibility:vi
 #pathwaysWeeklyViewer .pwv-role-tag.pwv-lead-tag{background:#d4e5ff!important;color:#164b88!important;border:1px solid #8db5ed!important}
 #pathwaysWeeklyViewer .pwv-role-tag.pwv-cook-tag{background:#b9edc6!important;color:#125e30!important;border:1px solid #69bf81!important}
 </style><style id="skylineFlybyStyles">
-#skylineFlyby{position:fixed;inset:0;z-index:100003;pointer-events:none;overflow:hidden;background:transparent;animation:flybyScene 7s ease forwards}
-#skylineFlyby .skyline-buildings{position:absolute;bottom:0;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;gap:12px;opacity:.88;filter:drop-shadow(0 0 8px #d3d3dd)}
-#skylineFlyby .skyline-tower{position:relative;width:clamp(55px,14vw,110px);height:min(40vh,310px);background:repeating-linear-gradient(90deg,#536476 0 3px,#a5b0b8 3px 5px,#46596c 5px 8px);border:2px solid #b7c4d0;border-bottom:0}
-#skylineFlyby .skyline-tower:before{content:'';position:absolute;left:50%;bottom:100%;height:38px;width:3px;background:#c6d1dc}
-#skylineFlyby .skyline-tower:last-child{height:min(37vh,290px)}
-#skylineFlyby .skyline-plane{position:absolute;top:22%;left:0;font-size:clamp(50px,14vw,110px);filter:drop-shadow(0 3px 3px #0006);animation:planeSafeFlyby 6.4s linear forwards;white-space:nowrap}
-#skylineFlyby .skyline-caption{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);padding:7px 14px;border-radius:10px;background:#131b2cd9;color:#fff;font:bold 13px system-ui;white-space:nowrap}
-@keyframes planeSafeFlyby{from{transform:translateX(-150px) rotate(0)}to{transform:translateX(calc(100vw + 150px)) rotate(0)}}
-@keyframes flybyScene{0%{opacity:0}12%,83%{opacity:1}100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){#skylineFlyby .skyline-plane{animation-duration:2s}#skylineFlyby{animation-duration:3s}}
+#skylineFlyby{position:fixed;inset:0;z-index:100003;pointer-events:none;overflow:hidden;background:#a9c3d7;animation:flybyScene 8s ease forwards}
+#skylineFlyby .skyline-photo{position:absolute;inset:0;background-image:url("https://commons.wikimedia.org/wiki/Special:FilePath/World-Trade-Center-Twin-Tower-01.jpg?width=960");background-position:center 40%;background-size:cover;background-repeat:no-repeat;filter:contrast(1.08) saturate(.88)}
+#skylineFlyby .skyline-plane{position:absolute;top:40%;left:0;width:clamp(140px,38vw,310px);height:clamp(65px,16vw,130px);background-image:url("https://commons.wikimedia.org/wiki/Special:FilePath/Airplane%E2%80%99s_side_view.jpg?width=640");background-position:center;background-size:cover;background-repeat:no-repeat;clip-path:ellipse(49% 38% at 50% 50%);mix-blend-mode:multiply;filter:contrast(1.2);animation:planeSafeFlyby 7.3s linear forwards}
+#skylineFlyby .skyline-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:10px;background:#131b2cdd;color:#fff;font:bold 13px system-ui;white-space:nowrap}
+@keyframes planeSafeFlyby{from{transform:translateX(-120%) translateY(-15vh)}to{transform:translateX(calc(100vw + 100%)) translateY(-15vh)}}
+@keyframes flybyScene{0%{opacity:0}10%,85%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){#skylineFlyby .skyline-plane{animation-duration:3s}#skylineFlyby{animation-duration:4s}}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
@@ -2033,8 +2030,8 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
  function skylineFlyby(){
   document.getElementById('skylineFlyby')?.remove();
   const scene=document.createElement('div');scene.id='skylineFlyby';scene.setAttribute('aria-hidden','true');
-  scene.innerHTML='<div class="skyline-buildings"><div class="skyline-tower"></div><div class="skyline-tower"></div></div><div class="skyline-plane">✈️</div><div class="skyline-caption">Just passing through ✈️</div>';
-  document.body.append(scene);setTimeout(()=>scene.remove(),7100);
+  scene.innerHTML='<div class="skyline-photo"></div><div class="skyline-plane"></div><div class="skyline-caption">Just passing through ✈️</div>';
+  document.body.append(scene);setTimeout(()=>scene.remove(),8100);
  }
  function godLoginEffects(){godHeadRain();setTimeout(skylineFlyby,7400);}
  function alyssaLoginEffects(){hotdogs();godHeadRain();setTimeout(skylineFlyby,7400);}
