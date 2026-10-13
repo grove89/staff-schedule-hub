@@ -477,7 +477,7 @@ body.god-hours-active #staffExtraArea,
 body.god-hours-active #liveManagerSchedule,
 body.god-hours-active #managementCommandCenter,
 body.god-hours-active #mccRequestsPanel,
-body.god-hours-active #mccStaffPanel,
+body.god-hours-active #mccStaffPanel,body.god-hours-active #mccTimeOffPanel,
 body.god-hours-active #mccHousesPanel,
 body.god-hours-active #godActivityPanel,
 body.god-hours-active #liveShiftPanel,
@@ -488,7 +488,7 @@ body.god-activity-active #staffExtraArea,
 body.god-activity-active #liveManagerSchedule,
 body.god-activity-active #managementCommandCenter,
 body.god-activity-active #mccRequestsPanel,
-body.god-activity-active #mccStaffPanel,
+body.god-activity-active #mccStaffPanel,body.god-activity-active #mccTimeOffPanel,
 body.god-activity-active #mccHousesPanel,
 body.god-activity-active #godHoursPanel{display:none!important}
 body.god-hours-active #godHoursPanel{display:block!important;visibility:visible!important}
@@ -611,8 +611,9 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div id="retiredTradeControls" hidden><h3>Shift trades &amp; giveaways</h3><p class="live-muted">Offer your upcoming shift to another employee. Both the recipient and authorized management must approve.</p>
 <div class="live-form-grid"><div><label for="tradeOwn">Your shift</label><select class="field" id="tradeOwn"></select></div><div><label for="tradeKind">Offer type</label><select class="field" id="tradeKind"><option value="Giveaway">Giveaway</option><option value="Swap">Swap</option></select></div><div><label for="tradeRecipient">Offer to</label><select class="field" id="tradeRecipient"></select></div><div hidden="" id="tradeSwapBox"><label for="tradeSwapShift">Shift to receive</label><select class="field" id="tradeSwapShift"></select></div></div>
 <div class="live-controls"><button class="btn" id="tradeSend" type="button">Send trade offer</button><button class="btn secondary" id="tradeRefresh" type="button">Refresh trades</button></div><div id="tradeMine"></div></div>
-<h3 style="margin-top:25px">Time-off requests</h3><p class="live-muted">Request future dates off. Approval records the decision; existing shifts are not automatically removed.</p>
+<h3 style="margin-top:25px">Time-off requests</h3><p class="live-muted">Request whole days or specific hours. Approved PTO adjusts scheduled shifts and opens the uncovered hours.</p>
 <div class="live-form-grid"><div><label for="offFirst">First day</label><input class="field" id="offFirst" type="date"/></div><div><label for="offLast">Last day</label><input class="field" id="offLast" type="date"/></div></div>
+<div class="live-form-grid" style="margin-top:10px"><div><label for="offStartTime">Start time (optional)</label><input class="field" id="offStartTime" type="time"/></div><div><label for="offEndTime">End time (optional)</label><input class="field" id="offEndTime" type="time"/></div></div><p class="live-muted">Leave both times blank for full-day PTO. For hourly PTO, select the same first and last day.</p>
 <label for="offNote" style="display:block;margin-top:10px">Optional note (avoid private medical details)</label><textarea class="field" id="offNote" maxlength="250" rows="2" style="width:100%"></textarea>
 <div class="live-controls"><button class="btn" id="offSend" type="button">Submit time off</button><button class="btn secondary" id="offRefresh" type="button">Refresh time off</button></div><div id="offMine"></div>
 </section>
@@ -1226,12 +1227,17 @@ xById('offSend').onclick=async()=>{
  const start=xById('offFirst').value,end=xById('offLast').value,note=xById('offNote').value;
  if(!start||!end||end<start){alert('Choose a valid date range.');return;}
  const btn=xById('offSend');btn.disabled=true;
- try{await xRpc('staff_submit_time_off',{p_start:start,p_end:end,p_note:note});xById('offNote').value='';await xLoadTimeOff();alert('Time-off request submitted.');}
+ try{const st=xById('offStartTime').value,et=xById('offEndTime').value;
+ if((!!st)!=(!!et)){throw new Error('Enter both times or leave both blank.');}
+ if(st&&end!==start)throw new Error('Hourly PTO currently requires the same start and end date. Use separate requests for multiple partial days.');
+ if(st&&et<=st)throw new Error('End time must be later than start time.');
+ await xRpc('staff_submit_time_off_hours',{p_start:start,p_end:end,p_note:note,p_start_time:st||null,p_end_time:et||null});
+ xById('offNote').value='';xById('offStartTime').value='';xById('offEndTime').value='';await xLoadTimeOff();alert('Time-off request submitted.');}
  catch(e){alert(e.message);}finally{btn.disabled=false;}
 };
 async function xLoadTimeOff(){const out=xById('offMine');out.replaceChildren(lsEl('p','Loading time off…','live-muted'));
  try{const data=await xRpc('staff_my_time_off');out.replaceChildren();if(!data?.length)out.append(lsEl('p','No time-off requests yet.','live-muted'));
- for(const r of data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.start_date+' through '+r.end_date+' · '+r.status));if(r.note)card.append(lsEl('small',r.note));
+ for(const r of data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.start_date+' through '+r.end_date+(r.start_time?' · '+r.start_time.slice(0,5)+'–'+r.end_time.slice(0,5):' · All day')+' · '+r.status));if(r.note)card.append(lsEl('small',r.note));
  if(r.status==='Pending')card.append(reqButton('Cancel request',async()=>{if(!confirm('Cancel this request?'))return;await xRpc('staff_cancel_time_off',{p_id:r.id});await xLoadTimeOff();},true));out.append(card);}
  }catch(e){out.replaceChildren(lsEl('p','Time off: '+e.message,'live-error'));}
 }
@@ -1247,10 +1253,10 @@ async function xLoadManagerTrades(){const home=Number(lsHome.value),out=xById('t
 }
 async function xLoadManagerTimeOff(){const home=Number(lsHome.value),out=xById('offManagerList');if(!lsAllowed.includes(home))return;
  out.replaceChildren(lsEl('p','Loading time-off approvals…','live-muted'));
- try{const data=await xRpc('staff_manager_time_off',{p_home_id:home});xById('offManagerCount').textContent=String(data?.length||0);out.replaceChildren();
+ try{const data=await xRpc('staff_time_off_history',{p_home_id:home});xById('offManagerCount').textContent=String((data||[]).filter(t=>t.status==='Pending').length);out.replaceChildren();
  if(!data?.length)out.append(lsEl('p','No time-off requests awaiting approval.','live-muted'));
- for(const t of data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',t.employee_name+' · '+t.start_date+' through '+t.end_date));if(t.note)card.append(lsEl('small',t.note));
- for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm(label+' time off? Existing shifts will not be automatically removed.'))return;await xRpc('staff_decide_time_off',{p_id:t.id,p_approve:approve});await xLoadManagerTimeOff();},!approve));out.append(card);}
+ for(const t of (data||[]).filter(t=>t.status==='Pending')){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',t.employee_name+' · '+t.start_date+' through '+t.end_date+(t.start_time?' · '+t.start_time.slice(0,5)+'–'+t.end_time.slice(0,5):' · All day')));if(t.note)card.append(lsEl('small',t.note));
+ for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm(label+' time off? Approved PTO will adjust assigned shifts and open coverage.'))return;await xRpc('staff_decide_time_off',{p_id:t.id,p_approve:approve});await Promise.all([xLoadManagerTimeOff(),lsLoadManager(),lsLoadMine()]);},!approve));out.append(card);}
  }catch(e){out.replaceChildren(lsEl('p','Time-off approvals: '+e.message,'live-error'));}
 }
 xById('tradeManagerRefresh').onclick=xLoadManagerTrades;xById('offManagerRefresh').onclick=xLoadManagerTimeOff;
@@ -1266,6 +1272,16 @@ const mccTabs=document.getElementById('managerTabStrip');
 const mccOverview=document.getElementById('managementCommandCenter');
 let mccActive='overview',mccTimer=null,mccGeneration=0;
 const mccRequests=document.createElement('section');mccRequests.id='mccRequestsPanel';mccRequests.className='mcc-tab-panel';mccRequests.hidden=true;
+const mccTimeOff=document.createElement('section');mccTimeOff.id='mccTimeOffPanel';mccTimeOff.className='mcc-tab-panel';mccTimeOff.hidden=true;
+mccTimeOff.innerHTML='<h3>Time Off</h3><p class="sub">Review requests for the selected home.</p><div class="live-controls"><button class="btn secondary" type="button" id="ptoTabRefresh">Refresh time off</button></div><div id="ptoTabList"></div>';
+async function mccLoadTimeOffTab(){const out=document.getElementById('ptoTabList');out.replaceChildren(lsEl('p','Loading time off…','live-muted'));try{
+ const home=Number(lsHome.value);if(!lsAllowed.includes(home)){out.textContent='Select an authorized home.';return;}
+ const rows=await xRpc('staff_time_off_history',{p_home_id:home});out.replaceChildren();
+ for(const status of ['Pending','Approved','Denied']){const sec=lsEl('section',undefined,'request-item');sec.append(lsEl('h4',status));const group=(rows||[]).filter(r=>r.status===status);if(!group.length)sec.append(lsEl('p','None','live-muted'));
+ for(const r of group){const item=lsEl('div',undefined,'request-item');item.append(lsEl('strong',(r.employee_name||'Employee')+' · '+r.start_date+' to '+r.end_date+(r.start_time?' · '+r.start_time.slice(0,5)+'–'+r.end_time.slice(0,5):' · All day')));if(r.note)item.append(lsEl('small',r.note));
+ if(status==='Pending')for(const [label,approve] of [['Approve',true],['Deny',false]])item.append(reqButton(label,async()=>{if(!confirm(label+' PTO?'))return;await xRpc('staff_decide_time_off',{p_id:r.id,p_approve:approve});await Promise.all([mccLoadTimeOffTab(),xLoadManagerTimeOff(),lsLoadManager(),lsLoadMine()]);},!approve));sec.append(item);}out.append(sec);}
+ }catch(e){out.replaceChildren(lsEl('p','Time off: '+e.message,'live-error'));}}
+document.getElementById('ptoTabRefresh').addEventListener('click',mccLoadTimeOffTab);
 const mccStaff=document.createElement('section');mccStaff.id='mccStaffPanel';mccStaff.className='mcc-tab-panel';mccStaff.hidden=true;
 const godHours=document.getElementById('godHoursPanel');
 const godActivity=document.createElement('section');godActivity.id='godActivityPanel';godActivity.className='mcc-tab-panel';godActivity.hidden=true;
@@ -1274,7 +1290,7 @@ mccHouses.innerHTML='<h3>🏘️ Manage Houses</h3><p class="sub">God Mode only 
 const mccSchedules=document.getElementById('liveManagerSchedule');
 const mccParent=mccSchedules.parentNode;
 mccParent.insertBefore(mccRequests,mccSchedules.nextSibling);
-mccParent.insertBefore(mccStaff,mccRequests.nextSibling);
+mccParent.insertBefore(mccStaff,mccRequests.nextSibling);mccParent.insertBefore(mccTimeOff,mccStaff.nextSibling);
 mccParent.insertBefore(mccHouses,mccStaff.nextSibling);mccParent.insertBefore(godActivity,mccHouses.nextSibling);
 mccStaff.innerHTML='<h3>Employee management</h3><p>Use the secure employee editor below to manage authorized staff records.</p><button type="button" class="btn secondary" id="mccJumpStaff">Open employee editor ↓</button>';
 document.getElementById('mccJumpStaff').addEventListener('click',()=>document.getElementById('liveEmployeeEditor')?.scrollIntoView({behavior:'smooth'}));
@@ -1310,11 +1326,12 @@ function mccSelect(tab){
  document.body.classList.toggle('god-activity-active',tab==='activity');
  mccActive=tab;
  for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b.dataset.mccTab===tab));
- mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccHouses.hidden=tab!=='houses';godActivity.hidden=tab!=='activity';godHours.hidden=tab!=='hours';
+ mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccTimeOff.hidden=tab!=='timeoff';mccHouses.hidden=tab!=='houses';godActivity.hidden=tab!=='activity';godHours.hidden=tab!=='hours';
  if(employeeEditor&&lsAllowed.length)employeeEditor.style.display=tab==='staff'?'':'none';
- if(tab==='overview')mccLoad();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();if(tab==='hours'){initializeGodHoursPanel?.();window.hubLoadHours?.();}
+ if(tab==='overview')mccLoad();if(tab==='timeoff')mccLoadTimeOffTab();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();if(tab==='hours'){initializeGodHoursPanel?.();window.hubLoadHours?.();}
  window.scrollTo({top:0,behavior:'instant'});
 }
+const ptoTabButton=document.createElement('button');ptoTabButton.type='button';ptoTabButton.dataset.mccTab='timeoff';ptoTabButton.textContent='Time Off';mccTabs.append(ptoTabButton);
 for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.addEventListener('click',()=>mccSelect(b.dataset.mccTab));
 document.getElementById('mccRefresh').addEventListener('click',()=>mccLoad());
 function mccEntry(parent,title,detail,open=false){const el=lsEl('div',undefined,'mcc-entry'+(open?' mcc-open':''));el.append(lsEl('strong',title));el.append(lsEl('small',detail));parent.append(el);}
