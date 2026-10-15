@@ -2059,11 +2059,11 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
   const scene=document.createElement('div');
   scene.id='adminStaticPortraitLogin';
   scene.setAttribute('aria-hidden','true');
-  scene.style.cssText='position:fixed;inset:0;z-index:100031;pointer-events:none;display:flex;align-items:center;justify-content:center;background:transparent;';
+  scene.style.cssText='position:fixed;inset:0;z-index:100031;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;background:transparent;overflow:hidden;';
   const portrait=document.createElement('img');
   portrait.alt='';
   portrait.src=ADMIN_PORTRAIT_IMAGE;
-  portrait.style.cssText='display:block;width:min(78vw,430px);max-height:75vh;object-fit:contain;animation:none!important;transition:none!important;filter:drop-shadow(0 8px 22px rgba(0,0,0,.45));';
+  portrait.style.cssText='display:block;width:min(70vw,360px);height:auto;max-height:43vh;object-fit:contain;object-position:bottom center;animation:none!important;transition:none!important;mask-image:radial-gradient(ellipse 75% 80% at 50% 52%,#000 54%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 75% 80% at 50% 52%,#000 54%,transparent 100%);';
   scene.append(portrait);
   document.body.append(scene);
   setTimeout(()=>scene.remove(),4200);
