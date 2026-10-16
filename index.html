@@ -517,7 +517,7 @@ body.god-activity-active #godActivityPanel{display:block!important;visibility:vi
 @keyframes vomit-reveal{0%{transform:translate(-50%,90%) scale(.8);opacity:0}12%,76%{transform:translate(-50%,0) scale(1);opacity:1}100%{transform:translate(-50%,0) scale(1.06);opacity:0}}
 @keyframes vomit-splat{0%{opacity:0;transform:scale(.05)}15%{opacity:.95;transform:scale(1.2)}75%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){#vomitLogin .vomit-man{animation-duration:.5s}#vomitLogin .vomit-action{animation-delay:.5s}#vomitLogin .vomit-splatter{animation:none}}
-</style><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" sizes="192x192" href="./staff-hub-icon-192.png"><link rel="icon" type="image/png" sizes="192x192" href="./staff-hub-icon-192.png"><meta name="theme-color" content="#071c3f"></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
+</style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#071c3f"></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
 <p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
@@ -2257,6 +2257,75 @@ tabs.addEventListener('click',e=>{if(!e.target.closest('[data-mcc-tab]'))return;
 const watch=new MutationObserver(()=>{if(tabs.hidden)root.hidden=true});watch.observe(tabs,{attributes:true,attributeFilter:['hidden']});
 let deferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('fiveInstall').dataset.available='true'});
 $('fiveInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('fiveInstall').dataset.available='false'};
+})();
+</script>
+<style id="godViewAsStyles">
+#godViewAsLauncher{position:fixed;right:18px;bottom:20px;z-index:1005;border:1px solid #e0ba72;border-radius:14px;padding:13px 17px;background:linear-gradient(120deg,#312514,#a57b38);color:#fff8e8;font-weight:800;box-shadow:0 8px 26px #0009;cursor:pointer}
+#godViewAsLauncher[hidden],#godViewAsPanel[hidden],#godViewAsBanner[hidden]{display:none!important}
+#godViewAsPanel{position:fixed;inset:0;z-index:1006;background:#000b;display:grid;place-items:center;padding:14px}
+#godViewAsPanel .gva-card{width:min(100%,520px);max-height:85dvh;overflow:auto;background:linear-gradient(140deg,#191711,#30291b);border:1px solid #d1a961;border-radius:19px;padding:23px;color:#fff5df;box-shadow:0 25px 65px #000a}
+#godViewAsPanel h2{margin:0 0 8px;color:#fff5df!important}
+#godViewAsPanel p{line-height:1.5;color:#e2d5bd}
+#godViewAsPanel select{width:100%;padding:12px;background:#161717;color:#fff;border:1px solid #c59b55;border-radius:10px;margin:10px 0}
+#godViewAsPanel button,#godViewAsBanner button{border:1px solid #d2ac69;border-radius:10px;padding:10px 14px;background:#78531e;color:white;font-weight:700;cursor:pointer;margin:4px}
+#godViewAsPanel button:disabled{opacity:.5;cursor:default}
+#godViewAsBanner{position:sticky;top:0;z-index:1004;padding:11px 15px;background:#473018;border-bottom:2px solid #ffd27c;color:#fff3d3;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+</style>
+<button id="godViewAsLauncher" hidden type="button">👁 View As User</button>
+<div id="godViewAsBanner" hidden role="status"><span id="godViewAsWho"></span><button id="godViewAsExit" type="button">Exit Session</button></div>
+<div id="godViewAsPanel" hidden role="dialog" aria-modal="true" aria-label="View As User">
+ <div class="gva-card"><h2>👁 God Mode · View As User</h2><p>Choose a linked employee account to start an audited administrator session.</p>
+ <label for="godViewAsEmployee">Employee</label><select id="godViewAsEmployee"><option value="">Loading employees…</option></select>
+ <p id="godViewAsStatus" role="status">Loading…</p>
+ <div><button id="godViewAsStart" type="button">Start Session</button><button id="godViewAsClose" type="button">Close</button></div>
+ <p style="font-size:12px">Session management is enabled. Employee-context actions remain disabled until the scheduling RPCs enforce administrator attribution server-side.</p></div>
+</div>
+<script id="godViewAsLogic">
+(()=>{
+ const $=id=>document.getElementById(id),launch=$('godViewAsLauncher'),panel=$('godViewAsPanel'),sel=$('godViewAsEmployee'),status=$('godViewAsStatus'),banner=$('godViewAsBanner');
+ let active=null, adminId=null, people=[];
+ async function api(){return window.staffHubSupabase||null}
+ async function refresh(){
+  const c=await api();if(!c)return;
+  const {data:{user}}=await c.auth.getUser();
+  if(!user){launch.hidden=true;banner.hidden=true;active=null;adminId=null;return}
+  const {data:god,error}=await c.rpc('is_app_admin');
+  if(error||god!==true){launch.hidden=true;banner.hidden=true;active=null;adminId=null;return}
+  adminId=user.id;launch.hidden=false;
+ }
+ launch.addEventListener('click',async()=>{
+  panel.hidden=false;status.textContent='Loading linked employees…';sel.replaceChildren(new Option('Select an employee',''));
+  try{
+   const c=await api();const {data,error}=await c.from('Employees').select('id,full_name,job_title,auth_user_id,user_id').order('full_name').limit(1000);
+   if(error)throw error;people=(data||[]).filter(e=>(e.auth_user_id||e.user_id)&& (e.auth_user_id||e.user_id)!==adminId);
+   for(const e of people)sel.add(new Option(`${e.full_name} · ${e.job_title||'Staff'}`,String(e.id)));
+   status.textContent=people.length+' linked employees available.';
+  }catch(e){status.textContent='Could not load employees: '+e.message}
+ });
+ $('godViewAsClose').onclick=()=>panel.hidden=true;
+ $('godViewAsStart').onclick=async()=>{
+  const employee=people.find(e=>String(e.id)===sel.value);if(!employee){status.textContent='Select an employee first.';return}
+  status.textContent='Starting secure session…';
+  try{
+   const c=await api();const {data,error}=await c.rpc('start_admin_impersonation',{p_employee_id:employee.id});if(error)throw error;
+   const {data:validated,error:ve}=await c.rpc('validate_admin_impersonation',{p_session_id:data});if(ve)throw ve;
+   if(!validated?.some(row=>Number(row.employee_id)===Number(employee.id)))throw new Error('Session validation failed');
+   active={id:data,employee};$('godViewAsWho').textContent='ADMIN SESSION · '+employee.full_name+' · Action routing not yet enabled';
+   banner.hidden=false;panel.hidden=true;launch.textContent='👁 View As: '+employee.full_name;
+  }catch(e){status.textContent='Could not start session: '+e.message}
+ };
+ $('godViewAsExit').onclick=async()=>{
+  if(!active)return;
+  const c=await api();const {error}=await c.rpc('end_admin_impersonation',{p_session_id:active.id});
+  if(error){alert('Could not end session: '+error.message);return}
+  active=null;banner.hidden=true;launch.textContent='👁 View As User';
+ };
+ setInterval(async()=>{
+  if(!active)return;const c=await api();if(!c)return;
+  const {data,error}=await c.rpc('validate_admin_impersonation',{p_session_id:active.id});
+  if(error||!data?.length){active=null;banner.hidden=true;launch.textContent='👁 View As User'}
+ },60000);
+ setInterval(refresh,12000);refresh();
 })();
 </script>
 </body></html>
