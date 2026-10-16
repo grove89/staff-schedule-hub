@@ -2148,9 +2148,10 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
   const api=window.staffHubSupabase;
   if(!api){setTimeout(attach,300);return}
   api.auth.onAuthStateChange((event,session)=>{
-   if(event==='SIGNED_IN')setTimeout(()=>check(session),300);
+   if(event==='SIGNED_IN'||event==='INITIAL_SESSION')setTimeout(()=>check(session),300);
    if(event==='SIGNED_OUT'){lastUser='';lastTime=0;loginSequence++;}
   });
+  api.auth.getSession().then(({data})=>{if(data?.session)check(data.session)}).catch(()=>{});
  }
  attach();
 })();
@@ -2369,8 +2370,11 @@ window.swimmingCatsLogin=function(){
   cat.style.width='clamp(110px,'+(16+(i%4)*5)+'vw,340px)';
   layer.append(cat);
  }
- document.body.append(layer);setTimeout(()=>layer.remove(),8500);
+ document.body.append(layer);setTimeout(()=>layer.remove(),16000);
 };
 })();
 </script>
+
+<style id="catReplayButtonStyle">#catReplayButton{position:fixed;right:14px;bottom:84px;z-index:100090;border:1px solid #e4bd58;border-radius:12px;padding:10px 13px;background:#19131f;color:#f8d778;font:600 13px system-ui;box-shadow:0 5px 20px #0009;cursor:pointer}</style>
+<script id="catReplayButtonLogic">(function(){function setup(){if(document.getElementById('catReplayButton'))return;const b=document.createElement('button');b.id='catReplayButton';b.type='button';b.textContent='🐈 Replay Swimming Cats';b.onclick=()=>window.swimmingCatsLogin?.();document.body.append(b)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup()})();</script>
 </body></html>
