@@ -2278,12 +2278,29 @@ $('fiveInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await d
  <label for="godViewAsEmployee">Employee</label><select id="godViewAsEmployee"><option value="">Loading employees…</option></select>
  <p id="godViewAsStatus" role="status">Loading…</p>
  <div><button id="godViewAsStart" type="button">Start Session</button><button id="godViewAsClose" type="button">Close</button></div>
- <p style="font-size:12px">Session management is enabled. Employee-context actions remain disabled until the scheduling RPCs enforce administrator attribution server-side.</p></div>
+ <div id="gvaActions" hidden><h3>Open-shift requests on behalf of employee</h3><p id="gvaActionStatus">Select an available shift to request on their behalf. Management approval is still required.</p><div id="gvaShiftList"></div><button type="button" id="gvaRefreshShifts">Refresh available shifts</button></div><p style="font-size:12px">This version supports audited open-shift requests only. The main schedule and other employee actions still use your administrator account.</p></div>
 </div>
 <script id="godViewAsLogic">
 (()=>{
  const $=id=>document.getElementById(id),launch=$('godViewAsLauncher'),panel=$('godViewAsPanel'),sel=$('godViewAsEmployee'),status=$('godViewAsStatus'),banner=$('godViewAsBanner');
  let active=null, adminId=null, people=[];
+ const actions=$('gvaActions'),actionStatus=$('gvaActionStatus'),shiftList=$('gvaShiftList');
+ async function loadShifts(){
+  if(!active)return;shiftList.replaceChildren();actionStatus.textContent='Loading available shifts…';
+  const c=await api();const {data,error}=await c.from('Shifts').select('id,home_id,starts_at,ends_at').is('employee_id',null).gt('ends_at',new Date().toISOString()).order('starts_at',{ascending:true}).limit(100);
+  if(error){actionStatus.textContent='Could not load shifts: '+error.message;return}
+  actionStatus.textContent=(data||[]).length+' available shifts found. Requests require manager approval.';
+  for(const sh of data||[]){const row=document.createElement('div');row.style.cssText='padding:9px 0;border-bottom:1px solid #8e7449';
+   const label=document.createElement('span');label.textContent='Home '+sh.home_id+' · '+new Date(sh.starts_at).toLocaleString()+' – '+new Date(sh.ends_at).toLocaleString();
+   const btn=document.createElement('button');btn.type='button';btn.textContent='Request';
+   btn.onclick=async()=>{if(!active)return;if(!confirm('Submit this shift request on behalf of '+active.employee.full_name+'?'))return;btn.disabled=true;
+    const {error:err}=await c.rpc('admin_request_open_shift_as',{p_session_id:active.id,p_shift_id:sh.id});
+    if(err){actionStatus.textContent='Request failed: '+err.message;btn.disabled=false;return}
+    actionStatus.textContent='Request submitted and attributed to your admin account. Awaiting manager approval.';btn.textContent='Requested';
+   };row.append(label,btn);shiftList.append(row);
+  }
+ }
+ $('gvaRefreshShifts').onclick=loadShifts;
  async function api(){return window.staffHubSupabase||null}
  async function refresh(){
   const c=await api();if(!c)return;
@@ -2294,7 +2311,7 @@ $('fiveInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await d
   adminId=user.id;launch.hidden=false;
  }
  launch.addEventListener('click',async()=>{
-  panel.hidden=false;status.textContent='Loading linked employees…';sel.replaceChildren(new Option('Select an employee',''));
+  panel.hidden=false;actions.hidden=!active;if(active)loadShifts();status.textContent='Loading linked employees…';sel.replaceChildren(new Option('Select an employee',''));
   try{
    const c=await api();const {data,error}=await c.from('Employees').select('id,full_name,job_title,auth_user_id,user_id').order('full_name').limit(1000);
    if(error)throw error;people=(data||[]).filter(e=>(e.auth_user_id||e.user_id)&& (e.auth_user_id||e.user_id)!==adminId);
@@ -2310,15 +2327,15 @@ $('fiveInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();await d
    const c=await api();const {data,error}=await c.rpc('start_admin_impersonation',{p_employee_id:employee.id});if(error)throw error;
    const {data:validated,error:ve}=await c.rpc('validate_admin_impersonation',{p_session_id:data});if(ve)throw ve;
    if(!validated?.some(row=>Number(row.employee_id)===Number(employee.id)))throw new Error('Session validation failed');
-   active={id:data,employee};$('godViewAsWho').textContent='ADMIN SESSION · '+employee.full_name+' · Action routing not yet enabled';
-   banner.hidden=false;panel.hidden=true;launch.textContent='👁 View As: '+employee.full_name;
+   active={id:data,employee};$('godViewAsWho').textContent='ADMIN SESSION · '+employee.full_name+' · Audited open-shift requests enabled';
+   banner.hidden=false;panel.hidden=false;actions.hidden=false;launch.textContent='👁 View As: '+employee.full_name;await loadShifts();
   }catch(e){status.textContent='Could not start session: '+e.message}
  };
  $('godViewAsExit').onclick=async()=>{
   if(!active)return;
   const c=await api();const {error}=await c.rpc('end_admin_impersonation',{p_session_id:active.id});
   if(error){alert('Could not end session: '+error.message);return}
-  active=null;banner.hidden=true;launch.textContent='👁 View As User';
+  active=null;banner.hidden=true;actions.hidden=true;launch.textContent='👁 View As User';
  };
  setInterval(async()=>{
   if(!active)return;const c=await api();if(!c)return;
