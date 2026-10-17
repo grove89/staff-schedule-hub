@@ -2133,7 +2133,7 @@ document.getElementById('godHoursTab')?.addEventListener('click',()=>{initialize
    const {data:admin,error:adminError}=await api.rpc('is_app_admin');
    if(seq!==loginSequence)return;
    if(!adminError&&admin===true){
-    lastUser=userId;lastTime=Date.now();window.pathwaysCrashIntro?.();return;
+    lastUser=userId;lastTime=Date.now();return;
    }
    const {data:employee,error}=await api.from('Employees').select('full_name').eq('auth_user_id',userId).maybeSingle();
    if(seq!==loginSequence||error)return;
