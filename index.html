@@ -517,34 +517,7 @@ body.god-activity-active #godActivityPanel{display:block!important;visibility:vi
 @keyframes vomit-reveal{0%{transform:translate(-50%,90%) scale(.8);opacity:0}12%,76%{transform:translate(-50%,0) scale(1);opacity:1}100%{transform:translate(-50%,0) scale(1.06);opacity:0}}
 @keyframes vomit-splat{0%{opacity:0;transform:scale(.05)}15%{opacity:.95;transform:scale(1.2)}75%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){#vomitLogin .vomit-man{animation-duration:.5s}#vomitLogin .vomit-action{animation-delay:.5s}#vomitLogin .vomit-splatter{animation:none}}
-</style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#071c3f">
-<style id="pathwaysMobileFullWidthStickyDays">
-/* Mobile: one full-width day at a time vertically, with sticky day/date. */
-@media (max-width: 767px) {
-  #pathwaysWeeklyViewer { min-width:0!important; }
-  #pathwaysWeeklyViewer .pwv-scroll {
-    overflow:visible!important; overflow-x:visible!important; overflow-y:visible!important;
-    padding:0!important; max-width:100%!important;
-  }
-  #pathwaysWeeklyViewer .pwv-days {
-    display:grid!important; grid-template-columns:minmax(0,1fr)!important;
-    min-width:0!important; width:100%!important; gap:16px!important;
-  }
-  #pathwaysWeeklyViewer .pwv-day {
-    min-width:0!important; width:100%!important; overflow:visible!important;
-    display:block!important; position:relative!important;
-  }
-  #pathwaysWeeklyViewer .pwv-day-title {
-    position:sticky!important; top:78px!important; z-index:30!important;
-    min-height:66px!important; border-radius:13px 13px 0 0!important;
-    box-shadow:0 5px 12px rgba(0,0,0,.32)!important;
-    background:linear-gradient(135deg,#174f82,#216da7)!important;
-  }
-  #pathwaysWeeklyViewer .pwv-shifts { min-width:0!important; }
-  #pathwaysWeeklyViewer .pwv-swipe-hint { display:none!important; }
-}
-</style>
-</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
+</style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#071c3f"></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
 <p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
@@ -2433,6 +2406,46 @@ window.pathwaysCrashIntro=()=>{
  layer.querySelector('.building').src=building;layer.querySelector('.flyingCar').src=car;
  document.body.append(layer);setTimeout(()=>layer.remove(),7900);
 };
+})();
+</script>
+
+<style id="pathwaysMobileSwipeStickyV2">
+@media(max-width:767px){
+ #pathwaysWeeklyViewer{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+ #pathwaysWeeklyViewer .pwv-scroll{overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory;scroll-padding:0!important;padding-bottom:12px!important;max-width:100%!important}
+ #pathwaysWeeklyViewer .pwv-days{display:grid!important;grid-template-columns:repeat(7,minmax(0,100%))!important;min-width:700%!important;width:700%!important;gap:0!important;align-items:stretch!important}
+ #pathwaysWeeklyViewer .pwv-day{box-sizing:border-box!important;width:100%!important;min-width:0!important;scroll-snap-align:start!important;margin:0!important;overflow:hidden!important}
+ #pathwaysWeeklyViewer .pwv-day-title{min-height:70px!important}
+ #pwvStickyMobileDay{position:fixed;top:78px;left:0;z-index:10000;pointer-events:none;display:none;box-sizing:border-box;padding:12px 16px;background:linear-gradient(135deg,#174f82,#216da7);border:1px solid #6ba9dd;border-radius:10px;color:#fff;font-weight:800;box-shadow:0 6px 20px #0009}
+ #pwvStickyMobileDay .pwv-day-title{display:flex;flex-direction:column;gap:4px}
+ #pwvStickyMobileDay strong{font-size:18px}
+ #pwvStickyMobileDay span{font-size:13px}
+}
+</style>
+<script id="pathwaysMobileSwipeStickyLogic">
+(()=>{
+ let bar=null,scroll=null;
+ function update(){
+  if(!window.matchMedia('(max-width:767px)').matches){if(bar)bar.style.display='none';return;}
+  const viewer=document.getElementById('pathwaysWeeklyViewer');
+  if(!viewer||viewer.hidden||getComputedStyle(viewer).display==='none'){if(bar)bar.style.display='none';return;}
+  scroll=viewer.querySelector('.pwv-scroll');const days=[...viewer.querySelectorAll('.pwv-day')];
+  if(!scroll||!days.length){if(bar)bar.style.display='none';return;}
+  if(!bar){bar=document.createElement('div');bar.id='pwvStickyMobileDay';document.body.appendChild(bar);}
+  const r=scroll.getBoundingClientRect(),v=viewer.getBoundingClientRect();
+  const current=days.reduce((best,d)=>Math.abs(d.offsetLeft-scroll.scrollLeft)<Math.abs(best.offsetLeft-scroll.scrollLeft)?d:best,days[0]);
+  const head=current.querySelector('.pwv-day-title');
+  if(!head){bar.style.display='none';return;}
+  const headRect=head.getBoundingClientRect();
+  const show=v.top<78&&v.bottom>155&&headRect.top<78;
+  bar.style.display=show?'block':'none';
+  if(show){bar.style.left=Math.max(0,r.left)+'px';bar.style.width=Math.min(r.width,innerWidth-Math.max(0,r.left))+'px';bar.innerHTML='';const copy=head.cloneNode(true);bar.appendChild(copy);}
+ }
+ document.addEventListener('scroll',update,{passive:true,capture:true});
+ document.addEventListener('click',()=>requestAnimationFrame(update));
+ window.addEventListener('resize',update,{passive:true});
+ const observer=new MutationObserver(()=>requestAnimationFrame(update));
+ document.addEventListener('DOMContentLoaded',()=>{observer.observe(document.getElementById('pathwaysWeeklyViewer')||document.body,{childList:true,subtree:true});update();});
 })();
 </script>
 </body></html>
