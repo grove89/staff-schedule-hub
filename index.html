@@ -2466,7 +2466,8 @@ window.pathwaysCrashIntro=()=>{
 <p>Enter the ID of a vacant shift. The notification service checks manager permissions and staff eligibility across all homes, including future homes.</p>
 <div class="push-fields"><input id="pushShiftId" type="number" min="1" step="1" placeholder="Open shift ID" aria-label="Open shift ID" /></div>
 
-<button type="button" id="pushSend">🚨 Send emergency alert</button></div>
+<button type="button" id="pushSend">🚨 Send emergency alert</button>
+<button type="button" id="pushTestSelf">🧪 Test My Phone Only</button></div>
 <p id="pushFeedback" role="status" aria-live="polite"></p></div></section>
 <script id="emergencyPushLogic">
 (()=>{
@@ -2530,6 +2531,21 @@ $('pushSend').addEventListener('click',async()=>{
   if(data?.error)throw Error(data.error);
   msg('Request sent to notification service.'+(typeof data?.sent==='number'?' Delivered to '+data.sent+' subscriptions.':''));
  }catch(e){msg('Could not send alert: '+e.message)}finally{$('pushSend').disabled=false;}
+});
+// A separate authenticated self-only test. Never call the staff-wide alert handler.
+$('pushTestSelf').addEventListener('click',async()=>{
+ if(!isManager||!currentUser){msg('Manager access is required.');return;}
+ const shiftId=Number($('pushShiftId').value);
+ if(!Number.isSafeInteger(shiftId)||shiftId<=0){msg('Enter a valid open shift ID.');return;}
+ if(!confirm('Send a TEST notification ONLY to devices subscribed under your signed-in account?'))return;
+ $('pushTestSelf').disabled=true;msg('Sending phone-only test…');
+ try{
+  const {data,error}=await client().functions.invoke(FUNCTION_NAME,{body:{shift_id:shiftId,test_only:true}});
+  if(error)throw error;
+  if(data?.error)throw Error(data.error);
+  if(data?.test_only!==true)throw Error('Test-only mode was not confirmed by the server.');
+  msg('Phone-only test finished. Sent: '+(data.sent??0)+', failed: '+(data.failed??0)+'. No staff-wide alert requested.');
+ }catch(e){msg('Phone-only test failed: '+e.message)}finally{$('pushTestSelf').disabled=false;}
 });
 // Authentication and home permissions can change during a session.
 setInterval(()=>refresh().catch(()=>{}),20000);
