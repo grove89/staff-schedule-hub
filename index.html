@@ -906,6 +906,45 @@ function lsMsg(m,bad=false){
  }
 }
 function lsEl(tag,value,cls){const e=document.createElement(tag);if(value!==undefined)e.textContent=value;if(cls)e.className=cls;return e;}
+// Emergency coverage actions are attached only to vacant shifts in manager views.
+function hubEmergencyButton(shift){
+ if(shift.employee_id!=null || new Date(shift.ends_at).getTime()<=Date.now() || !lsAllowed.includes(Number(shift.home_id)))return null;
+ const button=lsEl('button','🚨 Emergency Coverage','btn secondary small hub-shift-emergency');
+ button.type='button';button.setAttribute('aria-label','Emergency coverage for open shift '+lsRange(shift));
+ button.onclick=()=>hubEmergencyDialog(shift);
+ return button;
+}
+function hubEmergencyDialog(shift){
+ if(shift.employee_id!=null || new Date(shift.ends_at).getTime()<=Date.now() || !lsAllowed.includes(Number(shift.home_id)))return;
+ const previous=document.getElementById('hubEmergencyDialog');if(previous)previous.remove();
+ const overlay=document.createElement('div');overlay.id='hubEmergencyDialog';
+ overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.83);display:flex;align-items:center;justify-content:center;padding:16px';
+ const panel=document.createElement('div');panel.style.cssText='width:min(100%,440px);max-height:90dvh;overflow:auto;background:#092344;border:1px solid #8ccaff;border-radius:18px;padding:22px;color:#fff;box-shadow:0 20px 60px #000a';
+ const title=lsEl('h3','🚨 Emergency Coverage');panel.append(title);
+ const homeName=(()=>{return LS_HOMES[Number(shift.home_id)]||('Home '+shift.home_id)})();
+ const start=new Date(shift.starts_at),end=new Date(shift.ends_at);
+ const detail=lsEl('p',homeName+' · '+start.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})+' · '+lsRange(shift));detail.style.lineHeight='1.7';panel.append(detail);
+ const note=lsEl('p','Staff-wide alert notifies eligible subscribed employees across all homes. Phone-only test notifies only your own subscribed devices.');note.style.cssText='font-size:13px;color:#c8dff8;line-height:1.5';panel.append(note);
+ const status=lsEl('p','');status.setAttribute('role','status');panel.append(status);
+ const actions=lsEl('div');actions.style.cssText='display:flex;flex-direction:column;gap:10px';
+ const send=lsEl('button','🚨 Send to Eligible Staff','btn');send.type='button';
+ const test=lsEl('button','🧪 Test My Phone Only','btn secondary');test.type='button';
+ const cancel=lsEl('button','Cancel','btn secondary');cancel.type='button';cancel.onclick=()=>overlay.remove();
+ const run=async(testOnly)=>{
+  if(!testOnly&&!confirm('Send a REAL emergency alert to eligible staff across ALL homes for this shift?'))return;
+  send.disabled=true;test.disabled=true;cancel.disabled=true;status.textContent=testOnly?'Sending phone-only test…':'Sending staff emergency alert…';
+  try{
+   const c=window.staffHubSupabase;if(!c)throw Error('Please sign in again.');
+   const {data,error}=await c.functions.invoke('smooth-task',{body:{shift_id:Number(shift.id),...(testOnly?{test_only:true}:{})}});
+   if(error)throw error;if(data?.error)throw Error(data.error);
+   if(testOnly&&data?.test_only!==true)throw Error('Server did not confirm phone-only mode.');
+   status.textContent=(testOnly?'Phone-only test':'Emergency alert')+' complete. Sent: '+(data?.sent??0)+', failed: '+(data?.failed??0)+'.';
+  }catch(e){status.textContent='Could not send: '+(e?.message||String(e));}
+  finally{send.disabled=false;test.disabled=false;cancel.disabled=false;}
+ };
+ send.onclick=()=>run(false);test.onclick=()=>run(true);
+ actions.append(test,send,cancel);panel.append(actions);overlay.append(panel);document.body.append(overlay);
+}
 function lsOption(select,value,label){select.add(new Option(label,String(value)));}
 function lsLocalTime(date,time){const [y,m,d]=date.split('-').map(Number),[h,min]=time.split(':').map(Number);return new Date(y,m-1,d,h,min);}
 function lsRange(shift){return lsTime(new Date(shift.starts_at))+' – '+lsTime(new Date(shift.ends_at));}
@@ -1048,6 +1087,7 @@ function lsRenderManager(){
   if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
   for(const shift of records){const card=lsEl('div',undefined,'live-shift');const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));
    const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);
+   const emergencyButton=hubEmergencyButton(shift);if(emergencyButton)card.append(emergencyButton);
    day.append(card);}
   const add=lsEl('button','+ Shift','btn secondary small');add.type='button';add.onclick=()=>lsOpenForm(null,lsDate(date));day.append(add);lsDays.append(day);
  }
@@ -1577,6 +1617,7 @@ function pwvRender(){
     }finally{editButton.disabled=false;}
    };
    card.append(editButton);
+   const emergencyButton=hubEmergencyButton(shift);if(emergencyButton)card.append(emergencyButton);
    list.append(card);
   }
   day.append(list);pwvDays.append(day);
