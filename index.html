@@ -2454,7 +2454,24 @@ window.swimmingCatsLogin=function(){
 </script>
 
 <style id="catReplayButtonStyle">#catReplayButton{position:fixed;right:14px;bottom:84px;z-index:100090;border:1px solid #e4bd58;border-radius:12px;padding:10px 13px;background:#19131f;color:#f8d778;font:600 13px system-ui;box-shadow:0 5px 20px #0009;cursor:pointer}</style>
-<script id="catReplayButtonLogic">(function(){function setup(){if(document.getElementById('catReplayButton'))return;const b=document.createElement('button');b.id='catReplayButton';b.type='button';b.textContent='🐈 Replay Swimming Cats';b.onclick=()=>window.swimmingCatsLogin?.();document.body.append(b)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup()})();</script>
+<script id="catReplayButtonLogic">(function(){
+ const allowed=new Set(['cameron hargrove','austin janes','alyssa kindle']);
+ async function setup(){
+  const api=window.staffHubSupabase;
+  if(!api){setTimeout(setup,500);return;}
+  const {data:{session}}=await api.auth.getSession();
+  document.getElementById('catReplayButton')?.remove();
+  if(!session?.user?.id)return;
+  const {data:employee,error}=await api.from('Employees').select('full_name').eq('auth_user_id',session.user.id).maybeSingle();
+  if(error)return;
+  const name=String(employee?.full_name||'').trim().replace(/\s+/g,' ').toLowerCase();
+  if(!allowed.has(name))return;
+  const b=document.createElement('button');b.id='catReplayButton';b.type='button';b.textContent='🐈 Replay Swimming Cats';
+  b.onclick=()=>window.swimmingCatsLogin?.();document.body.append(b);
+ }
+ function attach(){const api=window.staffHubSupabase;if(!api){setTimeout(attach,500);return;}api.auth.onAuthStateChange(()=>setTimeout(setup,250));setup();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach);else attach();
+})();</script>
 
 <style id="pathwaysCrashStyles">
 #pathwaysCrash{position:fixed;inset:0;z-index:200000;overflow:hidden;background:transparent;pointer-events:none;isolation:isolate}
