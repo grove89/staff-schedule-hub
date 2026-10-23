@@ -517,7 +517,17 @@ body.god-activity-active #godActivityPanel{display:block!important;visibility:vi
 @keyframes vomit-reveal{0%{transform:translate(-50%,90%) scale(.8);opacity:0}12%,76%{transform:translate(-50%,0) scale(1);opacity:1}100%{transform:translate(-50%,0) scale(1.06);opacity:0}}
 @keyframes vomit-splat{0%{opacity:0;transform:scale(.05)}15%{opacity:.95;transform:scale(1.2)}75%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){#vomitLogin .vomit-man{animation-duration:.5s}#vomitLogin .vomit-action{animation-delay:.5s}#vomitLogin .vomit-splatter{animation:none}}
-</style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#071c3f"></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
+</style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#071c3f"><style id="emergencyPushStyles">
+#emergencyPushHub{max-width:1240px;margin:16px auto;padding:0 16px;color:#eef6ff}
+#emergencyPushHub[hidden],#pushManagerControls[hidden]{display:none!important}
+#emergencyPushHub .push-panel{background:linear-gradient(130deg,#163b70d9,#07172fe8);border:1px solid #c5e7ff99;border-radius:19px;padding:18px;box-shadow:0 10px 26px #0005}
+#emergencyPushHub h3{margin:0 0 8px;color:#fff}#emergencyPushHub p{color:#cbdff4;font-size:13px;line-height:1.5}
+#emergencyPushHub button{padding:12px 15px;border-radius:11px;border:1px solid #7cbaff;background:#155eaa;color:white;font-weight:750;cursor:pointer}
+#emergencyPushHub button:disabled{opacity:.55}#emergencyPushHub .push-fields{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#emergencyPushHub select,#emergencyPushHub textarea{padding:11px;border-radius:9px;border:1px solid #8bb8e0;background:#081c3c;color:#fff;max-width:100%;font:inherit}
+#emergencyPushHub textarea{width:100%;min-height:65px;margin:10px 0}#pushFeedback{font-size:13px;white-space:pre-wrap}
+body.god-obsidian #emergencyPushHub .push-panel{background:linear-gradient(135deg,#252017,#0b0a09);border-color:#c5a363}
+</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
 <p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
@@ -2446,6 +2456,84 @@ window.pathwaysCrashIntro=()=>{
  window.addEventListener('resize',update,{passive:true});
  const observer=new MutationObserver(()=>requestAnimationFrame(update));
  document.addEventListener('DOMContentLoaded',()=>{observer.observe(document.getElementById('pathwaysWeeklyViewer')||document.body,{childList:true,subtree:true});update();});
+})();
+</script>
+<section id="emergencyPushHub" hidden aria-label="Emergency notifications">
+<div class="push-panel"><h3>🚨 Emergency call-out notifications</h3>
+<p>Enable alerts to receive urgent coverage requests on this device, even when the schedule is closed. Notifications require your permission and an installed home-screen app on iPhone.</p>
+<div class="push-fields"><button type="button" id="pushEnable">🔔 Enable notifications</button><button type="button" id="pushDisable">Turn off on this device</button></div>
+<div id="pushManagerControls" hidden><hr style="border:0;border-top:1px solid #7295bb66;margin:18px 0"><h3>Send emergency coverage alert</h3>
+<p>Enter the ID of a vacant shift. The notification service checks manager permissions and staff eligibility across all homes, including future homes.</p>
+<div class="push-fields"><input id="pushShiftId" type="number" min="1" step="1" placeholder="Open shift ID" aria-label="Open shift ID" /></div>
+
+<button type="button" id="pushSend">🚨 Send emergency alert</button></div>
+<p id="pushFeedback" role="status" aria-live="polite"></p></div></section>
+<script id="emergencyPushLogic">
+(()=>{
+'use strict';
+// SETUP: Paste the NEW VAPID public key below. Never put the private key in this file.
+const VAPID_PUBLIC_KEY='BN6GoCm_8_rzAYEsTMAcxX0K70NO6jTtz_UbaHM_ZKG2vuyIcxkpHyS53YFtQBN3hnFC8ZxdSLLVRn7NzDRN2zo';
+const FUNCTION_NAME='smooth-task'; // Deployed Supabase Edge Function name.
+const SUBSCRIPTION_TABLE='push_subscriptions';
+const $=id=>document.getElementById(id);
+const hub=$('emergencyPushHub'), manager=$('pushManagerControls'), info=$('pushFeedback');
+const client=()=>window.staffHubSupabase;
+let currentUser=null, isManager=false;
+function msg(s){info.textContent=s;}
+function base64ToBytes(base64){const p='='.repeat((4-base64.length%4)%4);const b=atob((base64+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0));}
+async function refresh(){
+ const c=client();if(!c)return;
+ const {data:{user}}=await c.auth.getUser();currentUser=user||null;
+ hub.hidden=!user;if(!user){manager.hidden=true;return;}
+ const {data:admin}=await c.rpc('is_app_admin');
+ isManager=admin===true;
+ if(!isManager){
+   // Manager permission is derived from live Homes records, not a fixed four-house list.
+   const {data:homes}=await c.from('Homes').select('id').limit(100);
+   for(const h of homes||[]){const {data:ok}=await c.rpc('can_manage_home',{target_home_id:h.id});if(ok===true){isManager=true;break;}}
+ }
+ manager.hidden=!isManager;
+
+}
+async function getRegistration(){if(!('serviceWorker' in navigator))throw Error('Service workers are not supported in this browser.');
+ return navigator.serviceWorker.register('./emergency-sw.js',{scope:'./'});}
+$('pushEnable').addEventListener('click',async()=>{
+ $('pushEnable').disabled=true;msg('Enabling notifications…');
+ try{
+  if(!currentUser)throw Error('Please sign in first.');
+  if(!('PushManager' in window)||!('Notification' in window))throw Error('This browser does not support web push. On iPhone, open the installed home-screen app.');
+  if(!VAPID_PUBLIC_KEY||VAPID_PUBLIC_KEY.startsWith('PASTE_'))throw Error('The VAPID public key still needs to be added to the website file.');
+  const permission=await Notification.requestPermission();if(permission!=='granted')throw Error('Notification permission was not granted.');
+  const reg=await getRegistration();
+  const subscription=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64ToBytes(VAPID_PUBLIC_KEY)});
+  const json=subscription.toJSON();
+  const {error}=await client().from(SUBSCRIPTION_TABLE).upsert({user_id:currentUser.id,endpoint:subscription.endpoint,p256dh:json.keys?.p256dh,auth_key:json.keys?.auth,updated_at:new Date().toISOString()},{onConflict:'endpoint'});
+  if(error)throw error;
+  msg('Notifications enabled on this device. 🎉');
+ }catch(e){msg('Could not enable notifications: '+e.message)}finally{$('pushEnable').disabled=false;}
+});
+$('pushDisable').addEventListener('click',async()=>{
+ try{const reg=await navigator.serviceWorker.getRegistration('./');const sub=await reg?.pushManager.getSubscription();
+  if(sub){const {error}=await client().from(SUBSCRIPTION_TABLE).delete().eq('endpoint',sub.endpoint);if(error)throw error;await sub.unsubscribe();}
+  msg('Notifications turned off on this device.');
+ }catch(e){msg('Could not turn off notifications: '+e.message)}
+});
+$('pushSend').addEventListener('click',async()=>{
+ if(!isManager||!currentUser){msg('Manager access is required.');return;}
+ const shiftId=Number($('pushShiftId').value);if(!Number.isSafeInteger(shiftId)||shiftId<=0){msg('Enter a valid open shift ID.');return;}
+ if(!confirm('Send this urgent alert to subscribed staff?'))return;
+ $('pushSend').disabled=true;msg('Sending…');
+ try{
+  // IMPORTANT: Edge Function must independently verify JWT and manager authorization.
+  const {data,error}=await client().functions.invoke(FUNCTION_NAME,{body:{shift_id:shiftId}});
+  if(error)throw error;
+  if(data?.error)throw Error(data.error);
+  msg('Request sent to notification service.'+(typeof data?.sent==='number'?' Delivered to '+data.sent+' subscriptions.':''));
+ }catch(e){msg('Could not send alert: '+e.message)}finally{$('pushSend').disabled=false;}
+});
+// Authentication and home permissions can change during a session.
+setInterval(()=>refresh().catch(()=>{}),20000);
+window.addEventListener('load',()=>refresh().catch(e=>msg(e.message)));
 })();
 </script>
 </body></html>
