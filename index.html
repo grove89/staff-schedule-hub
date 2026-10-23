@@ -527,7 +527,7 @@ body.god-activity-active #godActivityPanel{display:block!important;visibility:vi
 #emergencyPushHub select,#emergencyPushHub textarea{padding:11px;border-radius:9px;border:1px solid #8bb8e0;background:#081c3c;color:#fff;max-width:100%;font:inherit}
 #emergencyPushHub textarea{width:100%;min-height:65px;margin:10px 0}#pushFeedback{font-size:13px;white-space:pre-wrap}
 body.god-obsidian #emergencyPushHub .push-panel{background:linear-gradient(135deg,#252017,#0b0a09);border-color:#c5a363}
-</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
+</style><style id="hubTrainingStyles">.hub-person-view{margin:12px 0;padding:15px;border:1px solid #4b7ba4;border-radius:14px;background:#092b50;color:white}.hub-person-view label{display:block;font-weight:750;margin-bottom:9px}.hub-person-view select{width:100%;margin-bottom:9px}.hub-person-row{padding:9px;margin:7px 0;border-radius:9px;background:#16446d;color:white}.hub-training-green{background:linear-gradient(125deg,#0d6b42,#104b3c)!important;border:1px solid #4bdd9d!important;color:#fff!important}.hub-training-green *{color:#fff!important}.hub-training-note{padding:7px 9px;margin-top:5px;background:#0b4735;border-radius:7px;color:#dcffe9!important;white-space:pre-wrap}</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
 <p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
@@ -597,7 +597,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 </style>
 <section class="live-sched" id="liveScheduling"><div class="card"><h2>Schedule</h2><p class="sub">Your upcoming shifts and, if authorized, your team schedule.</p><p aria-live="polite" class="live-muted" id="liveScheduleStatus" role="status">Sign in to load your live schedule.</p>
 <section class="mcc-tab-panel" hidden="" id="managementCommandCenter"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3>Management · Live Staffing</h3><p class="mcc-note">Published shifts at homes you manage · Times shown in your device's local time</p></div><button class="btn secondary" id="mccRefresh" type="button">↻ Refresh</button></div><p class="mcc-note" id="mccStatus" role="status">Loading staffing overview…</p><div class="glass-staff-grid"><div class="glass-staff-panel glass-now"><h3>🟢 Currently on Shift</h3><div class="mcc-grid" id="mccCurrent"></div></div><div class="glass-staff-panel glass-next"><h3>🕒 Coming in Next</h3><div class="mcc-grid" id="mccUpcoming"></div></div></div><p class="mcc-note">Based on scheduled times, not employee clock-ins. OPEN slots are highlighted.</p></section>
-<div hidden="" id="liveManagerSchedule"><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select aria-label="Home" class="field" id="liveScheduleHome"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div>
+<div hidden="" id="liveManagerSchedule"><div class="hub-person-view"><label for="hubPersonSelect">👤 View a staff member’s schedule</label><select id="hubPersonSelect" class="field"><option value="">Select an employee</option></select><button id="hubPersonRefresh" class="btn secondary small" type="button">View schedule</button><div id="hubPersonResult" aria-live="polite"></div></div><div class="live-controls"><button class="btn secondary" id="livePrevWeek" type="button">← Previous</button><strong class="live-week" id="liveWeekLabel"></strong><button class="btn secondary" id="liveNextWeek" type="button">Next →</button><select aria-label="Home" class="field" id="liveScheduleHome"></select><button class="btn secondary" id="liveScheduleReload" type="button">Refresh</button><button class="btn" id="liveAddShift" type="button">+ Add shift</button></div>
 <div class="live-controls" id="pathwaysViewerControl"><button class="btn secondary" id="pathwaysViewerToggle" type="button">📅 Show / Hide Weekly Calendar</button></div>
 <section class="pathways-weekly-viewer" hidden="" id="pathwaysWeeklyViewer">
 <div class="pwv-top"><div><h3>Pathways · Published Weekly Schedule</h3><p id="pwvWeekLabel">Loading week…</p></div><button class="btn secondary" id="pwvClose" type="button">Close viewer</button></div>
@@ -612,7 +612,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <div class="live-controls"><strong id="pathwaysWeekName"></strong><button class="btn secondary" id="pathwaysBuilderReload" type="button">Reload roster</button><button class="btn secondary" id="pathwaysBuilderCopy" type="button" hidden>Copy previous week</button><button class="btn secondary" id="pathwaysBuilderSave" type="button">Save Master Roster</button><button class="btn" id="pathwaysBuilderPublish" type="button">Build Weekly Schedule</button></div>
 <p class="live-muted" id="pathwaysBuilderStatus" role="status"></p><div id="pathwaysBuilderSlots"></div>
 </section>
-<div class="card" hidden="" id="liveShiftPanel" style="padding:16px;margin-top:18px"><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm" novalidate><div id="liveShiftFeedback" role="status" aria-live="polite" style="display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #86bfff;border-radius:12px;background:#0a2c54;color:#fff;font-weight:700"></div><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" id="liveShiftDate" required="" type="date"/></div><div><label for="liveShiftEndDate">Through date (optional)</label><input class="field" id="liveShiftEndDate" type="date"/></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" id="liveShiftStart" required="" type="time"/></div><div><label for="liveShiftEnd">End time</label><input class="field" id="liveShiftEnd" required="" type="time"/></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><div id="liveShiftRepeatOptions" style="margin:12px 0"><strong>Days to schedule</strong><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px"><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="0" checked/> Mon</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="1" checked/> Tue</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="2" checked/> Wed</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="3" checked/> Thu</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="4" checked/> Fri</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="5" checked/> Sat</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="6" checked/> Sun</label></div><p class="live-muted">Choose a date range and the weekdays to include. For five consecutive weekdays, select Monday–Friday. Existing shifts are never overwritten.</p></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" id="liveShiftSave" type="submit">Save shift</button><button class="btn danger" hidden="" id="liveShiftDelete" type="button">Delete shift</button><button class="btn secondary" id="liveShiftCancel" type="button">Cancel</button></div></form></div>
+<div class="card" hidden="" id="liveShiftPanel" style="padding:16px;margin-top:18px"><h3 id="liveShiftPanelTitle">Add shift</h3><form id="liveShiftForm" novalidate><div id="liveShiftFeedback" role="status" aria-live="polite" style="display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #86bfff;border-radius:12px;background:#0a2c54;color:#fff;font-weight:700"></div><div class="live-form-grid"><div><label for="liveShiftDate">Date</label><input class="field" id="liveShiftDate" required="" type="date"/></div><div><label for="liveShiftEndDate">Through date (optional)</label><input class="field" id="liveShiftEndDate" type="date"/></div><div><label for="liveShiftTemplate">Standard slot (optional)</label><select class="field" id="liveShiftTemplate"></select></div><div><label for="liveShiftStart">Start time</label><input class="field" id="liveShiftStart" required="" type="time"/></div><div><label for="liveShiftEnd">End time</label><input class="field" id="liveShiftEnd" required="" type="time"/></div><div><label for="liveShiftEmployee">Assigned employee</label><select class="field" id="liveShiftEmployee"></select></div></div><div id="hubTrainingNoteBox" hidden style="margin:12px 0"><label for="hubTrainingNote">📍 Training location / additional notes</label><textarea class="field" id="hubTrainingNote" rows="3" maxlength="1000" placeholder="Example: Main office, Room 2. Bring CPR card." style="width:100%;min-height:82px"></textarea></div><div id="liveShiftRepeatOptions" style="margin:12px 0"><strong>Days to schedule</strong><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px"><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="0" checked/> Mon</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="1" checked/> Tue</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="2" checked/> Wed</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="3" checked/> Thu</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="4" checked/> Fri</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="5" checked/> Sat</label><label style="display:flex;align-items:center;gap:5px"><input type="checkbox" class="liveShiftDay" value="6" checked/> Sun</label></div><p class="live-muted">Choose a date range and the weekdays to include. For five consecutive weekdays, select Monday–Friday. Existing shifts are never overwritten.</p></div><p class="live-muted">Leave employee as Vacant for an open slot. An end time earlier than the start time ends the following day.</p><div class="live-controls"><button class="btn" id="liveShiftSave" type="submit">Save shift</button><button class="btn danger" hidden="" id="liveShiftDelete" type="button">Delete shift</button><button class="btn secondary" id="liveShiftCancel" type="button">Cancel</button></div></form></div>
 <div id="managerRequests"><h3>Open-shift requests <span class="request-count" id="managerRequestCount">0</span></h3><button class="btn secondary" id="managerRequestsRefresh" type="button">Refresh requests</button><div aria-live="polite" id="managerRequestList"></div></div><div class="staff-extra" id="managerExtras" style="margin-top:20px"><div id="retiredManagerTrades" hidden><h3>Trade approvals <span class="request-count" id="tradeManagerCount">0</span></h3><button class="btn secondary" id="tradeManagerRefresh" type="button">Refresh trade approvals</button><div id="tradeManagerList"></div></div><h3 style="margin-top:22px">Time-off approvals <span class="request-count" id="offManagerCount">0</span></h3><button class="btn secondary" id="offManagerRefresh" type="button">Refresh time-off approvals</button><div id="offManagerList"></div></div><div style="margin-top:20px"><h3>Management-only change history</h3><p class="live-muted">Only authorized management can retrieve these records. The database records the account, timestamp, and before/after values.</p><button class="btn secondary" id="liveLoadHistory" type="button">Load change history</button><div class="live-history" id="liveHistory"></div></div>
 </div><!-- /pathwaysManagementTools --></div>
 <div hidden="" id="liveMySchedule"><h3>My Shifts</h3><p class="sub">Current week and the next two weeks · Monday–Sunday</p><div class="my-three-week-tabs" id="myThreeWeekTabs" role="tablist" aria-label="My schedule weeks"></div><div class="my-calendar-scroll"><div class="my-calendar-days" id="myCalendarDays" aria-label="My shifts calendar"></div></div><div class="live-controls"><button class="btn secondary" id="liveMyRefresh" type="button">Refresh my shifts</button></div><div id="liveMyShifts"></div></div>
@@ -876,6 +876,10 @@ employeeAccessButton.addEventListener('click',async()=>{
 
 
 // Live schedule: all reads and writes go through authenticated Supabase RLS.
+const hubTrainingId=()=>Number(Object.keys(window.staffHubHomes||{}).find(k=>String(window.staffHubHomes[k]).toLowerCase()==='trainings')||0);
+const hubIsTraining=sh=>Number(sh?.home_id)===hubTrainingId()&&hubTrainingId()>0;
+const hubTrainingNoteBox=document.getElementById('hubTrainingNoteBox');
+function hubTrainingForm(){hubTrainingNoteBox.hidden=Number(document.getElementById('liveScheduleHome').value)!==hubTrainingId();}
 const LS_HOMES=window.staffHubHomes||(window.staffHubHomes={1:'Pathways',2:'Oasis',3:'Freedom',4:'Station'});
 const lsStatus=document.getElementById('liveScheduleStatus');
 const lsManager=document.getElementById('liveManagerSchedule');
@@ -908,6 +912,7 @@ function lsMsg(m,bad=false){
 function lsEl(tag,value,cls){const e=document.createElement(tag);if(value!==undefined)e.textContent=value;if(cls)e.className=cls;return e;}
 // Emergency coverage actions are attached only to vacant shifts in manager views.
 function hubEmergencyButton(shift){
+ if(hubIsTraining(shift))return null;
  if(shift.employee_id!=null || new Date(shift.ends_at).getTime()<=Date.now() || !lsAllowed.includes(Number(shift.home_id)))return null;
  const button=lsEl('button','🚨 Emergency Coverage','btn secondary small hub-shift-emergency');
  button.type='button';button.setAttribute('aria-label','Emergency coverage for open shift '+lsRange(shift));
@@ -967,19 +972,40 @@ async function lsLoadAccess(){
   document.getElementById("openShiftArea").hidden=false;await lsLoadOpenShifts();
  }catch(e){if(ticket===lsSession)lsMsg('Schedule access error: '+e.message,true);}
 }
+let hubAllPeople=[];
+function hubPopulatePeople(){
+ const select=document.getElementById('hubPersonSelect');const prev=select.value;
+ select.replaceChildren(new Option('Select an employee',''));
+ for(const e of hubAllPeople.filter(e=>e.id!=null))select.add(new Option(e.full_name,String(e.id)));
+ select.value=prev;
+}
+async function hubShowPerson(){
+ const out=document.getElementById('hubPersonResult'),id=Number(document.getElementById('hubPersonSelect').value);
+ if(!id){out.textContent='Choose an employee first.';return;}
+ out.textContent='Loading authorized shifts…';
+ try{
+  const from=lsWeek.toISOString(),to=lsDay(lsWeek,7).toISOString();
+  const {data,error}=await client.from('Shifts').select('home_id,employee_id,starts_at,ends_at,training_notes').eq('employee_id',id).in('home_id',lsAllowed).lt('starts_at',to).gt('ends_at',from).order('starts_at').limit(250);
+  if(error)throw error;
+  out.replaceChildren();
+  if(!data?.length){out.textContent='No shifts in the selected week at locations you manage.';return;}
+  for(const sh of data){const row=document.createElement('div');row.className='hub-person-row'+(hubIsTraining(sh)?' hub-training-green':'');const d=new Date(sh.starts_at);row.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(d)+' – '+lsTime(new Date(sh.ends_at))+' · '+(LS_HOMES[sh.home_id]||'Location');if(hubIsTraining(sh)&&sh.training_notes){const n=document.createElement('div');n.className='hub-training-note';n.textContent='📍 '+sh.training_notes;row.append(n);}out.append(row);}
+ }catch(e){out.textContent='Could not load staff schedule: '+e.message;}
+}
+document.getElementById('hubPersonRefresh').onclick=hubShowPerson;
 async function lsLoadManager(){
  const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;
  lsMsg('Loading '+LS_HOMES[home]+' live schedule…');lsPanel.hidden=true;lsHistory.replaceChildren();
  const start=lsWeek.toISOString(),end=lsDay(lsWeek,8).toISOString();
  try{
   const [sh,em,tm]=await Promise.all([
-   client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at').eq('home_id',home).lt('starts_at',end).gt('ends_at',start).order('starts_at',{ascending:true}).limit(500),
+   client.from('Shifts').select('id,home_id,employee_id,starts_at,ends_at,training_notes').eq('home_id',home).lt('starts_at',end).gt('ends_at',start).order('starts_at',{ascending:true}).limit(500),
    client.from('Employees').select('id,full_name,home_id,job_title,auth_user_id,user_id').order('full_name').limit(1000),
    client.from('shift_templates').select('id,home_id,shift_label,start_time,end_time,available_slots').eq('home_id',home).order('id')
   ]);
   for(const r of [sh,em,tm])if(r.error)throw r.error;
-  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));lsTemplates=tm.data||[];
-  lsRenderManager();
+  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));hubAllPeople=em.data||[];lsTemplates=tm.data||[];
+  lsRenderManager();hubTrainingForm();hubPopulatePeople();
   // The Pathways-style weekly calendar is the primary view for EVERY managed home.
   document.getElementById('pathwaysDashboardActions').hidden=false;
   document.getElementById('pathwaysViewerControl').hidden=true;
@@ -1085,7 +1111,7 @@ function lsRenderManager(){
   day.append(lsEl('h4',date.toLocaleDateString('en-US',{weekday:'short'})+' · '+lsNice(date)));
   const records=lsShifts.filter(s=>{const a=new Date(s.starts_at),b=new Date(s.ends_at);return a<finish&&b>begin;});
   if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
-  for(const shift of records){const card=lsEl('div',undefined,'live-shift');const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));
+  for(const shift of records){const card=lsEl('div',undefined,'live-shift'+(hubIsTraining(shift)?' hub-training-green':''));const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));if(hubIsTraining(shift)&&shift.training_notes)card.append(lsEl('div','📍 '+shift.training_notes,'hub-training-note'));
    const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);
    const emergencyButton=hubEmergencyButton(shift);if(emergencyButton)card.append(emergencyButton);
    day.append(card);}
@@ -1094,6 +1120,7 @@ function lsRenderManager(){
 }
 function lsOpenForm(shift=null,date=lsDate(new Date())){
  const home=Number(lsHome.value);if(!lsAllowed.includes(home))return;
+ hubTrainingForm();document.getElementById('hubTrainingNote').value=hubIsTraining(shift)?(shift.training_notes||''):'';
  lsEditing=shift?Number(shift.id):null;lsPanel.hidden=false;
  document.getElementById('liveShiftPanelTitle').textContent=shift?'Edit shift':'Add shift';
  document.getElementById('liveShiftDelete').hidden=!shift;
@@ -1134,7 +1161,7 @@ lsForm.addEventListener('submit',async e=>{
   if(!lsEditing&&!days.has(weekday))continue;
   const a=lsLocalTime(key,start),b=lsLocalTime(key,end);if(b<=a)b.setDate(b.getDate()+1);
   if(b-a>86400000){lsMsg('A shift cannot exceed 24 hours.',true);return;}
-  payloads.push({home_id:home,employee_id,starts_at:a.toISOString(),ends_at:b.toISOString()});
+  payloads.push({home_id:home,employee_id,starts_at:a.toISOString(),ends_at:b.toISOString(),training_notes:home===hubTrainingId()?(document.getElementById('hubTrainingNote').value.trim()||null):null});
  }
  if(!payloads.length){lsMsg('No dates selected. Check your weekday choices.',true);return;}
  if(!lsEditing){
@@ -1183,7 +1210,7 @@ document.getElementById('liveLoadHistory').onclick=async()=>{
   const detail=lsEl('details');detail.append(lsEl('summary','View before / after'));const pre=lsEl('pre',JSON.stringify({before:item.old_values,after:item.new_values},null,2));pre.style.whiteSpace='pre-wrap';pre.style.fontSize='11px';detail.append(pre);line.append(detail);lsHistory.append(line);
  }
 };
-let myAllShifts=[],myWeekOffset=0;
+let myAllShifts=[],myWeekOffset=0,hubMyTraining=[];
 function myWeekStart(){return lsMonday(new Date());}
 function myDateKey(date){return lsDate(date);}
 function myDrawCalendar(){
@@ -1209,10 +1236,10 @@ function myDrawCalendar(){
  }
  if(!selected.length){out.append(lsEl('p','No assigned shifts shown for this week.','live-muted'));return;}
  for(const shift of selected){
-  const row=lsEl('div',undefined,'live-staff-item');
+  const row=lsEl('div',undefined,'live-staff-item'+(hubIsTraining(shift)?' hub-training-green':''));
   const a=new Date(shift.starts_at),b=new Date(shift.ends_at);
   row.append(lsEl('strong',a.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(a)+' – '+lsTime(b)));
-  row.append(lsEl('div',(LS_HOMES[shift.home_id]||'Home')+' · '+shift.staff_scheduled+' staff scheduled (including you)'));
+  row.append(lsEl('div',(LS_HOMES[shift.home_id]||'Home')+' · '+(hubIsTraining(shift)?'Training assignment':shift.staff_scheduled+' staff scheduled (including you)')));if(hubIsTraining(shift)){const note=hubMyTraining.find(n=>n.starts_at===shift.starts_at&&n.ends_at===shift.ends_at);if(note?.training_notes)row.append(lsEl('div','📍 '+note.training_notes,'hub-training-note'));}
   out.append(row);
  }
 }
@@ -1220,7 +1247,7 @@ async function lsLoadMine(){
  const out=document.getElementById('liveMyShifts');out.replaceChildren(lsEl('p','Loading your shifts…','live-muted'));
  const {data,error}=await client.rpc('my_schedule');
  if(error){out.replaceChildren(lsEl('p','Could not load your shifts: '+error.message,'live-error'));return;}
- myAllShifts=data||[];
+ myAllShifts=data||[];hubMyTraining=[];if(hubTrainingId()){const details=await client.rpc('hub_my_training_notes');if(!details.error)hubMyTraining=details.data||[];}
  myDrawCalendar();
 }
 document.getElementById('liveMyRefresh').onclick=lsLoadMine;
@@ -1582,11 +1609,11 @@ function pwvRender(){
   });
   if(!shifts.length)list.append(lsEl('div','No shifts scheduled','pwv-empty'));
   for(const shift of shifts){
-   const card=lsEl('div',undefined,'pwv-shift '+pwvShiftColor(shift));
+   const card=lsEl('div',undefined,'pwv-shift '+pwvShiftColor(shift)+(hubIsTraining(shift)?' hub-training-green':''));
    card.append(lsEl('div',lsRange(shift),'pwv-time'));
    const employee=lsOwnEmployee(shift);
    if(pwvPriority(employee)<2){card.append(lsEl('div',pwvPriority(employee)===0?'CLI LEAD':'COOK','pwv-role-tag '+(pwvPriority(employee)===0?'pwv-lead-tag':'pwv-cook-tag')));}
-   card.append(lsEl('div',employee?.full_name||'OPEN — Unassigned',employee?'pwv-person':'pwv-person pwv-open'));
+   card.append(lsEl('div',employee?.full_name||'OPEN — Unassigned',employee?'pwv-person':'pwv-person pwv-open'));if(hubIsTraining(shift)&&shift.training_notes)card.append(lsEl('div','📍 '+shift.training_notes,'hub-training-note'));
    const editButton=lsEl('button','Edit shift','btn secondary small pwv-edit');
    editButton.type='button';
    editButton.setAttribute('aria-label','Edit '+(employee?.full_name||'open shift')+' on '+date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}));
