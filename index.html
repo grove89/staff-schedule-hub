@@ -657,6 +657,19 @@ body.god-obsidian #managerTabStrip .manager-notification-badge{background:#e9bf4
  }
 }
 @media(max-width:380px){body.god-obsidian #managerTabStrip button{font-size:9px!important}}
+</style><style id="hubPersonThreeWeekCalendar2026">
+/* God Mode: employee lookup mirrors My Shifts horizontal week selector and calendar. */
+body.god-obsidian .hub-person-view{background:#111215!important;border:1px solid #ffffff8c!important;border-radius:16px!important;padding:16px!important}
+body.god-obsidian #hubPersonResult{margin-top:14px}
+body.god-obsidian #hubPersonResult .hub-person-tabs{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 12px}
+body.god-obsidian #hubPersonResult .my-week-tab{flex:1 0 auto;min-width:145px;background:#1b1c20!important;color:#f7f7f8!important;border:1px solid #ffffff8c!important;border-radius:10px!important;padding:11px!important;font-weight:700}
+body.god-obsidian #hubPersonResult .my-week-tab.selected{background:#e9eaec!important;color:#101114!important;border-color:#ffffff!important;box-shadow:inset 0 -3px #86dfd0!important}
+body.god-obsidian #hubPersonResult .hub-person-calendar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:14px}
+body.god-obsidian #hubPersonResult .hub-person-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(75px,1fr));min-width:540px;gap:7px}
+body.god-obsidian #hubPersonResult .my-calendar-day{background:#1d1f23!important;border:1px solid #ffffff80!important;color:#fff!important;border-radius:11px!important}
+body.god-obsidian #hubPersonResult .my-calendar-day.today{outline:2px solid #c8a96b!important}
+body.god-obsidian #hubPersonResult .my-calendar-count{background:#36564f!important;color:#d9fff4!important}
+body.god-obsidian #hubPersonResult .hub-person-row{background:#1d1e22!important;color:#fff!important;border:1px solid #ffffff6e!important;border-radius:11px!important;padding:12px!important;margin:9px 0!important}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
@@ -1109,17 +1122,51 @@ function hubPopulatePeople(){
  for(const e of hubAllPeople.filter(e=>e.id!=null))select.add(new Option(e.full_name,String(e.id)));
  select.value=prev;
 }
+let hubPersonWeekOffset=0,hubPersonShifts=[],hubPersonSelectedId=null;
+function hubDrawPersonCalendar(){
+ const out=document.getElementById('hubPersonResult');out.replaceChildren();
+ const tabs=document.createElement('div');tabs.className='my-three-week-tabs hub-person-tabs';tabs.setAttribute('role','tablist');
+ for(let w=0;w<3;w++){
+  const monday=lsDay(lsMonday(new Date()),w*7),sunday=lsDay(monday,6);
+  const btn=lsEl('button',(w===0?'Current week':w===1?'Next week':'Week 3')+' · '+lsNice(monday)+'–'+lsNice(sunday),'my-week-tab'+(w===hubPersonWeekOffset?' selected':''));
+  btn.type='button';btn.setAttribute('role','tab');btn.setAttribute('aria-selected',String(w===hubPersonWeekOffset));
+  btn.onclick=()=>{hubPersonWeekOffset=w;hubDrawPersonCalendar();};tabs.append(btn);
+ }
+ out.append(tabs);
+ const scroller=lsEl('div',undefined,'my-calendar-scroll hub-person-calendar-scroll');
+ const days=lsEl('div',undefined,'my-calendar-days hub-person-calendar-days');
+ const monday=lsDay(lsMonday(new Date()),hubPersonWeekOffset*7);
+ const selected=[];
+ for(let i=0;i<7;i++){
+  const date=lsDay(monday,i),key=lsDate(date);
+  const matches=hubPersonShifts.filter(sh=>lsDate(new Date(sh.starts_at))===key).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const cell=lsEl('div',undefined,'my-calendar-day'+(lsDate(new Date())===key?' today':''));
+  cell.append(lsEl('div',date.toLocaleDateString('en-US',{weekday:'short'}),'my-calendar-weekday'));
+  cell.append(lsEl('strong',String(date.getDate()),'my-calendar-number'));
+  cell.append(lsEl('span',matches.length?matches.length+' shift'+(matches.length===1?'':'s'):'—',matches.length?'my-calendar-count':'my-calendar-empty'));
+  days.append(cell);selected.push(...matches);
+ }
+ scroller.append(days);out.append(scroller);
+ const results=lsEl('div',undefined,'hub-person-week-results');
+ if(!selected.length)results.append(lsEl('p','No shifts for this week at locations you manage.','live-muted'));
+ for(const sh of selected){
+  const row=lsEl('div',undefined,'hub-person-row'+(hubIsTraining(sh)?' hub-training-green':''));
+  const d=new Date(sh.starts_at);
+  row.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(d)+' – '+lsTime(new Date(sh.ends_at))+' · '+(LS_HOMES[sh.home_id]||'Location');
+  if(hubIsTraining(sh)&&sh.training_notes){const note=lsEl('div','📍 '+sh.training_notes,'hub-training-note');row.append(note);}
+  results.append(row);
+ }
+ out.append(results);
+}
 async function hubShowPerson(){
  const out=document.getElementById('hubPersonResult'),id=Number(document.getElementById('hubPersonSelect').value);
  if(!id){out.textContent='Choose an employee first.';return;}
  out.textContent='Loading authorized shifts…';
  try{
-  const from=lsWeek.toISOString(),to=lsDay(lsWeek,7).toISOString();
+  const from=lsMonday(new Date()).toISOString(),to=lsDay(lsMonday(new Date()),21).toISOString();
   const {data,error}=await client.from('Shifts').select('home_id,employee_id,starts_at,ends_at,training_notes').eq('employee_id',id).in('home_id',lsAllowed).lt('starts_at',to).gt('ends_at',from).order('starts_at').limit(250);
   if(error)throw error;
-  out.replaceChildren();
-  if(!data?.length){out.textContent='No shifts in the selected week at locations you manage.';return;}
-  for(const sh of data){const row=document.createElement('div');row.className='hub-person-row'+(hubIsTraining(sh)?' hub-training-green':'');const d=new Date(sh.starts_at);row.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(d)+' – '+lsTime(new Date(sh.ends_at))+' · '+(LS_HOMES[sh.home_id]||'Location');if(hubIsTraining(sh)&&sh.training_notes){const n=document.createElement('div');n.className='hub-training-note';n.textContent='📍 '+sh.training_notes;row.append(n);}out.append(row);}
+  hubPersonSelectedId=id;hubPersonShifts=data||[];hubPersonWeekOffset=0;hubDrawPersonCalendar();
  }catch(e){out.textContent='Could not load staff schedule: '+e.message;}
 }
 document.getElementById('hubPersonRefresh').onclick=hubShowPerson;
