@@ -527,7 +527,93 @@ body.god-activity-active #godActivityPanel{display:block!important;visibility:vi
 #emergencyPushHub select,#emergencyPushHub textarea{padding:11px;border-radius:9px;border:1px solid #8bb8e0;background:#081c3c;color:#fff;max-width:100%;font:inherit}
 #emergencyPushHub textarea{width:100%;min-height:65px;margin:10px 0}#pushFeedback{font-size:13px;white-space:pre-wrap}
 body.god-obsidian #emergencyPushHub .push-panel{background:linear-gradient(135deg,#252017,#0b0a09);border-color:#c5a363}
-</style><style id="hubTrainingStyles">.hub-person-view{margin:12px 0;padding:15px;border:1px solid #4b7ba4;border-radius:14px;background:#092b50;color:white}.hub-person-view label{display:block;font-weight:750;margin-bottom:9px}.hub-person-view select{width:100%;margin-bottom:9px}.hub-person-row{padding:9px;margin:7px 0;border-radius:9px;background:#16446d;color:white}.hub-training-green{background:linear-gradient(125deg,#0d6b42,#104b3c)!important;border:1px solid #4bdd9d!important;color:#fff!important}.hub-training-green *{color:#fff!important}.hub-training-note{padding:7px 9px;margin-top:5px;background:#0b4735;border-radius:7px;color:#dcffe9!important;white-space:pre-wrap}</style><style id="hubPullStaffStyles">.hub-pull-backdrop{position:fixed;inset:0;z-index:99999;background:#000b;display:flex;align-items:center;justify-content:center;padding:14px}.hub-pull-panel{width:min(100%,510px);max-height:94dvh;overflow:auto;border:1px solid #8ebfff;border-radius:18px;padding:22px;background:#092447;color:#fff;box-shadow:0 22px 60px #0009}.hub-pull-panel h3{margin:0 0 10px}.hub-pull-panel p{color:#d6e7ff;line-height:1.5}.hub-pull-panel label{display:block;font-weight:700;margin:13px 0 0}.hub-pull-panel label .field{display:block;width:100%;margin-top:7px}.hub-pull-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}@media(max-width:600px){.hub-pull-backdrop{align-items:flex-end;padding:0}.hub-pull-panel{border-radius:18px 18px 0 0}}</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
+</style><style id="hubTrainingStyles">.hub-person-view{margin:12px 0;padding:15px;border:1px solid #4b7ba4;border-radius:14px;background:#092b50;color:white}.hub-person-view label{display:block;font-weight:750;margin-bottom:9px}.hub-person-view select{width:100%;margin-bottom:9px}.hub-person-row{padding:9px;margin:7px 0;border-radius:9px;background:#16446d;color:white}.hub-training-green{background:linear-gradient(125deg,#0d6b42,#104b3c)!important;border:1px solid #4bdd9d!important;color:#fff!important}.hub-training-green *{color:#fff!important}.hub-training-note{padding:7px 9px;margin-top:5px;background:#0b4735;border-radius:7px;color:#dcffe9!important;white-space:pre-wrap}</style><style id="hubPullStaffStyles">.hub-pull-backdrop{position:fixed;inset:0;z-index:99999;background:#000b;display:flex;align-items:center;justify-content:center;padding:14px}.hub-pull-panel{width:min(100%,510px);max-height:94dvh;overflow:auto;border:1px solid #8ebfff;border-radius:18px;padding:22px;background:#092447;color:#fff;box-shadow:0 22px 60px #0009}.hub-pull-panel h3{margin:0 0 10px}.hub-pull-panel p{color:#d6e7ff;line-height:1.5}.hub-pull-panel label{display:block;font-weight:700;margin:13px 0 0}.hub-pull-panel label .field{display:block;width:100%;margin-top:7px}.hub-pull-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}@media(max-width:600px){.hub-pull-backdrop{align-items:flex-end;padding:0}.hub-pull-panel{border-radius:18px 18px 0 0}}</style><style id="godModeNoir2026">
+/* GOD MODE / NOIR — intentionally restrained, high-contrast architectural UI.
+   Scoped to verified admin theme; ordinary employee/manager UI remains untouched. */
+body.god-obsidian{
+ --noir-bg:#050608;--noir-surface:#0b0d11;--noir-raised:#11141a;
+ --noir-line:rgba(247,250,255,.68);--noir-hair:rgba(245,248,255,.36);
+ --noir-text:#f8fafc;--noir-sub:#aab2be;--noir-cyan:#5be7f5;
+ background:radial-gradient(ellipse 70% 44% at 110% -12%,#15202d 0%,transparent 72%),
+ linear-gradient(160deg,#030405 0%,#0b0d11 56%,#050609 100%)!important;
+ color:var(--noir-text)!important;
+}
+body.god-obsidian header{background:linear-gradient(110deg,#080a0e,#10151b 60%,#07080b)!important;border-bottom:1px solid var(--noir-line)!important;box-shadow:0 15px 50px #0009!important}
+body.god-obsidian header h1{font-weight:850!important;letter-spacing:-.055em!important;text-shadow:none!important}
+body.god-obsidian header p{color:#aeb9c7!important;letter-spacing:.035em}
+body.god-obsidian #managerTabStrip:not([hidden]){background:#07090de8!important;border:1px solid var(--noir-hair)!important;border-radius:13px!important;box-shadow:0 12px 30px #0008!important;gap:7px!important}
+body.god-obsidian #managerTabStrip button,
+body.god-obsidian #universalShiftTabs button{background:#101318!important;background-image:none!important;color:#d7dce4!important;border:1px solid var(--noir-hair)!important;box-shadow:none!important;border-radius:8px!important;font-weight:750!important;letter-spacing:.025em}
+body.god-obsidian #managerTabStrip button[aria-selected="true"],
+body.god-obsidian #universalShiftTabs button[aria-selected="true"]{background:#e9f5fb!important;background-image:none!important;color:#07090b!important;border-color:#fff!important;box-shadow:inset 0 0 0 1px #fff,0 0 0 1px #ffffff29!important}
+body.god-obsidian #liveScheduling .card,
+body.god-obsidian #liveScheduling #managementCommandCenter,
+body.god-obsidian #liveScheduling #liveManagerSchedule,
+body.god-obsidian #liveScheduling #mccRequestsPanel,
+body.god-obsidian #liveScheduling #mccStaffPanel,
+body.god-obsidian #liveScheduling #mccHousesPanel,
+body.god-obsidian #liveScheduling #mccTimeOffPanel,
+body.god-obsidian #godHoursPanel,
+body.god-obsidian #godActivityPanel,
+body.god-obsidian #godActivityPanel .god-event,
+body.god-obsidian #liveScheduling .glass-staff-panel,
+body.god-obsidian #liveScheduling .mcc-home,
+body.god-obsidian #liveScheduling .mcc-entry,
+body.god-obsidian #liveScheduling .request-item,
+body.god-obsidian #liveScheduling #liveMySchedule,
+body.god-obsidian #liveScheduling #openShiftArea,
+body.god-obsidian #liveEmployeeEditor .card,
+body.god-obsidian #loginTest .card{
+ background-color:var(--noir-surface)!important;
+ background-image:linear-gradient(145deg,rgba(255,255,255,.045),transparent 27%,rgba(255,255,255,.014) 80%)!important;
+ border:1px solid var(--noir-hair)!important;
+ border-radius:12px!important;
+ box-shadow:0 15px 38px #0007,inset 0 1px #ffffff12!important;
+ color:var(--noir-text)!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+body.god-obsidian #liveScheduling #managementCommandCenter,
+body.god-obsidian #godHoursPanel,
+body.god-obsidian #godActivityPanel{border-color:var(--noir-line)!important;border-radius:16px!important}
+body.god-obsidian #liveScheduling .card::before,
+body.god-obsidian #liveScheduling #managementCommandCenter::before,
+body.god-obsidian #liveScheduling .mcc-home::before{opacity:0!important}
+body.god-obsidian #managementCommandCenter h3,
+body.god-obsidian #godHoursPanel h3,
+body.god-obsidian #godActivityPanel h3{font-size:clamp(20px,3vw,29px)!important;letter-spacing:-.045em!important;font-weight:850!important}
+body.god-obsidian .mcc-home h4{letter-spacing:-.02em!important}
+body.god-obsidian .mcc-note,
+body.god-obsidian .live-muted,
+body.god-obsidian .hours-meta,
+body.god-obsidian .god-event small{color:var(--noir-sub)!important}
+body.god-obsidian .field,
+body.god-obsidian input.field,
+body.god-obsidian select.field,
+body.god-obsidian textarea.field,
+body.god-obsidian #godHoursPanel input{background:#090b0f!important;color:#f9fafb!important;border:1px solid #a6afbd!important;border-radius:8px!important;box-shadow:none!important}
+body.god-obsidian .btn:not(.danger),
+body.god-obsidian #godHoursPanel button,
+body.god-obsidian #godActivityPanel button{
+ background:#171c24!important;background-image:none!important;color:#f8fafc!important;
+ border:1px solid #b6c0cb!important;border-radius:8px!important;
+ box-shadow:none!important;text-shadow:none!important;font-weight:750!important;
+}
+body.god-obsidian .btn:not(.secondary):not(.danger){background:#dcebf2!important;color:#0a1017!important;border-color:#fff!important}
+body.god-obsidian .btn.danger{background:#241116!important;border:1px solid #fb7185!important;color:#fecdd3!important}
+body.god-obsidian button:focus-visible,body.god-obsidian a:focus-visible,body.god-obsidian input:focus-visible{outline:2px solid var(--noir-cyan)!important;outline-offset:3px!important}
+body.god-obsidian #godHoursPanel .hours-row{border-bottom:1px solid #ffffff35!important}
+body.god-obsidian #godHoursPanel .hours-rank,
+body.god-obsidian #godHoursPanel .hours-total{color:var(--noir-cyan)!important}
+body.god-obsidian #godHoursPanel .hours-summary{color:#cbd5e1!important}
+body.god-obsidian #godActivityPanel .god-event{border-left:2px solid #5be7f5!important}
+body.god-obsidian #managementCommandCenter .mcc-home[data-home-id]{border-left:2px solid var(--home-accent,#5be7f5)!important;background:#0c1015!important}
+body.god-obsidian #managementCommandCenter .mcc-open{border-left:2px solid #ff6d82!important}
+body.god-obsidian #liveScheduling .pwv-shift.pwv-morning,
+body.god-obsidian #liveScheduling .pwv-shift.pwv-evening,
+body.god-obsidian #liveScheduling .pwv-shift.pwv-overnight{border-radius:9px!important}
+@media(max-width:650px){body.god-obsidian #managerTabStrip:not([hidden]){border-radius:8px!important}body.god-obsidian #liveScheduling #managementCommandCenter{padding:14px!important}}
+</style>
+</head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
 <p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
