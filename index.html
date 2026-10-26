@@ -670,6 +670,17 @@ body.god-obsidian #hubPersonResult .my-calendar-day{background:#1d1f23!important
 body.god-obsidian #hubPersonResult .my-calendar-day.today{outline:2px solid #c8a96b!important}
 body.god-obsidian #hubPersonResult .my-calendar-count{background:#36564f!important;color:#d9fff4!important}
 body.god-obsidian #hubPersonResult .hub-person-row{background:#1d1e22!important;color:#fff!important;border:1px solid #ffffff6e!important;border-radius:11px!important;padding:12px!important;margin:9px 0!important}
+</style><style id="hubUnlimitedTrainingRosterStyles">
+#hubUnlimitedTrainingRoster[hidden]{display:none!important}
+#hubUnlimitedTrainingRoster{margin:18px 0;padding:17px;border:1px solid #e5e7eb8c;border-radius:16px;background:#131519;color:#fff}
+#hubUnlimitedTrainingRoster h3{margin:0 0 7px}
+#hubUnlimitedTrainingRoster .hub-training-day{margin:16px 0;padding:12px;border:1px solid #ffffff6b;border-radius:12px;background:#1b1d20}
+#hubUnlimitedTrainingRoster .hub-training-day h4{margin:0 0 12px}
+#hubUnlimitedTrainingRoster .hub-training-group{padding:12px;margin:9px 0;border:1px solid #ffffff52;border-radius:10px;background:#101215}
+#hubUnlimitedTrainingRoster .hub-training-group>strong{display:block;margin-bottom:9px}
+#hubUnlimitedTrainingRoster .hub-training-add{padding:8px 12px!important;margin-bottom:9px!important}
+#hubUnlimitedTrainingRoster .hub-training-person{padding:8px 10px;margin:6px 0;border-left:2px solid #81d8c6;background:#24272b;border-radius:5px}
+#hubUnlimitedTrainingRoster .hub-training-person small{color:#c3d1cd}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
@@ -1192,7 +1203,7 @@ async function lsLoadManager(){
   pwvToolsButton.textContent='⚙️ Edit Schedule & Management Tools';
   pwvWeek=new Date(lsWeek.getFullYear(),lsWeek.getMonth(),lsWeek.getDate());
   pwvRender();
-  await pbLoad();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Use Master Roster to create OPEN positions.');
+  await pbLoad();hubRenderUnlimitedTrainingRoster();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Use Master Roster to create OPEN positions.');
  }catch(e){lsMsg('Could not load live schedule: '+e.message,true);}
 }
 // Permanent, management-only Master Roster. All writes are authorized by Supabase RPCs.
@@ -1241,7 +1252,8 @@ function pbDraw(){
  }
 }
 async function pbLoad(){
- const home=Number(lsHome.value);pbBox.hidden=!lsAllowed.includes(home);if(pbBox.hidden)return;
+ const home=Number(lsHome.value);
+ if(home===hubTrainingId()){pbBox.hidden=true;pbDirty=false;pbLoadedHome=null;return;}pbBox.hidden=!lsAllowed.includes(home);if(pbBox.hidden)return;
  document.getElementById('weeklyBuilderTitle').textContent=LS_HOMES[home]+' · Master Roster';
  if(pbDirty&&pbLoadedHome===home&&!confirm('Discard unsaved Master Roster changes?'))return;
  pbLoadedHome=null;pbMessage('Loading '+LS_HOMES[home]+' Master Roster…');
@@ -1281,6 +1293,57 @@ async function pbPublishWeek(){
 document.getElementById('pathwaysBuilderReload').onclick=pbLoad;
 pbCopy.onclick=()=>{};
 pbSave.onclick=pbSaveDraft;pbPublish.onclick=pbPublishWeek;
+
+// Trainings uses real assignments, not a fixed-capacity Master Roster.
+const hubTrainingRosterPanel=document.createElement('section');
+hubTrainingRosterPanel.id='hubUnlimitedTrainingRoster';
+hubTrainingRosterPanel.hidden=true;
+document.getElementById('pathwaysBuilder').after(hubTrainingRosterPanel);
+function hubRenderUnlimitedTrainingRoster(){
+ const home=Number(lsHome.value);
+ hubTrainingRosterPanel.hidden=home!==hubTrainingId()||!lsAllowed.includes(home);
+ if(hubTrainingRosterPanel.hidden)return;
+ hubTrainingRosterPanel.replaceChildren();
+ const title=lsEl('h3','Trainings · Unlimited Roster');
+ const intro=lsEl('p','Add as many people as needed to any shift or day. No staffing cap. Existing assignments are never replaced.','live-muted');
+ hubTrainingRosterPanel.append(title,intro);
+ const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+ const standard=[['12:00','08:00','Overnight'],['08:00','16:00','Day'],['16:00','00:00','Evening']];
+ const shifts=lsTemplates.length?lsTemplates.map(t=>[t.start_time.slice(0,5),t.end_time.slice(0,5),t.shift_label]):standard;
+ for(let i=0;i<7;i++){
+  const date=lsDay(lsWeek,i),key=lsDate(date);
+  const section=lsEl('section',undefined,'hub-training-day');
+  section.append(lsEl('h4',days[i]+' · '+lsNice(date)));
+  for(const [start,end,label] of shifts){
+   const group=lsEl('div',undefined,'hub-training-group');
+   const heading=lsEl('strong',label+' · '+start+'–'+end);
+   const add=lsEl('button','+ Add Person','btn secondary hub-training-add');
+   add.type='button';
+   add.onclick=()=>{
+    lsOpenForm(null,key);
+    document.getElementById('liveShiftStart').value=start;
+    document.getElementById('liveShiftEnd').value=end;
+    document.getElementById('liveShiftEndDate').value=key;
+    document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=true);
+   };
+   group.append(heading,add);
+   const a=lsLocalTime(key,start),b=lsLocalTime(key,end);
+   if(b<=a)b.setDate(b.getDate()+1);
+   const matching=lsShifts.filter(sh=>new Date(sh.starts_at)<b&&new Date(sh.ends_at)>a);
+   const people=lsEl('div',undefined,'hub-training-people');
+   if(!matching.length)people.append(lsEl('span','No one assigned yet.','live-muted'));
+   for(const sh of matching){
+    const emp=hubAllPeople.find(e=>Number(e.id)===Number(sh.employee_id));
+    const row=lsEl('div',(emp?.full_name||'OPEN — Unassigned')+' · '+lsTime(new Date(sh.starts_at))+'–'+lsTime(new Date(sh.ends_at)),'hub-training-person');
+    if(sh.training_notes)row.append(lsEl('small',' · '+sh.training_notes));
+    people.append(row);
+   }
+   group.append(people);section.append(group);
+  }
+  hubTrainingRosterPanel.append(section);
+ }
+}
+
 function lsRenderManager(){
  const home=Number(lsHome.value);lsDays.replaceChildren();document.getElementById('liveWeekLabel').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
  for(let i=0;i<7;i++){
