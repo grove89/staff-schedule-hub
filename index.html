@@ -2891,4 +2891,68 @@ body.god-obsidian #liveManagerSchedule button.btn{
   border-color:#ffffffa1!important;
 }
 </style>
+<style id="noirManagerScheduleControls2026">
+/* God Mode only: match the charcoal My Shifts card layout, remove blue control panels. */
+body.god-obsidian #liveManagerSchedule .hub-person-view,
+body.god-obsidian #liveManagerSchedule > .live-controls,
+body.god-obsidian #liveManagerSchedule #pathwaysViewerControl{
+  background:#111215!important;
+  background-image:linear-gradient(135deg,#222327 0%,#101114 42%,#0b0c0e 100%)!important;
+  border:1px solid rgba(245,245,247,.65)!important;
+  border-radius:18px!important;
+  padding:19px!important;
+  box-shadow:0 10px 25px #0007,inset 0 1px #ffffff18!important;
+  color:#f5f5f5!important;
+  margin:16px 0!important;
+}
+body.god-obsidian #liveManagerSchedule .hub-person-view label{
+  font-size:18px!important;font-weight:750!important;color:#f5f5f5!important;
+  letter-spacing:-.02em;margin-bottom:14px!important;
+}
+body.god-obsidian #liveManagerSchedule #hubPersonSelect,
+body.god-obsidian #liveManagerSchedule #liveScheduleHome{
+  background:#191a1d!important;border:1px solid #d8d9dd!important;
+  border-radius:11px!important;color:#fff!important;box-shadow:none!important;
+  min-height:51px!important;
+}
+body.god-obsidian #liveManagerSchedule .hub-person-row{
+  background:#24262a!important;color:#f3f3f4!important;
+  border:1px solid #ffffff45!important;border-radius:11px!important;
+  padding:13px!important;margin:10px 0!important;
+}
+body.god-obsidian #liveManagerSchedule .hub-person-view .btn,
+body.god-obsidian #liveManagerSchedule > .live-controls .btn{
+  background:#25272b!important;background-image:none!important;
+  color:#f7f7f8!important;border:1px solid #e7e7eaad!important;
+  box-shadow:none!important;border-radius:11px!important;
+  min-height:46px!important;
+}
+body.god-obsidian #liveManagerSchedule #liveAddShift{
+  background:#e8e9eb!important;color:#101114!important;
+  border-color:#fff!important;font-weight:800!important;
+}
+body.god-obsidian #liveManagerSchedule .live-week{
+  color:#f5f5f5!important;font-size:17px!important;text-align:center;
+}
+body.god-obsidian #liveManagerSchedule > .live-controls{
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;
+  align-items:center!important;
+}
+body.god-obsidian #liveManagerSchedule #livePrevWeek{grid-column:1!important;grid-row:1!important}
+body.god-obsidian #liveManagerSchedule #liveNextWeek{grid-column:2!important;grid-row:1!important}
+body.god-obsidian #liveManagerSchedule #liveWeekLabel{grid-column:1/-1!important;grid-row:2!important}
+body.god-obsidian #liveManagerSchedule #liveScheduleHome{grid-column:1/-1!important;grid-row:3!important;max-width:none!important;width:100%!important}
+body.god-obsidian #liveManagerSchedule #liveScheduleReload{grid-column:1!important;grid-row:4!important}
+body.god-obsidian #liveManagerSchedule #liveAddShift{grid-column:2!important;grid-row:4!important}
+body.god-obsidian #liveManagerSchedule .hub-person-view .btn{width:auto!important}
+@media(min-width:750px){
+ body.god-obsidian #liveManagerSchedule > .live-controls{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ body.god-obsidian #liveManagerSchedule #livePrevWeek{grid-column:1!important;grid-row:1!important}
+ body.god-obsidian #liveManagerSchedule #liveWeekLabel{grid-column:2/4!important;grid-row:1!important}
+ body.god-obsidian #liveManagerSchedule #liveNextWeek{grid-column:4!important;grid-row:1!important}
+ body.god-obsidian #liveManagerSchedule #liveScheduleHome{grid-column:1/3!important;grid-row:2!important}
+ body.god-obsidian #liveManagerSchedule #liveScheduleReload{grid-column:3!important;grid-row:2!important}
+ body.god-obsidian #liveManagerSchedule #liveAddShift{grid-column:4!important;grid-row:2!important}
+}
+</style>
 </body></html>
