@@ -1181,7 +1181,7 @@ async function lsLoadManager(){
    client.from('shift_templates').select('id,home_id,shift_label,start_time,end_time,available_slots').eq('home_id',home).order('id')
   ]);
   for(const r of [sh,em,tm])if(r.error)throw r.error;
-  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));hubAllPeople=em.data||[];lsTemplates=tm.data||[];
+  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>home===hubTrainingId()||Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));hubAllPeople=em.data||[];lsTemplates=tm.data||[];
   lsRenderManager();hubTrainingForm();hubPopulatePeople();
   // The Pathways-style weekly calendar is the primary view for EVERY managed home.
   document.getElementById('pathwaysDashboardActions').hidden=false;
