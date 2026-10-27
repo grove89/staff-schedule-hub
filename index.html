@@ -1377,7 +1377,7 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  document.getElementById('liveShiftEndDate').disabled=!!shift;
  lsTemplate.replaceChildren();lsOption(lsTemplate,'','Custom times / choose a template');
  for(const t of lsTemplates)lsOption(lsTemplate,t.id,t.shift_label+' · '+t.start_time.slice(0,5)+'–'+t.end_time.slice(0,5)+' · '+t.available_slots+' slots');
- lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name+(Number(e.home_id)===home?'':' · '+(LS_HOMES[e.home_id]||'Other home')));
+ lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name+(Number(e.home_id)===home?'':' · '+(LS_HOMES[e.home_id]||'Other home')));if(shift?.employee_id!=null&&!lsEmployees.some(e=>Number(e.id)===Number(shift.employee_id))){const existing=hubAllPeople.find(e=>Number(e.id)===Number(shift.employee_id));if(existing)lsOption(lsEmployee,existing.id,existing.full_name+' · currently assigned');}
  const d=shift?new Date(shift.starts_at):null;
  document.getElementById('liveShiftDate').value=d?lsDate(d):date;
  document.getElementById('liveShiftEndDate').value=d?lsDate(d):date;
@@ -1385,6 +1385,7 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  const e=shift?new Date(shift.ends_at):null;
  document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
  lsEmployee.value=shift?.employee_id==null?'':String(shift.employee_id);
+  lsEmployee.onchange=()=>{const fb=document.getElementById('liveShiftFeedback');if(!fb)return;fb.style.display='block';fb.textContent=lsEmployee.value?'Selected '+(lsEmployee.selectedOptions[0]?.textContent||'employee')+'. Tap Save shift below to apply the assignment.':'Selected Vacant. Tap Save shift below to make this an open shift.';};
  // Trainings can hold multiple distinct assignments at the same time.
  // Editing changes the selected assignment; adding another creates a new record.
  const addAnother=document.getElementById('hubTrainingAddAnother');
@@ -1406,7 +1407,7 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
   };
  }
  const feedback=document.getElementById('liveShiftFeedback');
- if(feedback){feedback.style.display='none';feedback.textContent='';}
+ if(feedback){feedback.style.display='block';feedback.textContent=shift?'Choose an employee, then tap Save shift to update this assignment.':'Choose an employee, then tap Save shift to add this assignment.';}
  lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 const hubTrainingAddAnother=document.createElement('button');
@@ -1430,7 +1431,7 @@ lsForm.addEventListener('submit',async e=>{
  if(count>93){lsMsg('Choose a range of 93 days or fewer.',true);return;}
  const days=new Set([...document.querySelectorAll('.liveShiftDay:checked')].map(el=>Number(el.value)));
  const employee_id=lsEmployee.value?Number(lsEmployee.value):null;
- if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)){lsMsg('Select an eligible employee.',true);return;}
+ if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)&&!(lsEditing&&lsShifts.some(s=>Number(s.id)===lsEditing&&Number(s.employee_id)===employee_id))){lsMsg('Select an eligible employee.',true);const fb=document.getElementById('liveShiftFeedback');if(fb){fb.style.display='block';fb.textContent='This employee is not eligible for this house under the current assignment rules.';}return;}
  const payloads=[];
  for(let i=0;i<count;i++){
   const day=lsDay(first,i),key=lsDate(day),weekday=(day.getDay()+6)%7;
@@ -1445,7 +1446,7 @@ lsForm.addEventListener('submit',async e=>{
   if(overlaps.length){lsMsg('Save blocked: '+overlaps.length+' selected date(s) overlap an existing shift for this employee. No changes made.',true);return;}
   if(!confirm('Add '+payloads.length+' shift(s) to '+LS_HOMES[home]+'?\n\n'+(employee_id?(lsEmployees.find(e=>Number(e.id)===employee_id)?.full_name||'Selected employee'):'OPEN / Vacant')+' · '+start+'–'+end+'\n'+date+' through '+through))return;
  }
- const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving '+payloads.length+' shift(s)…');
+ const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving '+payloads.length+' shift(s)…');const savingFeedback=document.getElementById('liveShiftFeedback');if(savingFeedback){savingFeedback.style.display='block';savingFeedback.textContent='Saving assignment…';}
  try{
   if(lsEditing){
    const result=await client.from('Shifts').update(payloads[0]).eq('id',lsEditing).eq('home_id',home).select('id');
@@ -1461,7 +1462,7 @@ lsForm.addEventListener('submit',async e=>{
    }
   }
   await lsLoadManager();lsMsg((lsEditing?'Shift updated.':payloads.length+' shifts added.')+' Changes recorded in management history.');
- }catch(err){await lsLoadManager();lsMsg('Save failed: '+err.message,true);}finally{save.disabled=false;}
+ }catch(err){lsMsg('Save failed: '+err.message,true);const fb=document.getElementById('liveShiftFeedback');if(fb){fb.style.display='block';fb.textContent='Could not save: '+err.message;fb.scrollIntoView({behavior:'smooth',block:'center'});}}finally{save.disabled=false;}
 });
 document.getElementById('liveShiftDelete').addEventListener('click',async()=>{
  const home=Number(lsHome.value);if(!lsEditing||!lsAllowed.includes(home))return;
