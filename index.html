@@ -1057,26 +1057,6 @@ function lsNice(d){return d.toLocaleDateString('en-US',{month:'short',day:'numer
 function lsTime(d){return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
 function lsMsg(m,bad=false){
  lsStatus.textContent=m;lsStatus.classList.toggle('live-error',bad);
- // Trainings can hold multiple distinct assignments at the same time.
- // Editing changes the selected assignment; adding another creates a new record.
- const addAnother=document.getElementById('hubTrainingAddAnother');
- if(addAnother){
-  addAnother.hidden=!shift;
-  addAnother.onclick=()=>{
-   lsEditing=null;
-   document.getElementById('liveShiftPanelTitle').textContent='Add another person to this shift';
-   document.getElementById('liveShiftDelete').hidden=true;
-   document.getElementById('liveShiftRepeatOptions').hidden=true;
-   document.getElementById('liveShiftEndDate').disabled=false;
-   document.getElementById('liveShiftEndDate').value=document.getElementById('liveShiftDate').value;
-   addAnother.hidden=true;
-   const info=document.getElementById('liveShiftFeedback');
-   if(info){info.textContent='Choose another eligible employee and Save Shift. The existing assignment will remain unchanged. Normal house staffing limits still apply.';info.style.display='block';}
-   lsEmployee.value='';
-   document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=Number(c.value)===(new Date(document.getElementById('liveShiftDate').value+'T12:00:00').getDay()+6)%7);
-   lsEmployee.focus();
-  };
- }
  const feedback=document.getElementById('liveShiftFeedback');
  if(feedback&&!lsPanel.hidden){
    feedback.style.display='block';feedback.textContent=m;
@@ -1405,6 +1385,26 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  const e=shift?new Date(shift.ends_at):null;
  document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
  lsEmployee.value=shift?.employee_id==null?'':String(shift.employee_id);
+ // Trainings can hold multiple distinct assignments at the same time.
+ // Editing changes the selected assignment; adding another creates a new record.
+ const addAnother=document.getElementById('hubTrainingAddAnother');
+ if(addAnother){
+  addAnother.hidden=!shift;
+  addAnother.onclick=()=>{
+   lsEditing=null;
+   document.getElementById('liveShiftPanelTitle').textContent='Add another person to this shift';
+   document.getElementById('liveShiftDelete').hidden=true;
+   document.getElementById('liveShiftRepeatOptions').hidden=true;
+   document.getElementById('liveShiftEndDate').disabled=false;
+   document.getElementById('liveShiftEndDate').value=document.getElementById('liveShiftDate').value;
+   addAnother.hidden=true;
+   const info=document.getElementById('liveShiftFeedback');
+   if(info){info.textContent='Choose another eligible employee and Save Shift. The existing assignment will remain unchanged. Normal house staffing limits still apply.';info.style.display='block';}
+   lsEmployee.value='';
+   document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=Number(c.value)===(new Date(document.getElementById('liveShiftDate').value+'T12:00:00').getDay()+6)%7);
+   lsEmployee.focus();
+  };
+ }
  const feedback=document.getElementById('liveShiftFeedback');
  if(feedback){feedback.style.display='none';feedback.textContent='';}
  lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
