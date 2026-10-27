@@ -1057,6 +1057,26 @@ function lsNice(d){return d.toLocaleDateString('en-US',{month:'short',day:'numer
 function lsTime(d){return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
 function lsMsg(m,bad=false){
  lsStatus.textContent=m;lsStatus.classList.toggle('live-error',bad);
+ // Trainings can hold multiple distinct assignments at the same time.
+ // Editing changes the selected assignment; adding another creates a new record.
+ const addAnother=document.getElementById('hubTrainingAddAnother');
+ if(addAnother){
+  addAnother.hidden=!(shift&&home===hubTrainingId());
+  addAnother.onclick=()=>{
+   lsEditing=null;
+   document.getElementById('liveShiftPanelTitle').textContent='Add another person to Trainings';
+   document.getElementById('liveShiftDelete').hidden=true;
+   document.getElementById('liveShiftRepeatOptions').hidden=true;
+   document.getElementById('liveShiftEndDate').disabled=false;
+   document.getElementById('liveShiftEndDate').value=document.getElementById('liveShiftDate').value;
+   addAnother.hidden=true;
+   const info=document.getElementById('liveShiftFeedback');
+   if(info){info.textContent='Choose a different employee and Save Shift. The existing assignment will remain unchanged.';info.style.display='block';}
+   lsEmployee.value='';
+   document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=Number(c.value)===(new Date(document.getElementById('liveShiftDate').value+'T12:00:00').getDay()+6)%7);
+   lsEmployee.focus();
+  };
+ }
  const feedback=document.getElementById('liveShiftFeedback');
  if(feedback&&!lsPanel.hidden){
    feedback.style.display='block';feedback.textContent=m;
@@ -1324,7 +1344,7 @@ function hubRenderUnlimitedTrainingRoster(){
     document.getElementById('liveShiftStart').value=start;
     document.getElementById('liveShiftEnd').value=end;
     document.getElementById('liveShiftEndDate').value=key;
-    document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=true);
+    document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=Number(c.value)===(date.getDay()+6)%7);
    };
    group.append(heading,add);
    const a=lsLocalTime(key,start),b=lsLocalTime(key,end);
@@ -1353,6 +1373,15 @@ function lsRenderManager(){
   if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
   for(const shift of records){const card=lsEl('div',undefined,'live-shift'+(hubIsTraining(shift)?' hub-training-green':''));const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));if(hubIsTraining(shift)&&shift.training_notes)card.append(lsEl('div','📍 '+shift.training_notes,'hub-training-note'));
    const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);
+   if(home===hubTrainingId()){
+    const another=lsEl('button','+ Add Person','btn secondary small');
+    another.type='button';
+    another.onclick=()=>{
+      lsOpenForm(shift);
+      document.getElementById('hubTrainingAddAnother').click();
+    };
+    card.append(another);
+   }
    const emergencyButton=hubEmergencyButton(shift);if(emergencyButton)card.append(emergencyButton);
    day.append(card);}
   const add=lsEl('button','+ Shift','btn secondary small');add.type='button';add.onclick=()=>lsOpenForm(null,lsDate(date));day.append(add);lsDays.append(day);
@@ -1380,6 +1409,13 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  if(feedback){feedback.style.display='none';feedback.textContent='';}
  lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
+const hubTrainingAddAnother=document.createElement('button');
+hubTrainingAddAnother.id='hubTrainingAddAnother';
+hubTrainingAddAnother.type='button';
+hubTrainingAddAnother.className='btn secondary';
+hubTrainingAddAnother.textContent='+ Add Another Person (keep existing shift)';
+hubTrainingAddAnother.hidden=true;
+document.getElementById('liveShiftSave').before(hubTrainingAddAnother);
 lsTemplate.addEventListener('change',()=>{const t=lsTemplates.find(t=>String(t.id)===lsTemplate.value);if(t){document.getElementById('liveShiftStart').value=t.start_time.slice(0,5);document.getElementById('liveShiftEnd').value=t.end_time.slice(0,5);}});
 lsForm.addEventListener('submit',async e=>{
  e.preventDefault();
@@ -1405,7 +1441,7 @@ lsForm.addEventListener('submit',async e=>{
  }
  if(!payloads.length){lsMsg('No dates selected. Check your weekday choices.',true);return;}
  if(!lsEditing){
-  const overlaps=payloads.filter(p=>lsShifts.some(s=>Number(s.home_id)===home&&s.employee_id===p.employee_id&&new Date(s.starts_at)<new Date(p.ends_at)&&new Date(s.ends_at)>new Date(p.starts_at)));
+  const overlaps=payloads.filter(p=>lsShifts.some(s=>Number(s.home_id)===home&&p.employee_id!=null&&Number(s.employee_id)===Number(p.employee_id)&&new Date(s.starts_at)<new Date(p.ends_at)&&new Date(s.ends_at)>new Date(p.starts_at)));
   if(overlaps.length){lsMsg('Save blocked: '+overlaps.length+' selected date(s) overlap an existing shift for this employee. No changes made.',true);return;}
   if(!confirm('Add '+payloads.length+' shift(s) to '+LS_HOMES[home]+'?\n\n'+(employee_id?(lsEmployees.find(e=>Number(e.id)===employee_id)?.full_name||'Selected employee'):'OPEN / Vacant')+' · '+start+'–'+end+'\n'+date+' through '+through))return;
  }
