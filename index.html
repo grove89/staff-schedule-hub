@@ -1537,11 +1537,12 @@ function reqButton(label,handler,secondary=false){const b=lsEl('button',label,'b
 async function lsLoadOpenShifts(){
  const openings=document.getElementById('openShiftList'),mine=document.getElementById('myOpenRequests');
  openings.replaceChildren(lsEl('p','Loading openings…','live-muted'));mine.replaceChildren();
- const [a,b]=await Promise.all([client.rpc('available_open_shifts'),client.rpc('my_open_shift_requests')]);
- if(a.error||b.error){openings.replaceChildren(lsEl('p','Requests not ready: '+(a.error||b.error).message,'live-error'));return;}
+ const [a,b,restricted]=await Promise.all([client.rpc('available_open_shifts'),client.rpc('my_open_shift_requests'),client.rpc('lamar_blocked_open_shift_ids')]);
+ if(a.error||b.error||restricted.error){openings.replaceChildren(lsEl('p','Requests not ready: '+(a.error||b.error||restricted.error).message,'live-error'));return;}
  openings.replaceChildren();mine.replaceChildren();
+ const restrictedIds=new Set((restricted.data||[]).map(Number));
  if(!a.data?.length)openings.append(lsEl('p','No vacant upcoming shifts at the moment.','live-muted'));
- for(const r of a.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));if(r.my_request_id){card.append(lsEl('small','Your request is pending'));}else{card.append(reqButton('Request this shift',async()=>{if(!confirm('Request this open shift?'))return;const {error}=await client.rpc('request_open_shift',{p_shift_id:r.id});if(error)throw error;await lsLoadOpenShifts();}));}openings.append(card);}
+ for(const r of a.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));if(restrictedIds.has(Number(r.id))){card.append(lsEl('small','Unavailable for request','live-muted'));}else if(r.my_request_id){card.append(lsEl('small','Your request is pending'));}else{card.append(reqButton('Request this shift',async()=>{if(!confirm('Request this open shift?'))return;const {error}=await client.rpc('request_open_shift',{p_shift_id:r.id});if(error)throw error;await lsLoadOpenShifts();}));}openings.append(card);}
  if(!b.data?.length)mine.append(lsEl('p','You have not requested any shifts yet.','live-muted'));
  for(const r of b.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));card.append(lsEl('small','Status: '+r.status));if(r.status==='Pending')card.append(reqButton('Cancel request',async()=>{if(!confirm('Cancel your pending request?'))return;const {error}=await client.rpc('cancel_open_shift_request',{p_request_id:r.id});if(error)throw error;await lsLoadOpenShifts();},true));mine.append(card);}
 }
