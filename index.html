@@ -681,6 +681,19 @@ body.god-obsidian #hubPersonResult .hub-person-row{background:#1d1e22!important;
 #hubUnlimitedTrainingRoster .hub-training-add{padding:8px 12px!important;margin-bottom:9px!important}
 #hubUnlimitedTrainingRoster .hub-training-person{padding:8px 10px;margin:6px 0;border-left:2px solid #81d8c6;background:#24272b;border-radius:5px}
 #hubUnlimitedTrainingRoster .hub-training-person small{color:#c3d1cd}
+</style><style id="hubGodWeekOverviewStyles2026">
+#hubGodWeekOverview[hidden]{display:none!important}
+body.god-obsidian #hubGodWeekOverview{margin:14px 0;padding:12px;border:1px solid #ffffff8a;border-radius:14px;background:#101114;color:#f6f6f7}
+#hubGodWeekOverview h3{margin:0 0 12px;font-size:15px}
+#hubGodWeekOverview .hub-god-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;overflow:visible}
+#hubGodWeekOverview .hub-god-col{min-width:0;background:#1a1c20;border:1px solid #ffffff55;border-radius:7px;padding:4px}
+#hubGodWeekOverview .hub-god-col>strong{display:block;text-align:center;font-size:clamp(9px,1.7vw,13px);padding:5px 0;border-bottom:1px solid #ffffff45}
+#hubGodWeekOverview .hub-god-block{margin-top:7px;min-width:0}
+#hubGodWeekOverview .hub-god-label{display:block;font-size:clamp(8px,1.5vw,11px);color:#b5c0c2;text-transform:uppercase;margin-bottom:3px}
+#hubGodWeekOverview .hub-god-person{font-size:clamp(8px,1.45vw,11px);line-height:1.2;background:#30353a;border-radius:4px;padding:4px 2px;margin:3px 0;overflow-wrap:anywhere;text-align:center}
+#hubGodWeekOverview .hub-god-person.vacant{color:#ffe0b0;background:#5a332d}
+#hubGodWeekOverview .hub-god-empty{font-size:10px;color:#8f959b}
+@media(max-width:480px){#hubGodWeekOverview .hub-god-grid{gap:2px}#hubGodWeekOverview .hub-god-col{padding:2px;border-radius:4px}#hubGodWeekOverview .hub-god-person{padding:3px 1px}#hubGodWeekOverview{padding:7px!important}}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
@@ -759,7 +772,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <p class="pwv-note">Tap Edit on any shift to change its assigned employee or times. Only authorized managers can save changes.</p>
 <p class="pwv-swipe-hint">← Swipe sideways to see all seven days →</p><div aria-label="Weekly calendar, scroll horizontally" class="pwv-scroll" tabindex="0"><div class="pwv-days" id="pwvDays"></div></div></section>
 <div class="live-controls" id="pathwaysDashboardActions"><button aria-expanded="false" class="btn secondary" id="pathwaysToolsToggle" type="button">⚙️ Edit Schedule &amp; Management Tools</button></div>
-<div id="pathwaysManagementTools"><div class="live-days" id="liveScheduleDays"></div>
+<div id="pathwaysManagementTools"><section id="hubGodWeekOverview" hidden aria-label="God Mode full week overview"></section><div class="live-days" id="liveScheduleDays"></div>
 <section class="card" hidden="" id="pathwaysBuilder" style="padding:16px;margin:18px 0;border:1px solid #2c527f">
 <div class="builder-heading"><h3 id="weeklyBuilderTitle" style="margin:0">Pathways · Master Roster</h3><button id="weeklyBuilderCollapse" class="btn secondary" type="button" aria-expanded="false" aria-controls="pathwaysBuilderSlots">Show Master Roster ▾</button></div>
 <p class="live-muted">Permanent Monday–Sunday staffing blueprint for this home. Save it once, then build any selected week. Empty positions become OPEN shifts. Existing shifts are always preserved.</p>
@@ -1344,7 +1357,26 @@ function hubRenderUnlimitedTrainingRoster(){
  }
 }
 
+function hubRenderGodWeekOverview(){
+ const host=document.getElementById('hubGodWeekOverview');if(!host)return;
+ host.hidden=!document.body.classList.contains('god-obsidian');if(host.hidden)return;
+ host.replaceChildren();host.append(lsEl('h3','Full Week · At a Glance'));
+ const grid=lsEl('div',undefined,'hub-god-grid');
+ for(let i=0;i<7;i++){
+  const date=lsDay(lsWeek,i),start=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  const col=lsEl('div',undefined,'hub-god-col');col.append(lsEl('strong',date.toLocaleDateString('en-US',{weekday:'short'})+' '+date.getDate()));
+  for(const [label,from,to] of [['Overnight',0,8],['Day',8,16],['Evening',16,24]]){
+   const block=lsEl('div',undefined,'hub-god-block');block.append(lsEl('span',label,'hub-god-label'));
+   const a=new Date(start.getTime()+from*3600000),b=new Date(start.getTime()+to*3600000);
+   const matches=lsShifts.filter(sh=>new Date(sh.starts_at)<b&&new Date(sh.ends_at)>a);
+   if(!matches.length)block.append(lsEl('span','—','hub-god-empty'));
+   for(const sh of matches){const emp=lsOwnEmployee(sh);const item=lsEl('div',emp?.full_name||'OPEN','hub-god-person'+(!emp?' vacant':''));item.title=lsRange(sh);block.append(item);}
+   col.append(block);
+  }grid.append(col);
+ }host.append(grid);
+}
 function lsRenderManager(){
+ hubRenderGodWeekOverview();
  const home=Number(lsHome.value);lsDays.replaceChildren();document.getElementById('liveWeekLabel').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
  for(let i=0;i<7;i++){
   const date=lsDay(lsWeek,i),begin=new Date(date.getFullYear(),date.getMonth(),date.getDate()),finish=lsDay(date,1),day=lsEl('div',undefined,'live-day');
@@ -1549,7 +1581,10 @@ async function lsLoadOpenShifts(){
  openings.replaceChildren();mine.replaceChildren();
  const restrictedIds=new Set((restricted.data||[]).map(Number));
  if(!a.data?.length)openings.append(lsEl('p','No vacant upcoming shifts at the moment.','live-muted'));
- for(const r of a.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));if(restrictedIds.has(Number(r.id))){card.append(lsEl('small','Unavailable for request','live-muted'));}else if(r.my_request_id){card.append(lsEl('small','Your request is pending'));}else{card.append(reqButton('Request this shift',async()=>{if(!confirm('Request this open shift?'))return;const {error}=await client.rpc('request_open_shift',{p_shift_id:r.id});if(error)throw error;await lsLoadOpenShifts();}));}openings.append(card);}
+ for(const r of a.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));if(restrictedIds.has(Number(r.id))){card.append(lsEl('small','Unavailable for request','live-muted'));}else if(r.my_request_id){card.append(lsEl('small','Your request is pending'));}else{card.append(reqButton('Request this shift',async()=>{if(!confirm('Request this open shift?'))return;const {error}=await client.rpc('request_open_shift',{p_shift_id:r.id});if(error)throw error;
+// Best-effort alert: shift request has already been saved successfully.
+try{const {error:notifyError}=await client.functions.invoke('notify-shift-request',{body:{shift_id:r.id}});if(notifyError)console.warn('Shift request push failed:',notifyError);}catch(pushError){console.warn('Shift request push unavailable:',pushError);}
+await lsLoadOpenShifts();}));}openings.append(card);}
  if(!b.data?.length)mine.append(lsEl('p','You have not requested any shifts yet.','live-muted'));
  for(const r of b.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));card.append(lsEl('small','Status: '+r.status));if(r.status==='Pending')card.append(reqButton('Cancel request',async()=>{if(!confirm('Cancel your pending request?'))return;const {error}=await client.rpc('cancel_open_shift_request',{p_request_id:r.id});if(error)throw error;await lsLoadOpenShifts();},true));mine.append(card);}
 }
