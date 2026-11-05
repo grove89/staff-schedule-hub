@@ -1487,7 +1487,7 @@ document.getElementById('liveLoadHistory').onclick=async()=>{
   const detail=lsEl('details');detail.append(lsEl('summary','View before / after'));const pre=lsEl('pre',JSON.stringify({before:item.old_values,after:item.new_values},null,2));pre.style.whiteSpace='pre-wrap';pre.style.fontSize='11px';detail.append(pre);line.append(detail);lsHistory.append(line);
  }
 };
-let myAllShifts=[],myWeekOffset=0,hubMyTraining=[];
+let myAllShifts=[],myWeekOffset=0,hubMyTraining=[],hubMyCoworkers=[];
 function myWeekStart(){return lsMonday(new Date());}
 function myDateKey(date){return lsDate(date);}
 function myDrawCalendar(){
@@ -1517,6 +1517,9 @@ function myDrawCalendar(){
   const a=new Date(shift.starts_at),b=new Date(shift.ends_at);
   row.append(lsEl('strong',a.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(a)+' – '+lsTime(b)));
   row.append(lsEl('div',(LS_HOMES[shift.home_id]||'Home')+' · '+(hubIsTraining(shift)?'Training assignment':shift.staff_scheduled+' staff scheduled (including you)')));if(hubIsTraining(shift)){const note=hubMyTraining.find(n=>n.starts_at===shift.starts_at&&n.ends_at===shift.ends_at);if(note?.training_notes)row.append(lsEl('div','📍 '+note.training_notes,'hub-training-note'));}
+  const peers=(hubMyCoworkers||[]).filter(c=>Number(c.home_id)===Number(shift.home_id)&&new Date(c.my_starts_at).getTime()===new Date(shift.starts_at).getTime()&&new Date(c.my_ends_at).getTime()===new Date(shift.ends_at).getTime());
+  const names=[...new Set(peers.map(c=>c.coworker_name).filter(Boolean))];
+  row.append(lsEl('div',hubMyCoworkers===null?'Coworker list unavailable.':names.length?'Working with: '+names.join(', '):'Working with: No other staff assigned during your shift.','hub-my-coworkers'));
   out.append(row);
  }
 }
@@ -1524,7 +1527,11 @@ async function lsLoadMine(){
  const out=document.getElementById('liveMyShifts');out.replaceChildren(lsEl('p','Loading your shifts…','live-muted'));
  const {data,error}=await client.rpc('my_schedule');
  if(error){out.replaceChildren(lsEl('p','Could not load your shifts: '+error.message,'live-error'));return;}
- myAllShifts=data||[];hubMyTraining=[];if(hubTrainingId()){const details=await client.rpc('hub_my_training_notes');if(!details.error)hubMyTraining=details.data||[];}
+ myAllShifts=data||[];hubMyTraining=[];hubMyCoworkers=[];
+ const coworkers=await client.rpc('my_shift_coworkers');
+ if(!coworkers.error)hubMyCoworkers=coworkers.data||[];
+ else {console.warn('Coworker names unavailable:',coworkers.error.message);hubMyCoworkers=null;}
+if(hubTrainingId()){const details=await client.rpc('hub_my_training_notes');if(!details.error)hubMyTraining=details.data||[];}
  myDrawCalendar();
 }
 document.getElementById('liveMyRefresh').onclick=lsLoadMine;
