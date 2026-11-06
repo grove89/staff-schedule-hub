@@ -1593,13 +1593,31 @@ async function lsLoadManagerRequests(){
  const out=document.getElementById('managerRequestList'),count=document.getElementById('managerRequestCount');out.replaceChildren(lsEl('p','Checking pending requests…','live-muted'));
  const {data,error}=await client.rpc('manager_open_shift_requests',{p_home_id:home});
  if(error){count.textContent='—';out.replaceChildren(lsEl('p','Could not load requests: '+error.message,'live-error'));return;}
- count.textContent=String(data?.length||0);out.replaceChildren();
- if(!data?.length){out.append(lsEl('p','No pending requests for this home.','live-muted'));return;}
- for(const r of data){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.employee_name));card.append(lsEl('div',reqLabel(r)));card.append(lsEl('small','Submitted '+new Date(r.created_at).toLocaleString()));
-  for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm((approve?'Approve':'Deny')+' request from '+r.employee_name+'?'))return;const {error}=await client.rpc('decide_open_shift_request',{p_request_id:r.id,p_approve:approve});if(error)throw error;await Promise.all([lsLoadManager(),lsLoadMine(),lsLoadOpenShifts()]);},!approve));out.append(card);}
+ // Only pending requests for shifts that have not started belong in the approval queue.
+ const now=Date.now();
+ const actionable=(data||[]).filter(r=>{
+  const status=String(r.status??'pending').trim().toLowerCase();
+  const starts=new Date(r.starts_at).getTime();
+  return status==='pending'&&Number.isFinite(starts)&&starts>now;
+ });
+ count.textContent=String(actionable.length);out.replaceChildren();
+ if(!actionable.length){out.append(lsEl('p','No pending requests for upcoming shifts at this home.','live-muted'));return;}
+ for(const r of actionable){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.employee_name));card.append(lsEl('div',reqLabel(r)));card.append(lsEl('small','Submitted '+new Date(r.created_at).toLocaleString()));
+  for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm((approve?'Approve':'Deny')+' request from '+r.employee_name+'?'))return;const {error}=await client.rpc('decide_open_shift_request',{p_request_id:r.id,p_approve:approve});if(error)throw error;
+   // Remove completed decisions immediately, then synchronize the live queue.
+   card.remove();
+   count.textContent=String(out.querySelectorAll('.request-item').length);
+   if(!out.querySelector('.request-item'))out.append(lsEl('p','No pending requests for upcoming shifts at this home.','live-muted'));
+   await Promise.all([lsLoadManagerRequests(),lsLoadManager(),lsLoadMine(),lsLoadOpenShifts()]);
+  },!approve));out.append(card);}
 }
 document.getElementById('openShiftRefresh').onclick=lsLoadOpenShifts;
 document.getElementById('managerRequestsRefresh').onclick=lsLoadManagerRequests;
+document.addEventListener('visibilitychange',()=>{
+ if(!document.hidden && !document.getElementById('managerRequestList')?.hidden && lsAllowed?.includes(Number(lsHome.value))){
+  lsLoadManagerRequests().catch(console.warn);
+ }
+});
 
 
 // Supabase-backed trades, giveaways and time off; never use localStorage for these actions.
