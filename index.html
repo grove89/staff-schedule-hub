@@ -1625,6 +1625,7 @@ async function hubLoadCallOffs(){
  select.value=previous;
  hubDrawCallOffs();
 }
+let hubSelectedCallOffEmployee=null;
 function hubDrawCallOffs(){
  const target=document.getElementById('hubCallOffList');target.replaceChildren();
  const q=document.getElementById('hubCallOffSearch').value.trim().toLowerCase(),home=document.getElementById('hubCallOffHome').value;
@@ -1632,38 +1633,37 @@ function hubDrawCallOffs(){
  const grouped=new Map();
  for(const r of rows){const name=r.employee_name||'Unknown employee';if(!grouped.has(name))grouped.set(name,[]);grouped.get(name).push(r);}
  document.getElementById('hubCallOffStats').textContent=rows.length+' records · '+grouped.size+' employees';
- if(!rows.length){target.append(lsEl('p','No call-off records match.','live-muted'));return;}
- const maxEvents=Math.max(...[...grouped.values()].map(a=>a.length));
- const scroll=lsEl('div',undefined,'hub-calloff-sheet-scroll');
- scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Call-off log spreadsheet');scroll.tabIndex=0;
- const table=document.createElement('table');table.className='hub-calloff-sheet';
- const thead=document.createElement('thead'),head=document.createElement('tr');
- for(const label of ['Staff','Total']){const th=document.createElement('th');th.textContent=label;head.append(th);}
- for(let n=0;n<maxEvents;n++)for(const label of ['Shift','Time of Call Off','Reason']){const th=document.createElement('th');th.textContent=label;head.append(th);}
- thead.append(head);table.append(thead);
- const tbody=document.createElement('tbody');
- const formatDate=v=>{if(!v)return '—';const d=new Date(v+'T12:00:00');return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});};
- for(const [name,entries] of [...grouped.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]))){
-  entries.sort((a,b)=>String(a.shift_date||'').localeCompare(String(b.shift_date||''))||Number(a.id||0)-Number(b.id||0));
-  const tr=document.createElement('tr');
-  const person=document.createElement('th');person.scope='row';person.className='hub-sheet-name';person.textContent=name;tr.append(person);
-  const total=document.createElement('td');total.className='hub-sheet-total';total.textContent=String(entries.length);tr.append(total);
-  for(let n=0;n<maxEvents;n++){
-   const r=entries[n];
-   for(let c=0;c<3;c++){
-    const td=document.createElement('td');
-    if(r){
-     if(c===0){td.append(lsEl('strong',formatDate(r.shift_date)));td.append(lsEl('small',r.shift_label||'—'));}
-     if(c===1){td.append(lsEl('strong',r.called_date?formatDate(r.called_date):r.called_at?new Date(r.called_at).toLocaleDateString('en-US'):'—'));td.append(lsEl('small',r.called_time_text|| (r.called_at?new Date(r.called_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'—')));}
-     if(c===2){td.textContent=r.reason||'—';td.title=[r.home_name||LS_HOMES[r.home_id]||'Home not recorded',r.recorded_by_name|| (r.is_historical?'Historical Excel entry':'Management entry')].join(' · ');}
-    }
-    tr.append(td);
-   }
+ const formatDate=v=>{if(!v)return '—';const d=new Date(v+'T12:00:00');return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+ if(hubSelectedCallOffEmployee){
+  const back=document.createElement('button');back.type='button';back.className='hub-calloff-back';back.textContent='← All employees';back.addEventListener('click',()=>{hubSelectedCallOffEmployee=null;hubDrawCallOffs();});target.append(back);
+  const entries=grouped.get(hubSelectedCallOffEmployee)||[];
+  const header=lsEl('div',undefined,'hub-calloff-detail-header');header.append(lsEl('h3',hubSelectedCallOffEmployee));header.append(lsEl('span',entries.length+' call-off'+(entries.length===1?'':'s')));target.append(header);
+  if(!entries.length){target.append(lsEl('p','No matching call-offs for this employee. Try clearing the search or home filter.','live-muted'));return;}
+  entries.sort((a,b)=>String(b.shift_date||'').localeCompare(String(a.shift_date||''))||Number(b.id||0)-Number(a.id||0));
+  for(const r of entries){
+   const card=lsEl('article',undefined,'hub-calloff-detail-card');
+   const top=lsEl('div',undefined,'hub-calloff-detail-top');top.append(lsEl('strong',formatDate(r.shift_date)));top.append(lsEl('span',r.shift_label||'Shift hours not recorded'));card.append(top);
+   const info=lsEl('dl',undefined,'hub-calloff-detail-grid');
+   const field=(label,value)=>{const box=lsEl('div');box.append(lsEl('dt',label));box.append(lsEl('dd',value||'—'));info.append(box);};
+   field('Shift date',formatDate(r.shift_date));field('Scheduled shift',r.shift_label);
+   field('Date called off',r.called_date?formatDate(r.called_date):r.called_at?new Date(r.called_at).toLocaleDateString('en-US'):'—');
+   field('Time called off',r.called_time_text|| (r.called_at?new Date(r.called_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'—'));
+   field('Home',r.home_name||LS_HOMES[r.home_id]||'Not recorded');
+   field('Recorded by',r.recorded_by_name||(r.is_historical?'Historical Excel import':'Not recorded'));
+   card.append(info);const reason=lsEl('div',undefined,'hub-calloff-reason');reason.append(lsEl('strong','Reason / note'));reason.append(lsEl('p',r.reason||'—'));card.append(reason);target.append(card);
   }
-  tbody.append(tr);
+  return;
  }
- table.append(tbody);scroll.append(table);target.append(scroll);
- target.append(lsEl('p','Scroll sideways to view additional call-offs. Shift and call-off cells show the date on top and hours/time below, matching your Excel log.','hub-sheet-help'));
+ if(!rows.length){target.append(lsEl('p','No call-off records match.','live-muted'));return;}
+ const list=lsEl('div',undefined,'hub-calloff-roster');
+ for(const [name,entries] of [...grouped.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]))){
+  const button=document.createElement('button');button.type='button';button.className='hub-calloff-person';
+  button.append(lsEl('span',name));const count=lsEl('strong',String(entries.length));count.setAttribute('aria-label',entries.length+' call-offs');button.append(count);
+  button.append(lsEl('span','›','hub-calloff-chevron'));
+  button.addEventListener('click',()=>{hubSelectedCallOffEmployee=name;hubDrawCallOffs();target.scrollIntoView({block:'start',behavior:'smooth'});});
+  list.append(button);
+ }
+ target.append(list);
 }
 document.getElementById('hubCallOffForm').addEventListener('submit',hubSubmitCallOff);
 document.getElementById('hubCallOffRefresh').addEventListener('click',hubLoadCallOffs);
@@ -3287,4 +3287,39 @@ html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning :is(.pwv-tim
 html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-evening :is(.pwv-time,.pwv-person,.pwv-open),
 html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-overnight :is(.pwv-time,.pwv-person,.pwv-open){color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;text-shadow:0 1px 3px #000!important;opacity:1!important;}
 html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning{background:linear-gradient(125deg,#42372c,#27221e)!important;border-left:4px solid #cda36c!important;}
+
+/* Restore readable role labels on their light chips, without affecting shift names. */
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning div.pwv-role-tag,
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift div.pwv-role-tag{
+ color:#102238!important;-webkit-text-fill-color:#102238!important;
+ background:#e8f1fa!important;border:1px solid #87afcb!important;
+ text-shadow:none!important;opacity:1!important;font-weight:900!important;
+}
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning div.pwv-role-tag.pwv-cook-tag,
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift div.pwv-role-tag.pwv-cook-tag{
+ color:#123d28!important;-webkit-text-fill-color:#123d28!important;
+ background:#d5f3df!important;border-color:#75b58b!important;text-shadow:none!important;
+}
+
+/* Call-off master/detail view: ranked employee list, individual records on tap */
+body.god-obsidian .hub-calloff-roster{display:grid;gap:9px;margin-top:16px}
+body.god-obsidian .hub-calloff-person{width:100%;display:flex;align-items:center;gap:15px;text-align:left;background:#1b222b;color:#f7f9fc;border:1px solid #8c97a4;border-radius:10px;padding:15px 17px;font:inherit;font-weight:750;cursor:pointer}
+body.god-obsidian .hub-calloff-person>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+body.god-obsidian .hub-calloff-person>strong{display:grid;place-items:center;min-width:42px;padding:6px 10px;border-radius:9px;background:#344b59;color:#e4f9ff;border:1px solid #7196a9;font-size:17px}
+body.god-obsidian .hub-calloff-chevron{font-size:26px;color:#b4c6d5}
+body.god-obsidian .hub-calloff-person:hover,body.god-obsidian .hub-calloff-person:focus-visible{border-color:#c7e5f2;background:#26323d}
+body.god-obsidian .hub-calloff-back{background:#252d38;color:#fff;border:1px solid #abb6c3;border-radius:8px;padding:10px 14px;margin:10px 0 16px;font:inherit;cursor:pointer}
+body.god-obsidian .hub-calloff-detail-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+body.god-obsidian .hub-calloff-detail-header h3{color:#fff;margin:0}
+body.god-obsidian .hub-calloff-detail-header span{color:#c4e9f4;font-weight:700}
+body.god-obsidian .hub-calloff-detail-card{padding:17px;border:1px solid #788794;background:#1a222b;border-radius:12px;margin:0 0 13px;color:#f4f7fa}
+body.god-obsidian .hub-calloff-detail-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:13px;border-bottom:1px solid #465360}
+body.god-obsidian .hub-calloff-detail-top strong{color:#fff;font-size:18px}
+body.god-obsidian .hub-calloff-detail-top span{color:#c1e4ed}
+body.god-obsidian .hub-calloff-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:15px 0}
+body.god-obsidian .hub-calloff-detail-grid dt{color:#b2c5d3;font-size:12px;margin-bottom:4px}
+body.god-obsidian .hub-calloff-detail-grid dd{color:#fff;font-weight:650;margin:0}
+body.god-obsidian .hub-calloff-reason{background:#27313b;border-radius:8px;padding:12px}
+body.god-obsidian .hub-calloff-reason strong{color:#bce3ed}
+body.god-obsidian .hub-calloff-reason p{color:#fff;margin:6px 0 0;white-space:pre-wrap}
 </style></body></html>
