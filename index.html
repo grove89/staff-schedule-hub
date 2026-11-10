@@ -657,7 +657,7 @@ body.god-obsidian #managerTabStrip .manager-notification-badge{background:#e9bf4
  }
 }
 @media(max-width:380px){body.god-obsidian #managerTabStrip button{font-size:9px!important}}
-</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
+</style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button><button type="button" id="universalAlertsTab" aria-selected="false">🔔 Shift Alerts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
 <p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button" hidden>🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
@@ -2245,7 +2245,7 @@ body.available-shifts-view #liveScheduling>.card>p{display:none!important}
  function sync(){
   // The existing access loader owns the hidden state of Available Shifts.
   const allowed=!area.hidden;
-  nav.hidden=!allowed;
+  nav.hidden=!allowed && document.getElementById('emergencyPushHub')?.hidden!==false;
   if(!allowed){active=false;document.body.classList.remove('available-shifts-view');}
   schedule.setAttribute('aria-selected',String(!active));
   available.setAttribute('aria-selected',String(active));
@@ -2815,7 +2815,7 @@ window.pathwaysCrashIntro=()=>{
 <div class="push-fields"><button type="button" id="pushEnable">🔔 Enable notifications</button><button type="button" id="pushDisable">Turn off on this device</button></div>
 <div id="shiftPreferencePanel" class="shift-preference-panel" hidden>
 <h3>🔔 Open Shift Alert Preferences</h3>
-<p>Choose which shifts you want automatic alerts for when an assigned shift opens at <strong>any house</strong>. Newly created open shifts do not trigger alerts. You must also enable notifications on this device above.</p>
+<p>Choose which shifts you want automatic alerts for when an assigned shift opens at <strong>any house</strong>. You must also enable notifications on this device above.</p>
 <div class="shift-pref-options">
 <label><input type="checkbox" id="prefOvernight"> 🌙 Overnight <small>12 AM – 8 AM</small></label>
 <label><input type="checkbox" id="prefDay"> ☀️ Day <small>8 AM – 4 PM</small></label>
@@ -3381,4 +3381,96 @@ body.god-obsidian .hub-calloff-reason p{color:#f9f5ff}
 body.god-obsidian .hub-calloff-person{border-left:3px solid #5bafc2}
 body.god-obsidian .hub-calloff-person>strong{background:#214550;color:#c7f4fa;border-color:#5fabb9}
 body.god-obsidian .hub-calloff-back{border-color:#70a7b8;color:#c7f2fa}
-</style></body></html>
+</style>
+<section id="standaloneShiftAlerts" hidden aria-label="Shift alert preferences">
+ <div class="shift-alerts-card">
+  <h2>🔔 Shift Alerts</h2>
+  <p>Choose which open shifts you want alerts for across every house.</p>
+  <div id="shiftAlertPreferenceMount"></div>
+  <div class="shift-alerts-device">
+   <h3>Push notifications on this device</h3>
+   <p id="shiftAlertsDeviceStatus" role="status">Checking notification permission…</p>
+   <button type="button" id="shiftAlertsEnable" class="btn">Enable Push Notifications</button>
+   <button type="button" id="shiftAlertsDisable" class="btn secondary">Turn off on this device</button>
+   <p id="shiftAlertsDeviceFeedback" role="status" aria-live="polite"></p>
+  </div>
+ </div>
+</section>
+<style id="standaloneShiftAlertsStyles">
+#standaloneShiftAlerts[hidden]{display:none!important}
+#standaloneShiftAlerts{max-width:1100px;margin:16px auto;padding:0 16px 32px;color:#f3f8ff}
+#standaloneShiftAlerts .shift-alerts-card{border:1px solid #c5e7ff99;border-radius:19px;padding:20px;background:linear-gradient(130deg,#163b70d9,#07172fe8);box-shadow:0 10px 26px #0005}
+#standaloneShiftAlerts h2,#standaloneShiftAlerts h3{color:#fff!important}
+#standaloneShiftAlerts p{color:#cbdff4;line-height:1.5}
+#standaloneShiftAlerts #shiftPreferencePanel{border-top:0;margin-top:8px;padding-top:0}
+#standaloneShiftAlerts .shift-alerts-device{border-top:1px solid #8198ad;margin-top:22px;padding-top:18px}
+#standaloneShiftAlerts button{margin:6px 6px 6px 0;padding:12px 15px;border-radius:11px;cursor:pointer}
+body.god-obsidian #standaloneShiftAlerts .shift-alerts-card{background:linear-gradient(135deg,#252017,#0b0a09);border-color:#c5a363}
+body.shift-alerts-view #managerTabStrip,body.shift-alerts-view #liveScheduling,body.shift-alerts-view #managementCommandCenter,body.shift-alerts-view #liveEmployeeEditor,body.shift-alerts-view #hubExtras,body.shift-alerts-view #godHoursPanel,body.shift-alerts-view #godActivityPanel,body.shift-alerts-view #emergencyPushHub,body.shift-alerts-view #loginTest,body.shift-alerts-view #staffActivationPanel{display:none!important}
+body.shift-alerts-view #standaloneShiftAlerts{display:block!important}
+#universalShiftTabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#universalShiftTabs button{white-space:nowrap;flex:0 0 auto}
+@media(max-width:550px){#standaloneShiftAlerts .shift-alerts-card{padding:15px}#universalShiftTabs{gap:6px}#universalShiftTabs button{padding:11px 10px;font-size:12px}}
+</style>
+<script id="standaloneShiftAlertsLogic">
+(()=>{
+ const nav=document.getElementById('universalShiftTabs');
+ const alertsButton=document.getElementById('universalAlertsTab');
+ const section=document.getElementById('standaloneShiftAlerts');
+ const originalHub=document.getElementById('emergencyPushHub');
+ const preferences=document.getElementById('shiftPreferencePanel');
+ const mount=document.getElementById('shiftAlertPreferenceMount');
+ if(!nav||!alertsButton||!section||!preferences||!mount)return;
+ mount.appendChild(preferences); // Reuse original Supabase-backed controls and save handlers.
+ const originalSaveMessage=document.getElementById('prefStatus');
+ const deviceStatus=document.getElementById('shiftAlertsDeviceStatus');
+ const deviceFeedback=document.getElementById('shiftAlertsDeviceFeedback');
+ const scheduleButton=document.getElementById('universalScheduleTab');
+ const availableButton=document.getElementById('universalAvailableTab');
+ let selected=false;
+ async function permissionStatus(){
+  if(!('Notification' in window)||!('PushManager' in window)){deviceStatus.textContent='Push is unavailable in this browser. On iPhone, open the installed home-screen app.';return;}
+  const permission=Notification.permission;
+  if(permission!=='granted'){deviceStatus.textContent=permission==='denied'?'Notifications blocked in device settings.':'Notifications are not enabled on this device.';return;}
+  try{const registration=await navigator.serviceWorker.getRegistration('./');const subscription=await registration?.pushManager.getSubscription();deviceStatus.textContent=subscription?'Push notifications enabled on this device.':'Permission granted; this device is not subscribed yet.';}
+  catch(e){deviceStatus.textContent='Unable to check subscription: '+e.message;}
+ }
+ function sync(){
+  const authenticated=!originalHub.hidden;
+  if(!authenticated&&selected){selected=false;document.body.classList.remove('shift-alerts-view');}
+  nav.hidden=!authenticated && document.getElementById('openShiftArea')?.hidden!==false;
+  section.hidden=!selected||!authenticated;
+  alertsButton.setAttribute('aria-selected',String(selected&&authenticated));
+  if(selected){scheduleButton?.setAttribute('aria-selected','false');availableButton?.setAttribute('aria-selected','false');}
+ }
+ alertsButton.addEventListener('click',()=>{
+  if(originalHub.hidden)return;
+  selected=true;
+  document.body.classList.remove('available-shifts-view');
+  document.body.classList.add('shift-alerts-view');
+  sync();permissionStatus();window.scrollTo(0,0);
+ });
+ for(const button of [scheduleButton,availableButton])button?.addEventListener('click',()=>{
+  if(!selected)return;
+  selected=false;document.body.classList.remove('shift-alerts-view');
+  if(button===scheduleButton){document.body.classList.remove('available-shifts-view');}
+  sync();
+ });
+ document.getElementById('managerTabStrip')?.addEventListener('click',()=>{
+  selected=false;document.body.classList.remove('shift-alerts-view');sync();
+ });
+ async function deviceAction(id){
+  const button=document.getElementById(id);if(!button)return;
+  deviceFeedback.textContent='Updating device notification settings…';
+  button.click();
+  await new Promise(resolve=>setTimeout(resolve,1500));
+  deviceFeedback.textContent=document.getElementById('pushFeedback')?.textContent||'';
+  permissionStatus();
+ }
+ document.getElementById('shiftAlertsEnable')?.addEventListener('click',()=>deviceAction('pushEnable'));
+ document.getElementById('shiftAlertsDisable')?.addEventListener('click',()=>deviceAction('pushDisable'));
+ new MutationObserver(sync).observe(originalHub,{attributes:true,attributeFilter:['hidden']});
+ sync();
+})();
+</script>
+</body></html>
