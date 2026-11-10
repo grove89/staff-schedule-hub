@@ -3280,4 +3280,11 @@ body.god-obsidian .hub-calloff-sheet tbody tr:nth-child(even) td:not(.hub-sheet-
 body.god-obsidian .hub-calloff-sheet td strong,body.god-obsidian .hub-calloff-sheet td small{display:block}
 body.god-obsidian .hub-calloff-sheet td small{margin-top:5px;color:#a9dbe1;font-size:12px}
 body.god-obsidian .hub-sheet-help{font-size:12px;color:#b6c5d2;margin-top:8px}
+
+/* Fix the actual morning shift class: earlier theme rules set its text nearly black. */
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning,
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning :is(.pwv-time,.pwv-person,.pwv-open,.pwv-role-tag,strong,span,small,div):not(button),
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-evening :is(.pwv-time,.pwv-person,.pwv-open),
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-overnight :is(.pwv-time,.pwv-person,.pwv-open){color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;text-shadow:0 1px 3px #000!important;opacity:1!important;}
+html body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-morning{background:linear-gradient(125deg,#42372c,#27221e)!important;border-left:4px solid #cda36c!important;}
 </style></body></html>
