@@ -2813,6 +2813,17 @@ window.pathwaysCrashIntro=()=>{
 <div class="push-panel"><h3>🚨 Emergency call-out notifications</h3>
 <p>Enable alerts to receive urgent coverage requests on this device, even when the schedule is closed. Notifications require your permission and an installed home-screen app on iPhone.</p>
 <div class="push-fields"><button type="button" id="pushEnable">🔔 Enable notifications</button><button type="button" id="pushDisable">Turn off on this device</button></div>
+<div id="shiftPreferencePanel" class="shift-preference-panel" hidden>
+<h3>🔔 Open Shift Alert Preferences</h3>
+<p>Choose which shifts you want automatic alerts for when an assigned shift opens at <strong>any house</strong>. Newly created open shifts do not trigger alerts. You must also enable notifications on this device above.</p>
+<div class="shift-pref-options">
+<label><input type="checkbox" id="prefOvernight"> 🌙 Overnight <small>12 AM – 8 AM</small></label>
+<label><input type="checkbox" id="prefDay"> ☀️ Day <small>8 AM – 4 PM</small></label>
+<label><input type="checkbox" id="prefEvening"> 🌆 Evening <small>4 PM – 12 AM</small></label>
+</div>
+<button type="button" id="prefSave">Save shift preferences</button>
+<p id="prefStatus" role="status" aria-live="polite"></p>
+</div>
 <div id="pushManagerControls" hidden><hr style="border:0;border-top:1px solid #7295bb66;margin:18px 0"><h3>Send emergency coverage alert</h3>
 <p>Enter the ID of a vacant shift. The notification service checks manager permissions and staff eligibility across all homes, including future homes.</p>
 <div class="push-fields"><input id="pushShiftId" type="number" min="1" step="1" placeholder="Open shift ID" aria-label="Open shift ID" /></div>
@@ -2820,6 +2831,17 @@ window.pathwaysCrashIntro=()=>{
 <button type="button" id="pushSend">🚨 Send emergency alert</button>
 <button type="button" id="pushTestSelf">🧪 Test My Phone Only</button></div>
 <p id="pushFeedback" role="status" aria-live="polite"></p></div></section>
+<style id="shiftPreferenceStyles">
+#shiftPreferencePanel{margin-top:18px;border-top:1px solid #8198ad;padding-top:16px}
+#shiftPreferencePanel[hidden]{display:none!important}
+#shiftPreferencePanel h3{color:#b8e7ef!important}
+#shiftPreferencePanel .shift-pref-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin:12px 0}
+#shiftPreferencePanel .shift-pref-options label{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:13px 12px;border:1px solid #728da2;border-radius:10px;background:#152638;color:#f5faff;font-weight:700;cursor:pointer}
+#shiftPreferencePanel .shift-pref-options input{accent-color:#54b4c4;width:18px;height:18px}
+#shiftPreferencePanel .shift-pref-options small{font-size:12px;color:#b8d6e8;font-weight:400}
+#shiftPreferencePanel #prefSave{background:#1d5c65;color:white;border-color:#75c1cb}
+#shiftPreferencePanel #prefStatus{color:#c6e9e8}
+</style>
 <script id="emergencyPushLogic">
 (()=>{
 'use strict';
@@ -2830,13 +2852,13 @@ const SUBSCRIPTION_TABLE='push_subscriptions';
 const $=id=>document.getElementById(id);
 const hub=$('emergencyPushHub'), manager=$('pushManagerControls'), info=$('pushFeedback');
 const client=()=>window.staffHubSupabase;
-let currentUser=null, isManager=false;
+let currentUser=null, isManager=false, preferencesLoadedFor=null;
 function msg(s){info.textContent=s;}
 function base64ToBytes(base64){const p='='.repeat((4-base64.length%4)%4);const b=atob((base64+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0));}
 async function refresh(){
  const c=client();if(!c)return;
  const {data:{user}}=await c.auth.getUser();currentUser=user||null;
- hub.hidden=!user;if(!user){manager.hidden=true;return;}
+ hub.hidden=!user;if(!user){manager.hidden=true;$('shiftPreferencePanel').hidden=true;preferencesLoadedFor=null;return;}
  const {data:admin}=await c.rpc('is_app_admin');
  isManager=admin===true;
  if(!isManager){
@@ -2845,8 +2867,28 @@ async function refresh(){
    for(const h of homes||[]){const {data:ok}=await c.rpc('can_manage_home',{target_home_id:h.id});if(ok===true){isManager=true;break;}}
  }
  manager.hidden=!isManager;
+ $('shiftPreferencePanel').hidden=false;
+ if(preferencesLoadedFor!==currentUser.id){await loadPreferences();preferencesLoadedFor=currentUser.id;}
 
 }
+async function loadPreferences(){
+ const c=client();if(!c||!currentUser)return;
+ const {data,error}=await c.from('shift_alert_preferences').select('overnight,day,evening').eq('user_id',currentUser.id).maybeSingle();
+ if(error){$('prefStatus').textContent='Preferences unavailable: '+error.message;return;}
+ $('prefOvernight').checked=!!data?.overnight;
+ $('prefDay').checked=!!data?.day;
+ $('prefEvening').checked=!!data?.evening;
+}
+$('prefSave').addEventListener('click',async()=>{
+ if(!currentUser){$('prefStatus').textContent='Sign in first.';return;}
+ $('prefSave').disabled=true;
+ try{
+  const {error}=await client().from('shift_alert_preferences').upsert({user_id:currentUser.id,overnight:$('prefOvernight').checked,day:$('prefDay').checked,evening:$('prefEvening').checked,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(error)throw error;
+  $('prefStatus').textContent='Preferences saved. Automatic delivery requires the server-side notification dispatcher.';
+ }catch(e){$('prefStatus').textContent='Could not save: '+e.message;}
+ finally{$('prefSave').disabled=false;}
+});
 async function getRegistration(){if(!('serviceWorker' in navigator))throw Error('Service workers are not supported in this browser.');
  return navigator.serviceWorker.register('./emergency-sw.js',{scope:'./'});}
 $('pushEnable').addEventListener('click',async()=>{
