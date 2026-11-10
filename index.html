@@ -660,7 +660,7 @@ body.god-obsidian #managerTabStrip .manager-notification-badge{background:#e9bf4
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
-<p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button">🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
+<p id="hoursStatus" class="hours-summary" role="status">Choose Staff Hours to calculate totals.</p><div id="hoursRows"></div></section><nav aria-label="Management sections" hidden="" id="managerTabStrip"><button aria-selected="true" data-mcc-tab="overview" type="button">🏠 Overview</button><button aria-selected="false" data-mcc-tab="schedules" type="button">📅 Schedules</button><button aria-selected="false" data-mcc-tab="requests" type="button">🔔 Notifications <span id="managerNotificationBadge" class="manager-notification-badge" hidden>0</span></button><button aria-selected="false" data-mcc-tab="staff" type="button">👥 Staff</button><button aria-selected="false" data-mcc-tab="history" type="button" hidden>🕘 History</button><button aria-selected="false" data-mcc-tab="houses" id="godHousesTab" type="button" hidden>🏘️ Houses</button><button type="button" data-mcc-tab="hours" id="godHoursTab" hidden>🏆 Staff Hours</button><button type="button" data-mcc-tab="activity" id="godActivityTab" hidden>🛡️ Activity Log</button></nav><div class="tabs" style="max-width:1100px;margin:15px auto 0;padding:0 16px"><button class="btn active" id="directoryTab" onclick="switchPage('directory')">Employee Directory</button><button class="btn secondary" id="scheduleTab" onclick="switchPage('schedule')">Weekly Schedule</button><button class="btn secondary" id="requestsTab" onclick="switchPage('requests')">Requests</button><button class="btn secondary" id="accountsTab" onclick="switchPage('accounts')">Accounts</button></div><main id="directoryPage"><div class="nav"><a class="active" href="#">Employees</a><a href="#" onclick="alert('Schedule integration is next. This file demonstrates the employee directory.');return false">Schedules (coming next)</a></div><div class="top"><div><h2>Employee Directory</h2><p class="sub">Manage staff, job titles, assigned homes and editing access.</p></div><button class="btn" onclick="openEditor()">+ Add Employee</button></div><div class="stats"><div class="card stat"><b id="total">0</b><span>Employees</span></div><div class="card stat"><b id="managers">0</b><span>Management editors</span></div><div class="card stat"><b>4</b><span>Homes</span></div></div><div class="filters"><input class="field" id="search" oninput="render()" placeholder="Search employees or job titles…"/><select class="field" id="homeFilter" onchange="render()"><option value="">All homes</option><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><select class="field" id="roleFilter" onchange="render()"><option value="">All permissions</option><option value="edit">Can edit</option><option value="view">View only</option></select></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Job title</th><th>Assigned homes</th><th>Schedule access</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div class="hint"><strong>How access works:</strong> Director and Regional Director can view/edit all homes. Program Directors, Program Managers and Home Supervisors can view/edit their assigned homes. CLI Leads, CLIs and Cooks have employee-level access: they can view published schedules for their assigned homes and request open shifts at any home, but cannot edit. Your special administrator account will have all-home access independently of job title. <strong>Prototype only:</strong> these settings are not secured by a real login yet.</div><div class="footer"><button class="btn secondary" onclick="exportCSV()">Export directory CSV</button><button class="btn secondary" onclick="resetDemo()">Reset sample data</button></div></main><section id="accountsPage" style="display:none;max-width:1100px;margin:0 auto;padding:22px 16px 50px"><div class="top"><div><h2>Employee Accounts</h2><p class="sub">Management creates accounts; employees activate them after receiving an invitation.</p></div></div><div class="notice"><strong>Prototype only.</strong> This page saves draft account records in this browser. It does <strong>not</strong> send texts or emails, verify phone numbers, create real logins, or enforce server-side permissions. Use fictional employee contact details only.</div><div class="card" style="padding:18px;margin:16px 0"><h3 style="margin-top:0">Create account draft</h3><form id="accountForm" onsubmit="createAccountDraft(event)"><label for="accountEmployee">Employee</label><select class="field" id="accountEmployee" required=""></select><label for="accountPhone">Phone number (primary)</label><input autocomplete="off" class="field" id="accountPhone" inputmode="tel" placeholder="555-010-1234" required="" type="tel"/><label for="accountEmail">Email (secondary, optional)</label><input autocomplete="off" class="field" id="accountEmail" placeholder="employee@example.com" type="email"/><div class="footer"><button class="btn" type="submit">Save account draft</button></div></form></div><div class="card tablewrap"><table><thead><tr><th>Employee</th><th>Phone</th><th>Backup email</th><th>Account status</th><th>Actions</th></tr></thead><tbody id="accountRows"></tbody></table></div><div class="hint">Future secure release: managers send single-use, expiring invitations by SMS or email; employees verify ownership and activate accounts. The server will enforce management permissions, keep personal contacts private, and support account deactivation.</div></section><section class="schedule-wrap" id="schedulePage" style="max-width:1100px;margin:auto;padding:18px 16px 50px">
 <div class="top"><div><h2>Weekly Schedule</h2><p class="sub">Tap a shift to assign an employee or customize its hours.</p></div><span class="pill">Local prototype</span></div>
 <div class="notice">Prototype only: choose a demo identity below. Permissions are simulated, not secure. Requests and changes remain on this browser only. Do not enter real staff information.</div><div class="schedule-controls"><label for="demoUser">Preview as</label><select class="field" id="demoUser" onchange="setDemoUser(this.value)"></select><span class="tag" id="modeLabel"></span></div>
 <div class="schedule-controls"><label for="scheduleHome">Home</label><select class="field" id="scheduleHome" onchange="renderSchedule()"><option>Pathways</option><option>Freedom</option><option>Station</option><option>Oasis</option></select><button class="btn secondary small" onclick="changeWeek(-1)">← Previous</button><b id="weekLabel"></b><button class="btn secondary small" onclick="changeWeek(1)">Next →</button></div>
@@ -1243,6 +1243,7 @@ function lsRenderManager(){
   if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
   for(const shift of records){const card=lsEl('div',undefined,'live-shift'+(hubIsTraining(shift)?' hub-training-green':''));const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));if(hubIsTraining(shift)&&shift.training_notes)card.append(lsEl('div','📍 '+shift.training_notes,'hub-training-note'));
    const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);
+   const calloff=hubCallOffButton(shift);if(calloff)card.append(calloff);
    const emergencyButton=hubEmergencyButton(shift);if(emergencyButton)card.append(emergencyButton);
    day.append(card);}
   const add=lsEl('button','+ Shift','btn secondary small');add.type='button';add.onclick=()=>lsOpenForm(null,lsDate(date));day.append(add);lsDays.append(day);
@@ -1403,10 +1404,15 @@ async function lsLoadManagerRequests(){
  const out=document.getElementById('managerRequestList'),count=document.getElementById('managerRequestCount');out.replaceChildren(lsEl('p','Checking pending requests…','live-muted'));
  const {data,error}=await client.rpc('manager_open_shift_requests',{p_home_id:home});
  if(error){count.textContent='—';out.replaceChildren(lsEl('p','Could not load requests: '+error.message,'live-error'));return;}
- count.textContent=String(data?.length||0);out.replaceChildren();
- if(!data?.length){out.append(lsEl('p','No pending requests for this home.','live-muted'));return;}
- for(const r of data){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.employee_name));card.append(lsEl('div',reqLabel(r)));card.append(lsEl('small','Submitted '+new Date(r.created_at).toLocaleString()));
-  for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm((approve?'Approve':'Deny')+' request from '+r.employee_name+'?'))return;const {error}=await client.rpc('decide_open_shift_request',{p_request_id:r.id,p_approve:approve});if(error)throw error;await Promise.all([lsLoadManager(),lsLoadMine(),lsLoadOpenShifts()]);},!approve));out.append(card);}
+ const actionable=(data||[]).filter(r=>{
+  const status=String(r.status??'pending').toLowerCase();
+  const start=r.starts_at??r.start_time??r.shift_starts_at;
+  return status==='pending' && start && new Date(start).getTime()>Date.now();
+ });
+ count.textContent=String(actionable.length);out.replaceChildren();
+ if(!actionable.length){out.append(lsEl('p','No pending requests for upcoming shifts.','live-muted'));return;}
+ for(const r of actionable){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.employee_name));card.append(lsEl('div',reqLabel(r)));card.append(lsEl('small','Submitted '+new Date(r.created_at).toLocaleString()));
+  for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm((approve?'Approve':'Deny')+' request from '+r.employee_name+'?'))return;const {error}=await client.rpc('decide_open_shift_request',{p_request_id:r.id,p_approve:approve});if(error)throw error;card.remove();await Promise.all([lsLoadManagerRequests(),lsLoadManager(),lsLoadMine(),lsLoadOpenShifts()]);},!approve));out.append(card);}
 }
 document.getElementById('openShiftRefresh').onclick=lsLoadOpenShifts;
 document.getElementById('managerRequestsRefresh').onclick=lsLoadManagerRequests;
@@ -1522,6 +1528,8 @@ async function mccLoadTimeOffTab(){const out=document.getElementById('ptoTabList
 
 const mccStaff=document.createElement('section');mccStaff.id='mccStaffPanel';mccStaff.className='mcc-tab-panel';mccStaff.hidden=true;
 const godHours=document.getElementById('godHoursPanel');
+const hubCallOffPanel=document.createElement('section');hubCallOffPanel.id='hubCallOffPanel';hubCallOffPanel.className='mcc-tab-panel';hubCallOffPanel.hidden=true;
+hubCallOffPanel.innerHTML='<h3>📞 Call-Off Log</h3><p class="sub">Management only · Current and historical records</p><div class="hub-calloff-tools"><input class="field" id="hubCallOffSearch" placeholder="Search employee, house, reason" aria-label="Search call-offs"><select class="field" id="hubCallOffHome" aria-label="Filter home"><option value="">All authorized homes</option></select><button class="btn secondary" id="hubCallOffRefresh" type="button">Refresh</button></div><div id="hubCallOffStats" class="hub-calloff-stats"></div><div id="hubCallOffList" aria-live="polite"></div>';
 const godActivity=document.createElement('section');godActivity.id='godActivityPanel';godActivity.className='mcc-tab-panel';godActivity.hidden=true;
 const mccHouses=document.createElement('section');mccHouses.id='mccHousesPanel';mccHouses.className='mcc-tab-panel';mccHouses.hidden=true;
 mccHouses.innerHTML='<h3>🏘️ Manage Houses</h3><p class="sub">God Mode only · Each new house gets its own 1/2/2 weekly staffing template.</p><div id="godHouseList" class="mcc-grid"></div><form id="godHouseForm" class="hub-controls"><label for="godHouseName">New house name</label><input id="godHouseName" class="field" maxlength="80" minlength="2" required placeholder="e.g. Liberty"><button class="btn" type="submit">+ Add House</button></form><p id="godHouseStatus" role="status"></p>';
@@ -1529,7 +1537,7 @@ const mccSchedules=document.getElementById('liveManagerSchedule');
 const mccParent=mccSchedules.parentNode;
 mccParent.insertBefore(mccRequests,mccSchedules.nextSibling);
 mccParent.insertBefore(mccStaff,mccRequests.nextSibling);mccParent.insertBefore(mccTimeOff,mccStaff.nextSibling);document.getElementById('ptoTabRefresh').addEventListener('click',mccLoadTimeOffTab);
-mccParent.insertBefore(mccHouses,mccStaff.nextSibling);mccParent.insertBefore(godActivity,mccHouses.nextSibling);
+mccParent.insertBefore(mccHouses,mccStaff.nextSibling);mccParent.insertBefore(godActivity,mccHouses.nextSibling);mccParent.insertBefore(hubCallOffPanel,godActivity.nextSibling);
 mccStaff.innerHTML='<h3>Employee management</h3><p>Use the secure employee editor below to manage authorized staff records.</p><button type="button" class="btn secondary" id="mccJumpStaff">Open employee editor ↓</button>';
 document.getElementById('mccJumpStaff').addEventListener('click',()=>document.getElementById('liveEmployeeEditor')?.scrollIntoView({behavior:'smooth'}));
 for(const id of ['managerRequests','managerExtras']){const node=document.getElementById(id);if(node)mccRequests.append(node);}
@@ -1564,14 +1572,89 @@ function mccSelect(tab){
  document.body.classList.toggle('god-activity-active',tab==='activity');
  mccActive=tab;
  for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.setAttribute('aria-selected',String(b.dataset.mccTab===tab));
- mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccTimeOff.hidden=tab!=='timeoff';mccHouses.hidden=tab!=='houses';godActivity.hidden=tab!=='activity';godHours.hidden=tab!=='hours';
+ mccOverview.hidden=tab!=='overview';mccSchedules.hidden=tab!=='schedules';mccRequests.hidden=tab!=='requests';mccStaff.hidden=tab!=='staff';mccTimeOff.hidden=tab!=='timeoff';mccHouses.hidden=tab!=='houses';hubCallOffPanel.hidden=tab!=='calloffs';godActivity.hidden=tab!=='activity';godHours.hidden=tab!=='hours';
  if(employeeEditor&&lsAllowed.length)employeeEditor.style.display=tab==='staff'?'':'none';
- if(tab==='overview')mccLoad();if(tab==='timeoff')mccLoadTimeOffTab();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();if(tab==='hours'){initializeGodHoursPanel?.();window.hubLoadHours?.();}
+ if(tab==='overview')mccLoad();if(tab==='timeoff')mccLoadTimeOffTab();if(tab==='houses')hubDrawHouses();if(tab==='activity')godLoadActivity();if(tab==='calloffs')hubLoadCallOffs();if(tab==='hours'){initializeGodHoursPanel?.();window.hubLoadHours?.();}
  window.scrollTo({top:0,behavior:'instant'});
 }
+const callOffTabButton=document.createElement('button');callOffTabButton.type='button';callOffTabButton.dataset.mccTab='calloffs';callOffTabButton.textContent='📞 Call-Off Log';mccTabs.append(callOffTabButton);
 const ptoTabButton=document.createElement('button');ptoTabButton.type='button';ptoTabButton.dataset.mccTab='timeoff';ptoTabButton.textContent='Time Off';mccTabs.append(ptoTabButton);
 for(const b of mccTabs.querySelectorAll('[data-mcc-tab]'))b.addEventListener('click',()=>mccSelect(b.dataset.mccTab));
 document.getElementById('mccRefresh').addEventListener('click',()=>mccLoad());
+
+// Management-only call-off controls; backend RPC independently checks authorization.
+function hubCallOffButton(shift){
+ if(!shift?.employee_id || !lsAllowed.includes(Number(shift.home_id)))return null;
+ const b=lsEl('button','📞 Call Off','btn secondary small hub-calloff-btn');b.type='button';
+ b.onclick=()=>hubOpenCallOff(shift);return b;
+}
+function hubOpenCallOff(shift){
+ const emp=lsOwnEmployee(shift);if(!emp)return;
+ const dialog=document.getElementById('hubCallOffDialog');
+ dialog.querySelector('[data-calloff-person]').textContent=emp.full_name;
+ dialog.querySelector('[data-calloff-shift]').textContent=(LS_HOMES[shift.home_id]||'Home')+' · '+new Date(shift.starts_at).toLocaleDateString()+' · '+lsRange(shift);
+ dialog.querySelector('[name="calloff_reason"]').value='';
+ dialog.querySelector('[data-calloff-status]').textContent='';
+ dialog.dataset.shiftId=String(shift.id);
+ dialog.hidden=false;dialog.querySelector('textarea').focus();
+}
+async function hubSubmitCallOff(event){
+ event.preventDefault();const dialog=document.getElementById('hubCallOffDialog');
+ const note=dialog.querySelector('textarea').value.trim();const status=dialog.querySelector('[data-calloff-status]');
+ if(!note){status.textContent='A note is required.';return;}
+ const submit=dialog.querySelector('[type="submit"]');submit.disabled=true;status.textContent='Recording call-off…';
+ try{
+  const {error}=await client.rpc('hub_record_call_off',{p_shift_id:Number(dialog.dataset.shiftId),p_reason:note});
+  if(error)throw error;
+  dialog.hidden=true;
+  await lsLoadManager();if(typeof pwvRender==='function')pwvRender();
+  if(mccActive==='calloffs')await hubLoadCallOffs();
+ }catch(e){status.textContent='Could not record call-off: '+e.message;}
+ finally{submit.disabled=false;}
+}
+let hubCallOffRows=[];
+async function hubLoadCallOffs(){
+ const target=document.getElementById('hubCallOffList');if(!target)return;
+ target.textContent='Loading call-off records…';
+ const {data,error}=await client.rpc('hub_list_call_offs');
+ if(error){target.textContent='Unable to load call-offs: '+error.message;return;}
+ hubCallOffRows=data||[];
+ const select=document.getElementById('hubCallOffHome');const previous=select.value;
+ select.replaceChildren(new Option('All authorized homes',''));
+ for(const h of [...new Set(hubCallOffRows.map(x=>x.home_name||LS_HOMES[x.home_id]).filter(Boolean))].sort())select.add(new Option(h,h));
+ select.value=previous;
+ hubDrawCallOffs();
+}
+function hubDrawCallOffs(){
+ const target=document.getElementById('hubCallOffList');target.replaceChildren();
+ const q=document.getElementById('hubCallOffSearch').value.trim().toLowerCase(),home=document.getElementById('hubCallOffHome').value;
+ const rows=hubCallOffRows.filter(r=>(!home||(r.home_name||LS_HOMES[r.home_id])===home)&&(!q||[r.employee_name,r.home_name,r.reason,r.shift_label].join(' ').toLowerCase().includes(q)));
+ const counts=new Map();for(const r of rows)counts.set(r.employee_name,(counts.get(r.employee_name)||0)+1);
+ document.getElementById('hubCallOffStats').textContent=rows.length+' records · '+counts.size+' employees';
+ if(!rows.length){target.append(lsEl('p','No call-off records match.','live-muted'));return;}
+ const grouped=new Map();for(const r of rows){if(!grouped.has(r.employee_name))grouped.set(r.employee_name,[]);grouped.get(r.employee_name).push(r);}
+ for(const [name,entries] of grouped){
+  const section=lsEl('section',undefined,'hub-calloff-group');
+  section.append(lsEl('h4',name+' · '+entries.length+' call-off'+(entries.length===1?'':'s')));
+  for(const r of entries){
+   const item=lsEl('article',undefined,'hub-calloff-record');
+   const shiftDate=r.shift_date?new Date(r.shift_date+'T12:00:00').toLocaleDateString():'Date unavailable';
+   const called=r.called_at?new Date(r.called_at).toLocaleString():[r.called_date,r.called_time_text].filter(Boolean).join(' · ');
+   item.append(lsEl('strong',shiftDate+' · '+(r.shift_label||'Shift hours not recorded')));
+   item.append(lsEl('div','Called off: '+(called||'Not recorded')));
+   item.append(lsEl('div','Home: '+(r.home_name||LS_HOMES[r.home_id]||'Not recorded')));
+   item.append(lsEl('div','Reason: '+r.reason));
+   item.append(lsEl('small',r.recorded_by_name?'Recorded by: '+r.recorded_by_name:(r.is_historical?'Imported from historical Excel log':'Recorded by management')));
+   section.append(item);
+  }
+  target.append(section);
+ }
+}
+document.getElementById('hubCallOffForm').addEventListener('submit',hubSubmitCallOff);
+document.getElementById('hubCallOffRefresh').addEventListener('click',hubLoadCallOffs);
+document.getElementById('hubCallOffSearch').addEventListener('input',hubDrawCallOffs);
+document.getElementById('hubCallOffHome').addEventListener('change',hubDrawCallOffs);
+
 function mccEntry(parent,title,detail,open=false){const el=lsEl('div',undefined,'mcc-entry'+(open?' mcc-open':''));el.append(lsEl('strong',title));el.append(lsEl('small',detail));parent.append(el);}
 async function mccLoad(){
  if(!lsAllowed.length||mccActive!=='overview')return;
@@ -1773,7 +1856,7 @@ function pwvRender(){
      lsMsg('Unable to open shift editor: '+(err?.message||String(err)),true);
     }finally{editButton.disabled=false;}
    };
-   card.append(editButton);
+   card.append(editButton);const calloff=hubCallOffButton(shift);if(calloff)card.append(calloff);
    if(employee && lsAllowed.includes(Number(shift.home_id))){
     const pull=lsEl('button','🔄 Pull Staff','btn secondary small pwv-edit');
     pull.type='button';
@@ -3131,4 +3214,41 @@ html body.god-obsidian #liveScheduling .request-count{background:#2b2e34!importa
 /* The floating portrait must not cover navigation controls on narrow phones. */
 @media(max-width:650px){html body.god-obsidian #managerTabStrip{padding:8px!important}html body.god-obsidian #pathwaysWeeklyViewer .pwv-day-title{min-height:68px}}
 </style>
-</body></html>
+<div id="hubCallOffDialog" hidden role="dialog" aria-modal="true" aria-label="Record a staff call-off"><form id="hubCallOffForm"><h3>📞 Record Call-Off</h3><strong data-calloff-person></strong><p data-calloff-shift></p><label for="hubCallOffReason">Required call-off reason / manager note</label><textarea id="hubCallOffReason" name="calloff_reason" class="field" required minlength="2" rows="4" placeholder="Describe the call-off and any details provided"></textarea><p data-calloff-status role="status"></p><div class="hub-calloff-actions"><button class="btn" type="submit">Record call-off & open shift</button><button class="btn secondary" type="button" onclick="document.getElementById('hubCallOffDialog').hidden=true">Cancel</button></div></form></div>
+<style id="hubGodMatrixNotesFinal">
+/* All God Mode-only visual changes. */
+body.god-obsidian #pathwaysWeeklyViewer :is(.pwv-shift,.pwv-shift *):not(button),
+body.god-obsidian #liveManagerSchedule :is(.live-shift,.live-shift *):not(button){color:#f8f9fb!important;text-shadow:0 1px 2px #0009!important}
+body.god-obsidian #pathwaysWeeklyViewer .pwv-shift,
+body.god-obsidian #liveManagerSchedule .live-shift{background:#25282d!important;border:1px solid #d5d9dfb0!important;border-left:4px solid #aebac8!important}
+body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-day-shift,
+body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.day,
+body.god-obsidian #liveManagerSchedule .live-shift.day{background:#3a3024!important;border-left-color:#d2a868!important}
+body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-evening-shift{background:#30283b!important;border-left-color:#a88bc9!important}
+body.god-obsidian #pathwaysWeeklyViewer .pwv-shift.pwv-overnight-shift{background:#1d343a!important;border-left-color:#86c8ce!important}
+body.god-obsidian #pathwaysWeeklyViewer .pwv-person,
+body.god-obsidian #pathwaysWeeklyViewer .pwv-time,
+body.god-obsidian #pathwaysWeeklyViewer .pwv-open{color:#fff!important;font-weight:800!important}
+body.god-obsidian #managerRequestList .request-item{background:linear-gradient(140deg,#19252c,#101318)!important;border:1px solid #ffffff7d!important;border-left:4px solid #5bb7c4!important;color:#f5f7fa!important}
+body.god-obsidian #managerRequestList .request-item strong{color:#fff!important}
+body.god-obsidian #managerRequestList .request-item>div{color:#a8dfe9!important}
+body.god-obsidian #managerRequestList .request-item button:not(.danger){background:#164338!important;color:#d5ffed!important;border:1px solid #65bca0!important}
+body.god-obsidian #managerRequestList .request-item button.danger{background:#4a202b!important;color:#ffd8df!important;border:1px solid #bd6b7b!important}
+body.god-obsidian #mccRequestsPanel :is(h3,h4),body.god-obsidian #godActivityPanel :is(h3,h4){color:#b7e2ea!important}
+body.god-obsidian #managerTabStrip button[data-mcc-tab="history"],body.god-obsidian #managerTabStrip button[data-mcc-tab="houses"],body.god-obsidian #managerTabStrip button[data-mcc-tab="allhomes"]{display:none!important}
+/* Keep the activity log inside its own tab only, even if legacy CSS tries to force it visible. */
+#godActivityPanel[hidden],#hubCallOffPanel[hidden],#mccRequestsPanel[hidden],#mccSchedulesPanel[hidden]{display:none!important;visibility:hidden!important}
+body.god-obsidian #hubCallOffPanel{background:#101217!important;border:1px solid #d4d8df99!important;padding:18px!important;border-radius:12px!important}
+body.god-obsidian .hub-calloff-group{padding:13px;margin:14px 0;border:1px solid #ffffff7b;border-radius:10px;background:#171b20}
+body.god-obsidian .hub-calloff-group h4{color:#b6e3e7!important;margin:0 0 10px}
+body.god-obsidian .hub-calloff-record{padding:12px;margin:10px 0;background:#22262d;border-left:3px solid #c8a67e;border-radius:7px;color:#f8f8fb}
+body.god-obsidian .hub-calloff-record>div{margin:6px 0;color:#d8dce5}
+body.god-obsidian .hub-calloff-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:16px 0}
+body.god-obsidian .hub-calloff-stats{font-weight:800;color:#b6e3e7}
+body.god-obsidian .hub-calloff-btn{margin-top:8px!important;border-color:#bd8a96!important;color:#ffdbdf!important}
+#hubCallOffDialog[hidden]{display:none!important}
+#hubCallOffDialog{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:18px;background:#000d;backdrop-filter:blur(8px)}
+#hubCallOffDialog form{width:min(100%,520px);max-height:90dvh;overflow:auto;background:linear-gradient(145deg,#24272d,#0e1014);color:#f8f9fb;border:1px solid #f1f3f5b5;border-radius:14px;padding:22px;box-shadow:0 30px 75px #000b}
+#hubCallOffDialog textarea{display:block;width:100%;margin:10px 0 14px;background:#0c0f13;color:#fff;border:1px solid #ffffffa8;border-radius:8px;padding:12px;box-sizing:border-box}
+#hubCallOffDialog .hub-calloff-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+</style></body></html>
