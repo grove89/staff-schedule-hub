@@ -657,43 +657,6 @@ body.god-obsidian #managerTabStrip .manager-notification-badge{background:#e9bf4
  }
 }
 @media(max-width:380px){body.god-obsidian #managerTabStrip button{font-size:9px!important}}
-</style><style id="hubPersonThreeWeekCalendar2026">
-/* God Mode: employee lookup mirrors My Shifts horizontal week selector and calendar. */
-body.god-obsidian .hub-person-view{background:#111215!important;border:1px solid #ffffff8c!important;border-radius:16px!important;padding:16px!important}
-body.god-obsidian #hubPersonResult{margin-top:14px}
-body.god-obsidian #hubPersonResult .hub-person-tabs{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 12px}
-body.god-obsidian #hubPersonResult .my-week-tab{flex:1 0 auto;min-width:145px;background:#1b1c20!important;color:#f7f7f8!important;border:1px solid #ffffff8c!important;border-radius:10px!important;padding:11px!important;font-weight:700}
-body.god-obsidian #hubPersonResult .my-week-tab.selected{background:#e9eaec!important;color:#101114!important;border-color:#ffffff!important;box-shadow:inset 0 -3px #86dfd0!important}
-body.god-obsidian #hubPersonResult .hub-person-calendar-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:14px}
-body.god-obsidian #hubPersonResult .hub-person-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(75px,1fr));min-width:540px;gap:7px}
-body.god-obsidian #hubPersonResult .my-calendar-day{background:#1d1f23!important;border:1px solid #ffffff80!important;color:#fff!important;border-radius:11px!important}
-body.god-obsidian #hubPersonResult .my-calendar-day.today{outline:2px solid #c8a96b!important}
-body.god-obsidian #hubPersonResult .my-calendar-count{background:#36564f!important;color:#d9fff4!important}
-body.god-obsidian #hubPersonResult .hub-person-row{background:#1d1e22!important;color:#fff!important;border:1px solid #ffffff6e!important;border-radius:11px!important;padding:12px!important;margin:9px 0!important}
-</style><style id="hubUnlimitedTrainingRosterStyles">
-#hubUnlimitedTrainingRoster[hidden]{display:none!important}
-#hubUnlimitedTrainingRoster{margin:18px 0;padding:17px;border:1px solid #e5e7eb8c;border-radius:16px;background:#131519;color:#fff}
-#hubUnlimitedTrainingRoster h3{margin:0 0 7px}
-#hubUnlimitedTrainingRoster .hub-training-day{margin:16px 0;padding:12px;border:1px solid #ffffff6b;border-radius:12px;background:#1b1d20}
-#hubUnlimitedTrainingRoster .hub-training-day h4{margin:0 0 12px}
-#hubUnlimitedTrainingRoster .hub-training-group{padding:12px;margin:9px 0;border:1px solid #ffffff52;border-radius:10px;background:#101215}
-#hubUnlimitedTrainingRoster .hub-training-group>strong{display:block;margin-bottom:9px}
-#hubUnlimitedTrainingRoster .hub-training-add{padding:8px 12px!important;margin-bottom:9px!important}
-#hubUnlimitedTrainingRoster .hub-training-person{padding:8px 10px;margin:6px 0;border-left:2px solid #81d8c6;background:#24272b;border-radius:5px}
-#hubUnlimitedTrainingRoster .hub-training-person small{color:#c3d1cd}
-</style><style id="hubGodWeekOverviewStyles2026">
-#hubGodWeekOverview[hidden]{display:none!important}
-body.god-obsidian #hubGodWeekOverview{margin:14px 0;padding:12px;border:1px solid #ffffff8a;border-radius:14px;background:#101114;color:#f6f6f7}
-#hubGodWeekOverview h3{margin:0 0 12px;font-size:15px}
-#hubGodWeekOverview .hub-god-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;overflow:visible}
-#hubGodWeekOverview .hub-god-col{min-width:0;background:#1a1c20;border:1px solid #ffffff55;border-radius:7px;padding:4px}
-#hubGodWeekOverview .hub-god-col>strong{display:block;text-align:center;font-size:clamp(9px,1.7vw,13px);padding:5px 0;border-bottom:1px solid #ffffff45}
-#hubGodWeekOverview .hub-god-block{margin-top:7px;min-width:0}
-#hubGodWeekOverview .hub-god-label{display:block;font-size:clamp(8px,1.5vw,11px);color:#b5c0c2;text-transform:uppercase;margin-bottom:3px}
-#hubGodWeekOverview .hub-god-person{font-size:clamp(8px,1.45vw,11px);line-height:1.2;background:#30353a;border-radius:4px;padding:4px 2px;margin:3px 0;overflow-wrap:anywhere;text-align:center}
-#hubGodWeekOverview .hub-god-person.vacant{color:#ffe0b0;background:#5a332d}
-#hubGodWeekOverview .hub-god-empty{font-size:10px;color:#8f959b}
-@media(max-width:480px){#hubGodWeekOverview .hub-god-grid{gap:2px}#hubGodWeekOverview .hub-god-col{padding:2px;border-radius:4px}#hubGodWeekOverview .hub-god-person{padding:3px 1px}#hubGodWeekOverview{padding:7px!important}}
 </style></head><body><header><div><h1>Compass Health Network</h1><p>Staff Schedule Hub</p></div><span class="pill">Staff Portal</span></header><nav id="universalShiftTabs" aria-label="Schedule and available shifts" hidden><button type="button" id="universalScheduleTab" aria-selected="true">📅 Schedule</button><button type="button" id="universalAvailableTab" aria-selected="false">✨ Available Shifts</button></nav><section id="godHoursPanel" class="mcc-tab-panel" hidden style="max-width:1100px;margin:18px auto;padding:20px;border:1px solid #b99a62;border-radius:18px;background:#191713;color:#fff">
 <h2>🏆 Staff Hours Leaderboard</h2><p class="hours-summary">Scheduled hours across all homes, ranked highest first. Not payroll hours.</p>
 <div class="hours-controls"><label>From<input id="hoursFrom" type="date"></label><label>Through<input id="hoursThrough" type="date"></label><button id="hoursRefresh" type="button">↻ Calculate Hours</button></div>
@@ -772,7 +735,7 @@ function createAccountDraft(event){event.preventDefault();const id=document.getE
 <p class="pwv-note">Tap Edit on any shift to change its assigned employee or times. Only authorized managers can save changes.</p>
 <p class="pwv-swipe-hint">← Swipe sideways to see all seven days →</p><div aria-label="Weekly calendar, scroll horizontally" class="pwv-scroll" tabindex="0"><div class="pwv-days" id="pwvDays"></div></div></section>
 <div class="live-controls" id="pathwaysDashboardActions"><button aria-expanded="false" class="btn secondary" id="pathwaysToolsToggle" type="button">⚙️ Edit Schedule &amp; Management Tools</button></div>
-<div id="pathwaysManagementTools"><section id="hubGodWeekOverview" hidden aria-label="God Mode full week overview"></section><div class="live-days" id="liveScheduleDays"></div>
+<div id="pathwaysManagementTools"><div class="live-days" id="liveScheduleDays"></div>
 <section class="card" hidden="" id="pathwaysBuilder" style="padding:16px;margin:18px 0;border:1px solid #2c527f">
 <div class="builder-heading"><h3 id="weeklyBuilderTitle" style="margin:0">Pathways · Master Roster</h3><button id="weeklyBuilderCollapse" class="btn secondary" type="button" aria-expanded="false" aria-controls="pathwaysBuilderSlots">Show Master Roster ▾</button></div>
 <p class="live-muted">Permanent Monday–Sunday staffing blueprint for this home. Save it once, then build any selected week. Empty positions become OPEN shifts. Existing shifts are always preserved.</p>
@@ -1146,51 +1109,17 @@ function hubPopulatePeople(){
  for(const e of hubAllPeople.filter(e=>e.id!=null))select.add(new Option(e.full_name,String(e.id)));
  select.value=prev;
 }
-let hubPersonWeekOffset=0,hubPersonShifts=[],hubPersonSelectedId=null;
-function hubDrawPersonCalendar(){
- const out=document.getElementById('hubPersonResult');out.replaceChildren();
- const tabs=document.createElement('div');tabs.className='my-three-week-tabs hub-person-tabs';tabs.setAttribute('role','tablist');
- for(let w=0;w<3;w++){
-  const monday=lsDay(lsMonday(new Date()),w*7),sunday=lsDay(monday,6);
-  const btn=lsEl('button',(w===0?'Current week':w===1?'Next week':'Week 3')+' · '+lsNice(monday)+'–'+lsNice(sunday),'my-week-tab'+(w===hubPersonWeekOffset?' selected':''));
-  btn.type='button';btn.setAttribute('role','tab');btn.setAttribute('aria-selected',String(w===hubPersonWeekOffset));
-  btn.onclick=()=>{hubPersonWeekOffset=w;hubDrawPersonCalendar();};tabs.append(btn);
- }
- out.append(tabs);
- const scroller=lsEl('div',undefined,'my-calendar-scroll hub-person-calendar-scroll');
- const days=lsEl('div',undefined,'my-calendar-days hub-person-calendar-days');
- const monday=lsDay(lsMonday(new Date()),hubPersonWeekOffset*7);
- const selected=[];
- for(let i=0;i<7;i++){
-  const date=lsDay(monday,i),key=lsDate(date);
-  const matches=hubPersonShifts.filter(sh=>lsDate(new Date(sh.starts_at))===key).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
-  const cell=lsEl('div',undefined,'my-calendar-day'+(lsDate(new Date())===key?' today':''));
-  cell.append(lsEl('div',date.toLocaleDateString('en-US',{weekday:'short'}),'my-calendar-weekday'));
-  cell.append(lsEl('strong',String(date.getDate()),'my-calendar-number'));
-  cell.append(lsEl('span',matches.length?matches.length+' shift'+(matches.length===1?'':'s'):'—',matches.length?'my-calendar-count':'my-calendar-empty'));
-  days.append(cell);selected.push(...matches);
- }
- scroller.append(days);out.append(scroller);
- const results=lsEl('div',undefined,'hub-person-week-results');
- if(!selected.length)results.append(lsEl('p','No shifts for this week at locations you manage.','live-muted'));
- for(const sh of selected){
-  const row=lsEl('div',undefined,'hub-person-row'+(hubIsTraining(sh)?' hub-training-green':''));
-  const d=new Date(sh.starts_at);
-  row.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(d)+' – '+lsTime(new Date(sh.ends_at))+' · '+(LS_HOMES[sh.home_id]||'Location');
-  if(hubIsTraining(sh)&&sh.training_notes){const note=lsEl('div','📍 '+sh.training_notes,'hub-training-note');row.append(note);}
-  results.append(row);
- }
- out.append(results);
-}
 async function hubShowPerson(){
  const out=document.getElementById('hubPersonResult'),id=Number(document.getElementById('hubPersonSelect').value);
  if(!id){out.textContent='Choose an employee first.';return;}
  out.textContent='Loading authorized shifts…';
  try{
-  const from=lsMonday(new Date()).toISOString(),to=lsDay(lsMonday(new Date()),21).toISOString();
+  const from=lsWeek.toISOString(),to=lsDay(lsWeek,7).toISOString();
   const {data,error}=await client.from('Shifts').select('home_id,employee_id,starts_at,ends_at,training_notes').eq('employee_id',id).in('home_id',lsAllowed).lt('starts_at',to).gt('ends_at',from).order('starts_at').limit(250);
   if(error)throw error;
-  hubPersonSelectedId=id;hubPersonShifts=data||[];hubPersonWeekOffset=0;hubDrawPersonCalendar();
+  out.replaceChildren();
+  if(!data?.length){out.textContent='No shifts in the selected week at locations you manage.';return;}
+  for(const sh of data){const row=document.createElement('div');row.className='hub-person-row'+(hubIsTraining(sh)?' hub-training-green':'');const d=new Date(sh.starts_at);row.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(d)+' – '+lsTime(new Date(sh.ends_at))+' · '+(LS_HOMES[sh.home_id]||'Location');if(hubIsTraining(sh)&&sh.training_notes){const n=document.createElement('div');n.className='hub-training-note';n.textContent='📍 '+sh.training_notes;row.append(n);}out.append(row);}
  }catch(e){out.textContent='Could not load staff schedule: '+e.message;}
 }
 document.getElementById('hubPersonRefresh').onclick=hubShowPerson;
@@ -1205,7 +1134,7 @@ async function lsLoadManager(){
    client.from('shift_templates').select('id,home_id,shift_label,start_time,end_time,available_slots').eq('home_id',home).order('id')
   ]);
   for(const r of [sh,em,tm])if(r.error)throw r.error;
-  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>home===hubTrainingId()||Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));hubAllPeople=em.data||[];lsTemplates=tm.data||[];
+  lsShifts=sh.data||[];lsEmployees=(em.data||[]).filter(e=>Number(e.home_id)===home||['Community Living Instructor','Community Living Instructor Lead'].includes(e.job_title));hubAllPeople=em.data||[];lsTemplates=tm.data||[];
   lsRenderManager();hubTrainingForm();hubPopulatePeople();
   // The Pathways-style weekly calendar is the primary view for EVERY managed home.
   document.getElementById('pathwaysDashboardActions').hidden=false;
@@ -1216,7 +1145,7 @@ async function lsLoadManager(){
   pwvToolsButton.textContent='⚙️ Edit Schedule & Management Tools';
   pwvWeek=new Date(lsWeek.getFullYear(),lsWeek.getMonth(),lsWeek.getDate());
   pwvRender();
-  await pbLoad();hubRenderUnlimitedTrainingRoster();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Use Master Roster to create OPEN positions.');
+  await pbLoad();await lsLoadManagerRequests();lsMsg(LS_HOMES[home]+': '+lsShifts.length+' live shift(s) in this week. Use Master Roster to create OPEN positions.');
  }catch(e){lsMsg('Could not load live schedule: '+e.message,true);}
 }
 // Permanent, management-only Master Roster. All writes are authorized by Supabase RPCs.
@@ -1265,8 +1194,7 @@ function pbDraw(){
  }
 }
 async function pbLoad(){
- const home=Number(lsHome.value);
- if(home===hubTrainingId()){pbBox.hidden=true;pbDirty=false;pbLoadedHome=null;return;}pbBox.hidden=!lsAllowed.includes(home);if(pbBox.hidden)return;
+ const home=Number(lsHome.value);pbBox.hidden=!lsAllowed.includes(home);if(pbBox.hidden)return;
  document.getElementById('weeklyBuilderTitle').textContent=LS_HOMES[home]+' · Master Roster';
  if(pbDirty&&pbLoadedHome===home&&!confirm('Discard unsaved Master Roster changes?'))return;
  pbLoadedHome=null;pbMessage('Loading '+LS_HOMES[home]+' Master Roster…');
@@ -1306,77 +1234,7 @@ async function pbPublishWeek(){
 document.getElementById('pathwaysBuilderReload').onclick=pbLoad;
 pbCopy.onclick=()=>{};
 pbSave.onclick=pbSaveDraft;pbPublish.onclick=pbPublishWeek;
-
-// Trainings uses real assignments, not a fixed-capacity Master Roster.
-const hubTrainingRosterPanel=document.createElement('section');
-hubTrainingRosterPanel.id='hubUnlimitedTrainingRoster';
-hubTrainingRosterPanel.hidden=true;
-document.getElementById('pathwaysBuilder').after(hubTrainingRosterPanel);
-function hubRenderUnlimitedTrainingRoster(){
- const home=Number(lsHome.value);
- hubTrainingRosterPanel.hidden=home!==hubTrainingId()||!lsAllowed.includes(home);
- if(hubTrainingRosterPanel.hidden)return;
- hubTrainingRosterPanel.replaceChildren();
- const title=lsEl('h3','Trainings · Unlimited Roster');
- const intro=lsEl('p','Add as many people as needed to any shift or day. No staffing cap. Existing assignments are never replaced.','live-muted');
- hubTrainingRosterPanel.append(title,intro);
- const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
- const standard=[['12:00','08:00','Overnight'],['08:00','16:00','Day'],['16:00','00:00','Evening']];
- const shifts=lsTemplates.length?lsTemplates.map(t=>[t.start_time.slice(0,5),t.end_time.slice(0,5),t.shift_label]):standard;
- for(let i=0;i<7;i++){
-  const date=lsDay(lsWeek,i),key=lsDate(date);
-  const section=lsEl('section',undefined,'hub-training-day');
-  section.append(lsEl('h4',days[i]+' · '+lsNice(date)));
-  for(const [start,end,label] of shifts){
-   const group=lsEl('div',undefined,'hub-training-group');
-   const heading=lsEl('strong',label+' · '+start+'–'+end);
-   const add=lsEl('button','+ Add Person','btn secondary hub-training-add');
-   add.type='button';
-   add.onclick=()=>{
-    lsOpenForm(null,key);
-    document.getElementById('liveShiftStart').value=start;
-    document.getElementById('liveShiftEnd').value=end;
-    document.getElementById('liveShiftEndDate').value=key;
-    document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=Number(c.value)===(date.getDay()+6)%7);
-   };
-   group.append(heading,add);
-   const a=lsLocalTime(key,start),b=lsLocalTime(key,end);
-   if(b<=a)b.setDate(b.getDate()+1);
-   const matching=lsShifts.filter(sh=>new Date(sh.starts_at)<b&&new Date(sh.ends_at)>a);
-   const people=lsEl('div',undefined,'hub-training-people');
-   if(!matching.length)people.append(lsEl('span','No one assigned yet.','live-muted'));
-   for(const sh of matching){
-    const emp=hubAllPeople.find(e=>Number(e.id)===Number(sh.employee_id));
-    const row=lsEl('div',(emp?.full_name||'OPEN — Unassigned')+' · '+lsTime(new Date(sh.starts_at))+'–'+lsTime(new Date(sh.ends_at)),'hub-training-person');
-    if(sh.training_notes)row.append(lsEl('small',' · '+sh.training_notes));
-    people.append(row);
-   }
-   group.append(people);section.append(group);
-  }
-  hubTrainingRosterPanel.append(section);
- }
-}
-
-function hubRenderGodWeekOverview(){
- const host=document.getElementById('hubGodWeekOverview');if(!host)return;
- host.hidden=!document.body.classList.contains('god-obsidian');if(host.hidden)return;
- host.replaceChildren();host.append(lsEl('h3','Full Week · At a Glance'));
- const grid=lsEl('div',undefined,'hub-god-grid');
- for(let i=0;i<7;i++){
-  const date=lsDay(lsWeek,i),start=new Date(date.getFullYear(),date.getMonth(),date.getDate());
-  const col=lsEl('div',undefined,'hub-god-col');col.append(lsEl('strong',date.toLocaleDateString('en-US',{weekday:'short'})+' '+date.getDate()));
-  for(const [label,from,to] of [['Overnight',0,8],['Day',8,16],['Evening',16,24]]){
-   const block=lsEl('div',undefined,'hub-god-block');block.append(lsEl('span',label,'hub-god-label'));
-   const a=new Date(start.getTime()+from*3600000),b=new Date(start.getTime()+to*3600000);
-   const matches=lsShifts.filter(sh=>new Date(sh.starts_at)<b&&new Date(sh.ends_at)>a);
-   if(!matches.length)block.append(lsEl('span','—','hub-god-empty'));
-   for(const sh of matches){const emp=lsOwnEmployee(sh);const item=lsEl('div',emp?.full_name||'OPEN','hub-god-person'+(!emp?' vacant':''));item.title=lsRange(sh);block.append(item);}
-   col.append(block);
-  }grid.append(col);
- }host.append(grid);
-}
 function lsRenderManager(){
- hubRenderGodWeekOverview();
  const home=Number(lsHome.value);lsDays.replaceChildren();document.getElementById('liveWeekLabel').textContent=lsNice(lsWeek)+' – '+lsNice(lsDay(lsWeek,6));
  for(let i=0;i<7;i++){
   const date=lsDay(lsWeek,i),begin=new Date(date.getFullYear(),date.getMonth(),date.getDate()),finish=lsDay(date,1),day=lsEl('div',undefined,'live-day');
@@ -1385,15 +1243,6 @@ function lsRenderManager(){
   if(!records.length)day.append(lsEl('p','No shifts assigned','live-muted'));
   for(const shift of records){const card=lsEl('div',undefined,'live-shift'+(hubIsTraining(shift)?' hub-training-green':''));const employee=lsOwnEmployee(shift);card.append(lsEl('div',lsRange(shift)));card.append(lsEl('div',employee?.full_name||'Vacant'));if(hubIsTraining(shift)&&shift.training_notes)card.append(lsEl('div','📍 '+shift.training_notes,'hub-training-note'));
    const edit=lsEl('button','Edit','btn secondary small');edit.type='button';edit.onclick=()=>lsOpenForm(shift);card.append(edit);
-   {
-    const another=lsEl('button','+ Add Person','btn secondary small');
-    another.type='button';
-    another.onclick=()=>{
-      lsOpenForm(shift);
-      document.getElementById('hubTrainingAddAnother').click();
-    };
-    card.append(another);
-   }
    const emergencyButton=hubEmergencyButton(shift);if(emergencyButton)card.append(emergencyButton);
    day.append(card);}
   const add=lsEl('button','+ Shift','btn secondary small');add.type='button';add.onclick=()=>lsOpenForm(null,lsDate(date));day.append(add);lsDays.append(day);
@@ -1409,7 +1258,7 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  document.getElementById('liveShiftEndDate').disabled=!!shift;
  lsTemplate.replaceChildren();lsOption(lsTemplate,'','Custom times / choose a template');
  for(const t of lsTemplates)lsOption(lsTemplate,t.id,t.shift_label+' · '+t.start_time.slice(0,5)+'–'+t.end_time.slice(0,5)+' · '+t.available_slots+' slots');
- lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name+(Number(e.home_id)===home?'':' · '+(LS_HOMES[e.home_id]||'Other home')));if(shift?.employee_id!=null&&!lsEmployees.some(e=>Number(e.id)===Number(shift.employee_id))){const existing=hubAllPeople.find(e=>Number(e.id)===Number(shift.employee_id));if(existing)lsOption(lsEmployee,existing.id,existing.full_name+' · currently assigned');}
+ lsEmployee.replaceChildren();lsOption(lsEmployee,'','Vacant / unassigned');for(const e of lsEmployees)lsOption(lsEmployee,e.id,e.full_name+(Number(e.home_id)===home?'':' · '+(LS_HOMES[e.home_id]||'Other home')));
  const d=shift?new Date(shift.starts_at):null;
  document.getElementById('liveShiftDate').value=d?lsDate(d):date;
  document.getElementById('liveShiftEndDate').value=d?lsDate(d):date;
@@ -1417,38 +1266,10 @@ function lsOpenForm(shift=null,date=lsDate(new Date())){
  const e=shift?new Date(shift.ends_at):null;
  document.getElementById('liveShiftEnd').value=e?`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`:'16:00';
  lsEmployee.value=shift?.employee_id==null?'':String(shift.employee_id);
-  lsEmployee.onchange=()=>{const fb=document.getElementById('liveShiftFeedback');if(!fb)return;fb.style.display='block';fb.textContent=lsEmployee.value?'Selected '+(lsEmployee.selectedOptions[0]?.textContent||'employee')+'. Tap Save shift below to apply the assignment.':'Selected Vacant. Tap Save shift below to make this an open shift.';};
- // Trainings can hold multiple distinct assignments at the same time.
- // Editing changes the selected assignment; adding another creates a new record.
- const addAnother=document.getElementById('hubTrainingAddAnother');
- if(addAnother){
-  addAnother.hidden=!shift;
-  addAnother.onclick=()=>{
-   lsEditing=null;
-   document.getElementById('liveShiftPanelTitle').textContent='Add another person to this shift';
-   document.getElementById('liveShiftDelete').hidden=true;
-   document.getElementById('liveShiftRepeatOptions').hidden=true;
-   document.getElementById('liveShiftEndDate').disabled=false;
-   document.getElementById('liveShiftEndDate').value=document.getElementById('liveShiftDate').value;
-   addAnother.hidden=true;
-   const info=document.getElementById('liveShiftFeedback');
-   if(info){info.textContent='Choose another eligible employee and Save Shift. The existing assignment will remain unchanged. Normal house staffing limits still apply.';info.style.display='block';}
-   lsEmployee.value='';
-   document.querySelectorAll('.liveShiftDay').forEach(c=>c.checked=Number(c.value)===(new Date(document.getElementById('liveShiftDate').value+'T12:00:00').getDay()+6)%7);
-   lsEmployee.focus();
-  };
- }
  const feedback=document.getElementById('liveShiftFeedback');
- if(feedback){feedback.style.display='block';feedback.textContent=shift?'Choose an employee, then tap Save shift to update this assignment.':'Choose an employee, then tap Save shift to add this assignment.';}
+ if(feedback){feedback.style.display='none';feedback.textContent='';}
  lsPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
-const hubTrainingAddAnother=document.createElement('button');
-hubTrainingAddAnother.id='hubTrainingAddAnother';
-hubTrainingAddAnother.type='button';
-hubTrainingAddAnother.className='btn secondary';
-hubTrainingAddAnother.textContent='+ Add Another Person (keep existing shift)';
-hubTrainingAddAnother.hidden=true;
-document.getElementById('liveShiftSave').before(hubTrainingAddAnother);
 lsTemplate.addEventListener('change',()=>{const t=lsTemplates.find(t=>String(t.id)===lsTemplate.value);if(t){document.getElementById('liveShiftStart').value=t.start_time.slice(0,5);document.getElementById('liveShiftEnd').value=t.end_time.slice(0,5);}});
 lsForm.addEventListener('submit',async e=>{
  e.preventDefault();
@@ -1463,7 +1284,7 @@ lsForm.addEventListener('submit',async e=>{
  if(count>93){lsMsg('Choose a range of 93 days or fewer.',true);return;}
  const days=new Set([...document.querySelectorAll('.liveShiftDay:checked')].map(el=>Number(el.value)));
  const employee_id=lsEmployee.value?Number(lsEmployee.value):null;
- if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)&&!(lsEditing&&lsShifts.some(s=>Number(s.id)===lsEditing&&Number(s.employee_id)===employee_id))){lsMsg('Select an eligible employee.',true);const fb=document.getElementById('liveShiftFeedback');if(fb){fb.style.display='block';fb.textContent='This employee is not eligible for this house under the current assignment rules.';}return;}
+ if(employee_id&&!lsEmployees.some(e=>Number(e.id)===employee_id)){lsMsg('Select an eligible employee.',true);return;}
  const payloads=[];
  for(let i=0;i<count;i++){
   const day=lsDay(first,i),key=lsDate(day),weekday=(day.getDay()+6)%7;
@@ -1474,11 +1295,11 @@ lsForm.addEventListener('submit',async e=>{
  }
  if(!payloads.length){lsMsg('No dates selected. Check your weekday choices.',true);return;}
  if(!lsEditing){
-  const overlaps=payloads.filter(p=>lsShifts.some(s=>Number(s.home_id)===home&&p.employee_id!=null&&Number(s.employee_id)===Number(p.employee_id)&&new Date(s.starts_at)<new Date(p.ends_at)&&new Date(s.ends_at)>new Date(p.starts_at)));
+  const overlaps=payloads.filter(p=>lsShifts.some(s=>Number(s.home_id)===home&&s.employee_id===p.employee_id&&new Date(s.starts_at)<new Date(p.ends_at)&&new Date(s.ends_at)>new Date(p.starts_at)));
   if(overlaps.length){lsMsg('Save blocked: '+overlaps.length+' selected date(s) overlap an existing shift for this employee. No changes made.',true);return;}
   if(!confirm('Add '+payloads.length+' shift(s) to '+LS_HOMES[home]+'?\n\n'+(employee_id?(lsEmployees.find(e=>Number(e.id)===employee_id)?.full_name||'Selected employee'):'OPEN / Vacant')+' · '+start+'–'+end+'\n'+date+' through '+through))return;
  }
- const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving '+payloads.length+' shift(s)…');const savingFeedback=document.getElementById('liveShiftFeedback');if(savingFeedback){savingFeedback.style.display='block';savingFeedback.textContent='Saving assignment…';}
+ const save=document.getElementById('liveShiftSave');save.disabled=true;lsMsg('Saving '+payloads.length+' shift(s)…');
  try{
   if(lsEditing){
    const result=await client.from('Shifts').update(payloads[0]).eq('id',lsEditing).eq('home_id',home).select('id');
@@ -1494,7 +1315,7 @@ lsForm.addEventListener('submit',async e=>{
    }
   }
   await lsLoadManager();lsMsg((lsEditing?'Shift updated.':payloads.length+' shifts added.')+' Changes recorded in management history.');
- }catch(err){lsMsg('Save failed: '+err.message,true);const fb=document.getElementById('liveShiftFeedback');if(fb){fb.style.display='block';fb.textContent='Could not save: '+err.message;fb.scrollIntoView({behavior:'smooth',block:'center'});}}finally{save.disabled=false;}
+ }catch(err){await lsLoadManager();lsMsg('Save failed: '+err.message,true);}finally{save.disabled=false;}
 });
 document.getElementById('liveShiftDelete').addEventListener('click',async()=>{
  const home=Number(lsHome.value);if(!lsEditing||!lsAllowed.includes(home))return;
@@ -1519,7 +1340,7 @@ document.getElementById('liveLoadHistory').onclick=async()=>{
   const detail=lsEl('details');detail.append(lsEl('summary','View before / after'));const pre=lsEl('pre',JSON.stringify({before:item.old_values,after:item.new_values},null,2));pre.style.whiteSpace='pre-wrap';pre.style.fontSize='11px';detail.append(pre);line.append(detail);lsHistory.append(line);
  }
 };
-let myAllShifts=[],myWeekOffset=0,hubMyTraining=[],hubMyCoworkers=[];
+let myAllShifts=[],myWeekOffset=0,hubMyTraining=[];
 function myWeekStart(){return lsMonday(new Date());}
 function myDateKey(date){return lsDate(date);}
 function myDrawCalendar(){
@@ -1549,9 +1370,6 @@ function myDrawCalendar(){
   const a=new Date(shift.starts_at),b=new Date(shift.ends_at);
   row.append(lsEl('strong',a.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+lsTime(a)+' – '+lsTime(b)));
   row.append(lsEl('div',(LS_HOMES[shift.home_id]||'Home')+' · '+(hubIsTraining(shift)?'Training assignment':shift.staff_scheduled+' staff scheduled (including you)')));if(hubIsTraining(shift)){const note=hubMyTraining.find(n=>n.starts_at===shift.starts_at&&n.ends_at===shift.ends_at);if(note?.training_notes)row.append(lsEl('div','📍 '+note.training_notes,'hub-training-note'));}
-  const peers=(hubMyCoworkers||[]).filter(c=>Number(c.home_id)===Number(shift.home_id)&&new Date(c.my_starts_at).getTime()===new Date(shift.starts_at).getTime()&&new Date(c.my_ends_at).getTime()===new Date(shift.ends_at).getTime());
-  const names=[...new Set(peers.map(c=>c.coworker_name).filter(Boolean))];
-  row.append(lsEl('div',hubMyCoworkers===null?'Coworker list unavailable.':names.length?'Working with: '+names.join(', '):'Working with: No other staff assigned during your shift.','hub-my-coworkers'));
   out.append(row);
  }
 }
@@ -1559,11 +1377,7 @@ async function lsLoadMine(){
  const out=document.getElementById('liveMyShifts');out.replaceChildren(lsEl('p','Loading your shifts…','live-muted'));
  const {data,error}=await client.rpc('my_schedule');
  if(error){out.replaceChildren(lsEl('p','Could not load your shifts: '+error.message,'live-error'));return;}
- myAllShifts=data||[];hubMyTraining=[];hubMyCoworkers=[];
- const coworkers=await client.rpc('my_shift_coworkers');
- if(!coworkers.error)hubMyCoworkers=coworkers.data||[];
- else {console.warn('Coworker names unavailable:',coworkers.error.message);hubMyCoworkers=null;}
-if(hubTrainingId()){const details=await client.rpc('hub_my_training_notes');if(!details.error)hubMyTraining=details.data||[];}
+ myAllShifts=data||[];hubMyTraining=[];if(hubTrainingId()){const details=await client.rpc('hub_my_training_notes');if(!details.error)hubMyTraining=details.data||[];}
  myDrawCalendar();
 }
 document.getElementById('liveMyRefresh').onclick=lsLoadMine;
@@ -1576,15 +1390,11 @@ function reqButton(label,handler,secondary=false){const b=lsEl('button',label,'b
 async function lsLoadOpenShifts(){
  const openings=document.getElementById('openShiftList'),mine=document.getElementById('myOpenRequests');
  openings.replaceChildren(lsEl('p','Loading openings…','live-muted'));mine.replaceChildren();
- const [a,b,restricted]=await Promise.all([client.rpc('available_open_shifts'),client.rpc('my_open_shift_requests'),client.rpc('lamar_blocked_open_shift_ids')]);
- if(a.error||b.error||restricted.error){openings.replaceChildren(lsEl('p','Requests not ready: '+(a.error||b.error||restricted.error).message,'live-error'));return;}
+ const [a,b]=await Promise.all([client.rpc('available_open_shifts'),client.rpc('my_open_shift_requests')]);
+ if(a.error||b.error){openings.replaceChildren(lsEl('p','Requests not ready: '+(a.error||b.error).message,'live-error'));return;}
  openings.replaceChildren();mine.replaceChildren();
- const restrictedIds=new Set((restricted.data||[]).map(Number));
  if(!a.data?.length)openings.append(lsEl('p','No vacant upcoming shifts at the moment.','live-muted'));
- for(const r of a.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));if(restrictedIds.has(Number(r.id))){card.append(lsEl('small','Unavailable for request','live-muted'));}else if(r.my_request_id){card.append(lsEl('small','Your request is pending'));}else{card.append(reqButton('Request this shift',async()=>{if(!confirm('Request this open shift?'))return;const {error}=await client.rpc('request_open_shift',{p_shift_id:r.id});if(error)throw error;
-// Best-effort alert: shift request has already been saved successfully.
-try{const {error:notifyError}=await client.functions.invoke('notify-shift-request',{body:{shift_id:r.id}});if(notifyError)console.warn('Shift request push failed:',notifyError);}catch(pushError){console.warn('Shift request push unavailable:',pushError);}
-await lsLoadOpenShifts();}));}openings.append(card);}
+ for(const r of a.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));if(r.my_request_id){card.append(lsEl('small','Your request is pending'));}else{card.append(reqButton('Request this shift',async()=>{if(!confirm('Request this open shift?'))return;const {error}=await client.rpc('request_open_shift',{p_shift_id:r.id});if(error)throw error;await lsLoadOpenShifts();}));}openings.append(card);}
  if(!b.data?.length)mine.append(lsEl('p','You have not requested any shifts yet.','live-muted'));
  for(const r of b.data||[]){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',reqLabel(r)));card.append(lsEl('small','Status: '+r.status));if(r.status==='Pending')card.append(reqButton('Cancel request',async()=>{if(!confirm('Cancel your pending request?'))return;const {error}=await client.rpc('cancel_open_shift_request',{p_request_id:r.id});if(error)throw error;await lsLoadOpenShifts();},true));mine.append(card);}
 }
@@ -1593,31 +1403,13 @@ async function lsLoadManagerRequests(){
  const out=document.getElementById('managerRequestList'),count=document.getElementById('managerRequestCount');out.replaceChildren(lsEl('p','Checking pending requests…','live-muted'));
  const {data,error}=await client.rpc('manager_open_shift_requests',{p_home_id:home});
  if(error){count.textContent='—';out.replaceChildren(lsEl('p','Could not load requests: '+error.message,'live-error'));return;}
- // Only pending requests for shifts that have not started belong in the approval queue.
- const now=Date.now();
- const actionable=(data||[]).filter(r=>{
-  const status=String(r.status??'pending').trim().toLowerCase();
-  const starts=new Date(r.starts_at).getTime();
-  return status==='pending'&&Number.isFinite(starts)&&starts>now;
- });
- count.textContent=String(actionable.length);out.replaceChildren();
- if(!actionable.length){out.append(lsEl('p','No pending requests for upcoming shifts at this home.','live-muted'));return;}
- for(const r of actionable){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.employee_name));card.append(lsEl('div',reqLabel(r)));card.append(lsEl('small','Submitted '+new Date(r.created_at).toLocaleString()));
-  for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm((approve?'Approve':'Deny')+' request from '+r.employee_name+'?'))return;const {error}=await client.rpc('decide_open_shift_request',{p_request_id:r.id,p_approve:approve});if(error)throw error;
-   // Remove completed decisions immediately, then synchronize the live queue.
-   card.remove();
-   count.textContent=String(out.querySelectorAll('.request-item').length);
-   if(!out.querySelector('.request-item'))out.append(lsEl('p','No pending requests for upcoming shifts at this home.','live-muted'));
-   await Promise.all([lsLoadManagerRequests(),lsLoadManager(),lsLoadMine(),lsLoadOpenShifts()]);
-  },!approve));out.append(card);}
+ count.textContent=String(data?.length||0);out.replaceChildren();
+ if(!data?.length){out.append(lsEl('p','No pending requests for this home.','live-muted'));return;}
+ for(const r of data){const card=lsEl('div',undefined,'request-item');card.append(lsEl('strong',r.employee_name));card.append(lsEl('div',reqLabel(r)));card.append(lsEl('small','Submitted '+new Date(r.created_at).toLocaleString()));
+  for(const [label,approve] of [['Approve',true],['Deny',false]])card.append(reqButton(label,async()=>{if(!confirm((approve?'Approve':'Deny')+' request from '+r.employee_name+'?'))return;const {error}=await client.rpc('decide_open_shift_request',{p_request_id:r.id,p_approve:approve});if(error)throw error;await Promise.all([lsLoadManager(),lsLoadMine(),lsLoadOpenShifts()]);},!approve));out.append(card);}
 }
 document.getElementById('openShiftRefresh').onclick=lsLoadOpenShifts;
 document.getElementById('managerRequestsRefresh').onclick=lsLoadManagerRequests;
-document.addEventListener('visibilitychange',()=>{
- if(!document.hidden && !document.getElementById('managerRequestList')?.hidden && lsAllowed?.includes(Number(lsHome.value))){
-  lsLoadManagerRequests().catch(console.warn);
- }
-});
 
 
 // Supabase-backed trades, giveaways and time off; never use localStorage for these actions.
@@ -3163,4 +2955,146 @@ body.god-obsidian #liveManagerSchedule .hub-person-view .btn{width:auto!importan
  body.god-obsidian #liveManagerSchedule #liveAddShift{grid-column:4!important;grid-row:2!important}
 }
 </style>
+
+<style id="obsidianMatrixGodMode2026">
+/* Obsidian Matrix. All selectors are strictly scoped to God Mode. */
+body.god-obsidian {
+ --rg-edge:rgba(235,239,244,.57)!important;
+ --rg-glow:rgba(255,255,255,.07)!important;
+ --rg-sheen:rgba(255,255,255,.055)!important;
+ --om-ink:#08090b;--om-panel:#111317;--om-line:rgba(237,240,246,.55);
+ background-color:#07080a!important;
+ background-image:
+ linear-gradient(132deg,transparent 0 35%,rgba(255,255,255,.035) 35.08%,transparent 35.24% 62%,rgba(255,255,255,.025) 62.08%,transparent 62.2%),
+ linear-gradient(38deg,transparent 0 26%,rgba(255,255,255,.024) 26.1%,transparent 26.25% 77%,rgba(255,255,255,.03) 77.08%,transparent 77.25%),
+ radial-gradient(ellipse at 95% 5%,rgba(120,20,31,.095),transparent 36%),
+ linear-gradient(145deg,#08090b 0%,#15171a 43%,#07080a 100%)!important;
+ background-attachment:fixed!important;
+ color:#f3f4f7!important;
+}
+body.god-obsidian header {
+ background:linear-gradient(124deg,#07080b 0%,#1b1d21 54%,#090a0c 100%)!important;
+ border-bottom:1px solid #d7dbe17a!important;
+ box-shadow:0 14px 35px #0008,inset 0 -1px #fff1!important;
+}
+body.god-obsidian :is(h1,h2,h3,h4,legend,strong){color:#f5f6f8!important}
+body.god-obsidian :is(.sub,.muted,.live-muted,small, label){color:#c8cbd2!important}
+body.god-obsidian :is(.card,.panel,.modal,.dialog,.popup,.glass-panel,.glass-staff-panel,
+ .hub-person-view,.live-controls,.mcc-home,.mcc-entry,.mcc-staff-card,
+ #liveShiftPanel,#pathwaysBuilder,#liveEmployeeEditor,#liveManagerSchedule,
+ #managementCommandCenter,#mccRequestsPanel,#mccStaffPanel,#mccTimeOffPanel,
+ #mccHousesPanel,#godHoursPanel,#godActivityPanel,#liveMySchedule,
+ #pathwaysWeeklyViewer,#hubUnlimitedTrainingRoster,#hubPersonResult) {
+ background:linear-gradient(146deg,rgba(35,37,43,.96),rgba(13,14,17,.98) 58%,rgba(9,10,12,.99))!important;
+ background-image:linear-gradient(146deg,rgba(35,37,43,.96),rgba(13,14,17,.98) 58%,rgba(9,10,12,.99))!important;
+ border:1px solid var(--om-line)!important;
+ border-radius:12px!important;
+ box-shadow:0 15px 34px #0008,inset 0 1px #ffffff16!important;
+ color:#f3f4f7!important;
+}
+body.god-obsidian :is(input,select,textarea){
+ background:#0b0d11!important;color:#f5f6f8!important;
+ border:1px solid #cbd0dba6!important;border-radius:8px!important;
+ box-shadow:inset 0 1px 5px #0009!important;
+}
+body.god-obsidian :is(input,select,textarea):focus{
+ outline:1px solid #f4f5f7!important;outline-offset:1px!important;
+ box-shadow:0 0 0 3px #ffffff17!important;
+}
+body.god-obsidian :is(button,.btn,[role="tab"]){
+ background:linear-gradient(150deg,#292c32,#101216)!important;
+ border:1px solid #c5cad39c!important;border-radius:8px!important;
+ color:#f5f6f8!important;box-shadow:inset 0 1px #ffffff20,0 3px 8px #0007!important;
+ transition:background .18s,border-color .18s,box-shadow .18s!important;
+}
+body.god-obsidian :is(button,.btn,[role="tab"]):hover{
+ background:linear-gradient(150deg,#363940,#181a1f)!important;
+ border-color:#fff!important;box-shadow:0 0 0 1px #ffffff24!important;
+}
+body.god-obsidian :is(button,.btn,[role="tab"]).active,
+body.god-obsidian :is(button,.btn,[role="tab"]).selected,
+body.god-obsidian :is(button,.btn,[role="tab"])[aria-selected="true"]{
+ background:linear-gradient(145deg,#eff1f4,#c8cbd0)!important;
+ color:#0c0d10!important;border-color:#fff!important;
+ box-shadow:inset 0 -3px #8f2631!important;
+}
+body.god-obsidian :is(button,.btn):disabled{opacity:.48!important;cursor:not-allowed!important}
+body.god-obsidian :is(.my-calendar-day,.hub-person-calendar-days .my-calendar-day,
+ .pwv-day,.pwv-cell,.schedule-day,.day-column,.shift-cell){
+ background:linear-gradient(165deg,#22252a,#111317)!important;
+ border:1px solid #ffffff73!important;color:#f4f4f6!important;
+ border-radius:8px!important;
+}
+body.god-obsidian :is(.my-calendar-day.today,.pwv-day.today){
+ outline:1px solid #b73a43!important;outline-offset:-2px!important;
+}
+body.god-obsidian :is(.my-calendar-count,.badge,.pill){
+ background:#2a2d33!important;color:#f6f6f8!important;
+ border:1px solid #ffffff6c!important;
+}
+body.god-obsidian :is(.request-item,.hub-person-row,.hub-training-person,.live-shift-card,.shift-card){
+ border:1px solid #ffffff80!important;border-radius:9px!important;
+ box-shadow:inset 0 1px #ffffff16,0 8px 18px #0006!important;
+}
+body.god-obsidian :is(.modal-backdrop,.overlay,.dialog-backdrop){
+ backdrop-filter:blur(8px)!important;background-color:#000b!important;
+}
+body.god-obsidian :is(hr,.divider){border-color:#ffffff4a!important}
+@media(prefers-reduced-motion:reduce){
+ body.god-obsidian :is(button,.btn,[role="tab"]){transition:none!important}
+}
+</style>
+
+<style id="seasonalLogin2026">
+/* Shared seasonal sign-in, entirely separate from God Mode-only Obsidian styling. */
+#loginTest{position:relative;isolation:isolate}
+#loginTest>.card{
+ position:relative;overflow:hidden;border-radius:20px!important;
+ border:1px solid var(--season-line,#bd8660)!important;
+ background:linear-gradient(125deg,var(--season-top,#30241d),var(--season-bottom,#101317))!important;
+ box-shadow:0 18px 45px #0005,inset 0 1px #ffffff25!important;
+ color:#f7f6f4!important;
+}
+#loginTest>.card:before{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.65;
+ background:radial-gradient(circle at 92% 7%,var(--season-glow,#ac693555),transparent 36%),
+ linear-gradient(138deg,transparent 0 51%,#ffffff0b 51.1%,transparent 51.3%);
+}
+#loginTest>.card>*{position:relative;z-index:1}
+#loginTest>.card h3{color:#fff!important;letter-spacing:.015em}
+#loginTest>.card .sub,#loginTest>.card label{color:#e4e0db!important}
+#loginTest>.card :is(input,select){background:#080b10d9!important;color:#fff!important;border:1px solid #ffffff8a!important;border-radius:10px!important}
+#loginTest>.card button{border-radius:10px!important}
+#loginTest .seasonal-signin-banner{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#ffffff12;border:1px solid #ffffff50;color:#fff;font-size:.88rem;font-weight:700;letter-spacing:.035em}
+html.season-winter #loginTest{--season-top:#10283b;--season-bottom:#080d1c;--season-line:#a5d9e7;--season-glow:#80d6ff66}
+html.season-spring #loginTest{--season-top:#173b32;--season-bottom:#0c1818;--season-line:#a0c6a8;--season-glow:#b4d5a955}
+html.season-summer #loginTest{--season-top:#123d49;--season-bottom:#0b1722;--season-line:#e2bc7e;--season-glow:#eab46b55}
+html.season-autumn #loginTest{--season-top:#3c291e;--season-bottom:#11151a;--season-line:#c99268;--season-glow:#da743a66}
+@media(prefers-reduced-motion:reduce){#loginTest>.card{animation:none!important}}
+</style>
+<script id="seasonalLoginController2026">
+(function(){
+ const m=new Date().getMonth();
+ const season=m===11||m<=1?'winter':m<=4?'spring':m<=7?'summer':'autumn';
+ document.documentElement.classList.add('season-'+season);
+ const labels={
+ winter:['❄️','Winter at Compass','A fresh season of teamwork'],
+ spring:['🌿','Spring at Compass','A new season of possibilities'],
+ summer:['☀️','Summer at Compass','Keeping our teams connected'],
+ autumn:['🍂','Autumn at Compass','A season of gratitude and teamwork']
+ };
+ const render=()=>{
+  const section=document.getElementById('loginTest');
+  if(!section||section.querySelector('.seasonal-signin-banner'))return;
+  const heading=section.querySelector('h3');
+  if(!heading)return;
+  const banner=document.createElement('div');
+  banner.className='seasonal-signin-banner';
+  banner.textContent=labels[season][0]+' '+labels[season][1]+' · '+labels[season][2];
+  heading.before(banner);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});
+ else render();
+})();
+</script>
 </body></html>
