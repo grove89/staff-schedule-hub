@@ -1628,27 +1628,42 @@ async function hubLoadCallOffs(){
 function hubDrawCallOffs(){
  const target=document.getElementById('hubCallOffList');target.replaceChildren();
  const q=document.getElementById('hubCallOffSearch').value.trim().toLowerCase(),home=document.getElementById('hubCallOffHome').value;
- const rows=hubCallOffRows.filter(r=>(!home||(r.home_name||LS_HOMES[r.home_id])===home)&&(!q||[r.employee_name,r.home_name,r.reason,r.shift_label].join(' ').toLowerCase().includes(q)));
- const counts=new Map();for(const r of rows)counts.set(r.employee_name,(counts.get(r.employee_name)||0)+1);
- document.getElementById('hubCallOffStats').textContent=rows.length+' records · '+counts.size+' employees';
+ const rows=hubCallOffRows.filter(r=>(!home||(r.home_name||LS_HOMES[r.home_id])===home)&&(!q||[r.employee_name,r.home_name,r.reason,r.shift_label,r.shift_date,r.called_date].join(' ').toLowerCase().includes(q)));
+ const grouped=new Map();
+ for(const r of rows){const name=r.employee_name||'Unknown employee';if(!grouped.has(name))grouped.set(name,[]);grouped.get(name).push(r);}
+ document.getElementById('hubCallOffStats').textContent=rows.length+' records · '+grouped.size+' employees';
  if(!rows.length){target.append(lsEl('p','No call-off records match.','live-muted'));return;}
- const grouped=new Map();for(const r of rows){if(!grouped.has(r.employee_name))grouped.set(r.employee_name,[]);grouped.get(r.employee_name).push(r);}
+ const maxEvents=Math.max(...[...grouped.values()].map(a=>a.length));
+ const scroll=lsEl('div',undefined,'hub-calloff-sheet-scroll');
+ scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Call-off log spreadsheet');scroll.tabIndex=0;
+ const table=document.createElement('table');table.className='hub-calloff-sheet';
+ const thead=document.createElement('thead'),head=document.createElement('tr');
+ for(const label of ['Staff','Total']){const th=document.createElement('th');th.textContent=label;head.append(th);}
+ for(let n=0;n<maxEvents;n++)for(const label of ['Shift','Time of Call Off','Reason']){const th=document.createElement('th');th.textContent=label;head.append(th);}
+ thead.append(head);table.append(thead);
+ const tbody=document.createElement('tbody');
+ const formatDate=v=>{if(!v)return '—';const d=new Date(v+'T12:00:00');return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});};
  for(const [name,entries] of grouped){
-  const section=lsEl('section',undefined,'hub-calloff-group');
-  section.append(lsEl('h4',name+' · '+entries.length+' call-off'+(entries.length===1?'':'s')));
-  for(const r of entries){
-   const item=lsEl('article',undefined,'hub-calloff-record');
-   const shiftDate=r.shift_date?new Date(r.shift_date+'T12:00:00').toLocaleDateString():'Date unavailable';
-   const called=r.called_at?new Date(r.called_at).toLocaleString():[r.called_date,r.called_time_text].filter(Boolean).join(' · ');
-   item.append(lsEl('strong',shiftDate+' · '+(r.shift_label||'Shift hours not recorded')));
-   item.append(lsEl('div','Called off: '+(called||'Not recorded')));
-   item.append(lsEl('div','Home: '+(r.home_name||LS_HOMES[r.home_id]||'Not recorded')));
-   item.append(lsEl('div','Reason: '+r.reason));
-   item.append(lsEl('small',r.recorded_by_name?'Recorded by: '+r.recorded_by_name:(r.is_historical?'Imported from historical Excel log':'Recorded by management')));
-   section.append(item);
+  entries.sort((a,b)=>String(a.shift_date||'').localeCompare(String(b.shift_date||''))||Number(a.id||0)-Number(b.id||0));
+  const tr=document.createElement('tr');
+  const person=document.createElement('th');person.scope='row';person.className='hub-sheet-name';person.textContent=name;tr.append(person);
+  const total=document.createElement('td');total.className='hub-sheet-total';total.textContent=String(entries.length);tr.append(total);
+  for(let n=0;n<maxEvents;n++){
+   const r=entries[n];
+   for(let c=0;c<3;c++){
+    const td=document.createElement('td');
+    if(r){
+     if(c===0){td.append(lsEl('strong',formatDate(r.shift_date)));td.append(lsEl('small',r.shift_label||'—'));}
+     if(c===1){td.append(lsEl('strong',r.called_date?formatDate(r.called_date):r.called_at?new Date(r.called_at).toLocaleDateString('en-US'):'—'));td.append(lsEl('small',r.called_time_text|| (r.called_at?new Date(r.called_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'—')));}
+     if(c===2){td.textContent=r.reason||'—';td.title=[r.home_name||LS_HOMES[r.home_id]||'Home not recorded',r.recorded_by_name|| (r.is_historical?'Historical Excel entry':'Management entry')].join(' · ');}
+    }
+    tr.append(td);
+   }
   }
-  target.append(section);
+  tbody.append(tr);
  }
+ table.append(tbody);scroll.append(table);target.append(scroll);
+ target.append(lsEl('p','Scroll sideways to view additional call-offs. Shift and call-off cells show the date on top and hours/time below, matching your Excel log.','hub-sheet-help'));
 }
 document.getElementById('hubCallOffForm').addEventListener('submit',hubSubmitCallOff);
 document.getElementById('hubCallOffRefresh').addEventListener('click',hubLoadCallOffs);
@@ -3251,4 +3266,18 @@ body.god-obsidian .hub-calloff-btn{margin-top:8px!important;border-color:#bd8a96
 #hubCallOffDialog form{width:min(100%,520px);max-height:90dvh;overflow:auto;background:linear-gradient(145deg,#24272d,#0e1014);color:#f8f9fb;border:1px solid #f1f3f5b5;border-radius:14px;padding:22px;box-shadow:0 30px 75px #000b}
 #hubCallOffDialog textarea{display:block;width:100%;margin:10px 0 14px;background:#0c0f13;color:#fff;border:1px solid #ffffffa8;border-radius:8px;padding:12px;box-sizing:border-box}
 #hubCallOffDialog .hub-calloff-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+
+/* Spreadsheet-style call-off ledger: matches the source Excel layout. */
+body.god-obsidian .hub-calloff-sheet-scroll{overflow:auto;max-width:100%;border:1px solid #b8c0ca;border-radius:8px;margin-top:15px;background:#101419}
+body.god-obsidian .hub-calloff-sheet{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12px;line-height:1.4}
+body.god-obsidian .hub-calloff-sheet th,body.god-obsidian .hub-calloff-sheet td{border-right:1px solid #515a65;border-bottom:1px solid #515a65;padding:10px 12px;min-width:145px;max-width:230px;vertical-align:top;color:#f2f5fa;white-space:normal}
+body.god-obsidian .hub-calloff-sheet thead th{position:sticky;top:0;z-index:3;background:#303a46;color:#f9fafc;text-align:left;font-weight:800}
+body.god-obsidian .hub-calloff-sheet .hub-sheet-name{position:sticky;left:0;z-index:2;min-width:195px;max-width:195px;background:#222c35;text-align:left;font-weight:800}
+body.god-obsidian .hub-calloff-sheet thead th:first-child{left:0;z-index:5}
+body.god-obsidian .hub-calloff-sheet .hub-sheet-total{position:sticky;left:195px;z-index:2;min-width:64px;max-width:64px;text-align:center;font-weight:900;color:#b6e3e7;background:#222c35}
+body.god-obsidian .hub-calloff-sheet thead th:nth-child(2){left:195px;z-index:5;min-width:64px;max-width:64px}
+body.god-obsidian .hub-calloff-sheet tbody tr:nth-child(even) td:not(.hub-sheet-total){background:#1b222b}
+body.god-obsidian .hub-calloff-sheet td strong,body.god-obsidian .hub-calloff-sheet td small{display:block}
+body.god-obsidian .hub-calloff-sheet td small{margin-top:5px;color:#a9dbe1;font-size:12px}
+body.god-obsidian .hub-sheet-help{font-size:12px;color:#b6c5d2;margin-top:8px}
 </style></body></html>
