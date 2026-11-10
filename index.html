@@ -1643,7 +1643,7 @@ function hubDrawCallOffs(){
  thead.append(head);table.append(thead);
  const tbody=document.createElement('tbody');
  const formatDate=v=>{if(!v)return '—';const d=new Date(v+'T12:00:00');return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});};
- for(const [name,entries] of grouped){
+ for(const [name,entries] of [...grouped.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]))){
   entries.sort((a,b)=>String(a.shift_date||'').localeCompare(String(b.shift_date||''))||Number(a.id||0)-Number(b.id||0));
   const tr=document.createElement('tr');
   const person=document.createElement('th');person.scope='row';person.className='hub-sheet-name';person.textContent=name;tr.append(person);
