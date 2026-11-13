@@ -3569,4 +3569,30 @@ body.god-obsidian #universalManagerSchedulesTab{background:#162a38!important;col
 body.god-obsidian #universalMoreTab{background:#30253c!important;color:#f5eaff!important;border-color:#c6a3e8!important}
 @media(max-width:650px){#universalShiftTabs{padding:0 16px!important;gap:7px!important}#universalShiftTabs button{flex:1 1 calc(50% - 7px)!important;padding:12px 8px!important;font-size:13px!important}#universalShiftTabs #universalMoreTab{flex:1 1 calc(50% - 7px)!important}}
 </style>
+
+<style id="forceCollapsedManagementMenu2026">
+/* The existing God Mode navigation styles can override the earlier collapsed state.
+   Keep the original buttons and click handlers; only change their visibility. */
+body #managerTabStrip:not([hidden]):not(.menu-open),
+body.god-obsidian #managerTabStrip:not([hidden]):not(.menu-open),
+html body #managerTabStrip.compact-manager-menu:not(.menu-open) {
+  display:none!important;
+  visibility:hidden!important;
+}
+body #managerTabStrip.menu-open:not([hidden]),
+body.god-obsidian #managerTabStrip.menu-open:not([hidden]) {
+  display:grid!important;
+  visibility:visible!important;
+  position:relative!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  margin:8px 16px 14px!important;
+  padding:12px!important;
+}
+@media(max-width:700px){
+ body #managerTabStrip.menu-open:not([hidden]),
+ body.god-obsidian #managerTabStrip.menu-open:not([hidden]){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+</style>
 </body></html>
