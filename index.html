@@ -3473,4 +3473,100 @@ body.shift-alerts-view #standaloneShiftAlerts{display:block!important}
  sync();
 })();
 </script>
+
+<style id="compactManagerNavigation2026">
+/* Compact management navigation: overview joins primary tabs; other sections open on demand. */
+#managerMenuToggle[hidden],#managerTabStrip[hidden]{display:none!important}
+#managerMenuToggle{display:none;align-items:center;justify-content:space-between;gap:12px;width:calc(100% - 32px);max-width:1070px;margin:10px auto 0;padding:13px 17px;border:1px solid #a9b9ce;border-radius:13px;background:linear-gradient(120deg,#1d293b,#121924);color:#fff;font:750 15px system-ui;cursor:pointer;box-shadow:0 7px 18px #0005}
+#managerMenuToggle .menu-chevron{transition:transform .2s;font-size:18px}
+#managerMenuToggle[aria-expanded="true"] .menu-chevron{transform:rotate(180deg)}
+#managerTabStrip.compact-manager-menu{display:none!important;position:relative!important;top:auto!important;z-index:22!important;max-width:1070px!important;margin:7px auto 13px!important;padding:12px!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px!important;overflow:visible!important;white-space:normal!important;background:#101722f5!important;border:1px solid #b2c0d477!important;border-radius:15px!important}
+#managerTabStrip.compact-manager-menu.menu-open{display:grid!important}
+#managerTabStrip.compact-manager-menu button{min-width:0!important;white-space:normal!important;min-height:64px;padding:12px 8px!important;line-height:1.25;font-weight:750;border-radius:11px!important;box-shadow:inset 0 1px #ffffff22,0 3px 12px #0004!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="overview"]{display:none!important}
+/* Distinct muted jewel accents against God Mode's black glass. */
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="schedules"]{background:#173d62!important;border-color:#56b7ff!important;color:#e8f6ff!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="requests"]{background:#554019!important;border-color:#e5bd58!important;color:#fff2ce!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="staff"]{background:#214a43!important;border-color:#65d6b2!important;color:#e4fff4!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="hours"]{background:#49365a!important;border-color:#bb9ce5!important;color:#f6ebff!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="activity"]{background:#3c304e!important;border-color:#ac92da!important;color:#f6ecff!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="conflicts"]{background:#542c35!important;border-color:#f08d9e!important;color:#ffe6eb!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="calloffs"]{background:#254653!important;border-color:#72c5d7!important;color:#e6faff!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="timeoff"]{background:#3c3d63!important;border-color:#a6b3ff!important;color:#f0f1ff!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="copy"]{background:#4b402b!important;border-color:#e0c37c!important;color:#fff3d4!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="app"]{background:#234b48!important;border-color:#80d9cb!important;color:#e9fff9!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="allhomes"],#managerTabStrip.compact-manager-menu button[data-mcc-tab="houses"]{background:#3c4057!important;border-color:#a8b6e7!important;color:#f2f5ff!important}
+#managerTabStrip.compact-manager-menu button[aria-selected="true"]{outline:2px solid #fff!important;outline-offset:-3px}
+#universalOverviewTab{background:linear-gradient(135deg,#305c4e,#17372e)!important;border-color:#73d9b2!important;color:#eafff4!important}
+#universalOverviewTab[aria-selected="true"]{background:linear-gradient(135deg,#4b9e7c,#25735a)!important;color:#fff!important;box-shadow:inset 0 -3px #c0ffde!important}
+body.god-obsidian #managerMenuToggle{background:linear-gradient(125deg,#27221c,#0c0d10)!important;border-color:#d2ac6d!important;color:#f7e9d0!important}
+@media(max-width:650px){#managerTabStrip.compact-manager-menu{grid-template-columns:repeat(2,minmax(0,1fr));margin:7px 16px 12px!important}#managerMenuToggle{width:calc(100% - 32px)}#managerTabStrip.compact-manager-menu button{font-size:12px!important;min-height:59px}#universalShiftTabs{flex-wrap:wrap;overflow:visible!important}#universalShiftTabs button{flex:1 1 auto!important}}
+</style>
+<script id="compactManagerNavigationLogic2026">
+(()=>{
+ const manager=document.getElementById('managerTabStrip');
+ const primary=document.getElementById('universalShiftTabs');
+ const staffSchedule=document.getElementById('universalScheduleTab');
+ if(!manager||!primary||!staffSchedule)return;
+ const originalOverview=manager.querySelector('[data-mcc-tab="overview"]');
+ const originalSchedules=manager.querySelector('[data-mcc-tab="schedules"]');
+ if(!originalOverview||!originalSchedules)return;
+ const make=(id,label)=>{const b=document.createElement('button');b.type='button';b.id=id;b.textContent=label;b.setAttribute('aria-selected','false');return b};
+ const overview=make('universalOverviewTab','🏠 Overview');
+ const schedules=make('universalManagerSchedulesTab','📅 Schedules');
+ const more=make('universalMoreTab','☰ More');
+ primary.insertBefore(overview,staffSchedule);
+ primary.insertBefore(schedules,staffSchedule);
+ primary.appendChild(more);
+ manager.classList.add('compact-manager-menu');
+ // The original manager buttons remain in the DOM: existing click handlers still own each section.
+ const close=()=>{manager.classList.remove('menu-open');more.setAttribute('aria-expanded','false');more.setAttribute('aria-selected','false')};
+ const sync=()=>{
+   const isManager=!manager.hidden;
+   overview.hidden=!isManager;schedules.hidden=!isManager;more.hidden=!isManager;
+   staffSchedule.hidden=isManager;
+   if(!isManager)close();
+   const special=document.body.classList.contains('shift-alerts-view')||document.body.classList.contains('available-shifts-view');
+   overview.setAttribute('aria-selected',String(isManager&&!special&&originalOverview.getAttribute('aria-selected')==='true'));
+   schedules.setAttribute('aria-selected',String(isManager&&!special&&originalSchedules.getAttribute('aria-selected')==='true'));
+ };
+ function selectOriginal(button){
+   close();
+   staffSchedule.click(); // Reset Available Shifts/Shift Alerts without changing existing navigation logic.
+   button.click();
+   sync();
+   window.scrollTo({top:0,behavior:'instant'});
+ }
+ overview.addEventListener('click',()=>selectOriginal(originalOverview));
+ schedules.addEventListener('click',()=>selectOriginal(originalSchedules));
+ more.addEventListener('click',()=>{
+   if(manager.hidden)return;
+   const open=!manager.classList.contains('menu-open');
+   manager.classList.toggle('menu-open',open);
+   more.setAttribute('aria-expanded',String(open));
+   more.setAttribute('aria-selected',String(open));
+ });
+ manager.addEventListener('click',e=>{if(e.target.closest('[data-mcc-tab]')){close();setTimeout(sync,0)}});
+ primary.addEventListener('click',e=>{if(e.target!==more){close();setTimeout(sync,0)}});
+ new MutationObserver(sync).observe(manager,{attributes:true,attributeFilter:['hidden']});
+ new MutationObserver(sync).observe(originalOverview,{attributes:true,attributeFilter:['aria-selected']});
+ new MutationObserver(sync).observe(originalSchedules,{attributes:true,attributeFilter:['aria-selected']});
+ sync();
+})();
+</script>
+<style id="topNavigationFinal2026">
+/* Four primary sections plus one expandable management menu. */
+#universalShiftTabs{flex-wrap:wrap!important;overflow:visible!important;max-width:1100px!important;gap:9px!important}
+#universalShiftTabs button{flex:1 1 150px!important;min-width:0!important;white-space:normal!important;min-height:52px!important}
+#universalShiftTabs button[hidden]{display:none!important}
+#managerTabStrip.compact-manager-menu button[data-mcc-tab="schedules"]{display:none!important}
+#universalManagerSchedulesTab{background:linear-gradient(130deg,#173d62,#0c2b49)!important;border-color:#68b7ed!important;color:#e8f6ff!important}
+#universalMoreTab{background:linear-gradient(130deg,#47345c,#231c35)!important;border-color:#b999e8!important;color:#f5eaff!important}
+#universalMoreTab[aria-selected="true"],#universalManagerSchedulesTab[aria-selected="true"]{outline:2px solid #fff!important;outline-offset:-3px}
+#managerTabStrip.compact-manager-menu{display:none!important}
+#managerTabStrip.compact-manager-menu.menu-open{display:grid!important}
+body.god-obsidian #universalManagerSchedulesTab{background:#162a38!important;color:#e6f5ff!important;border-color:#8ebcdb!important}
+body.god-obsidian #universalMoreTab{background:#30253c!important;color:#f5eaff!important;border-color:#c6a3e8!important}
+@media(max-width:650px){#universalShiftTabs{padding:0 16px!important;gap:7px!important}#universalShiftTabs button{flex:1 1 calc(50% - 7px)!important;padding:12px 8px!important;font-size:13px!important}#universalShiftTabs #universalMoreTab{flex:1 1 calc(50% - 7px)!important}}
+</style>
 </body></html>
