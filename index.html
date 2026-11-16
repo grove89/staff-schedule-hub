@@ -1449,6 +1449,10 @@ async function lsLoadManagerRequests(){
   const status=String(r.status??'pending').toLowerCase();
   const start=r.starts_at??r.start_time??r.shift_starts_at;
   return status==='pending' && start && new Date(start).getTime()>Date.now();
+ }).sort((a,b)=>{
+  const aStart=new Date(a.starts_at??a.start_time??a.shift_starts_at).getTime();
+  const bStart=new Date(b.starts_at??b.start_time??b.shift_starts_at).getTime();
+  return aStart-bStart || new Date(a.created_at).getTime()-new Date(b.created_at).getTime();
  });
  count.textContent=String(actionable.length);out.replaceChildren();
  if(!actionable.length){out.append(lsEl('p','No pending requests for upcoming shifts.','live-muted'));return;}
