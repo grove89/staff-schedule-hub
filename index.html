@@ -3640,4 +3640,46 @@ body.god-obsidian #managerTabStrip.menu-open:not([hidden]) {
  }
 }
 </style>
+
+<style id="primaryNotificationsNavigation2026">
+#managerTabStrip button[data-mcc-tab="requests"]{display:none!important}
+#universalShiftTabs #universalNotificationsTab{background:linear-gradient(135deg,#4c3c1e,#292313)!important;border-color:#d9b760!important;color:#fff0c4!important;display:flex;align-items:center;justify-content:center;gap:8px}
+#universalShiftTabs #universalNotificationsTab[hidden]{display:none!important}
+#universalShiftTabs #universalNotificationsTab[aria-selected="true"]{outline:2px solid #fff!important;outline-offset:-3px}
+#universalNotificationsTab .manager-notification-badge{display:inline-flex!important;align-items:center;justify-content:center;background:#eec44e;color:#191919;border-radius:99px;padding:2px 8px;font-size:12px;font-weight:800;min-width:20px}
+#universalNotificationsTab .manager-notification-badge[hidden]{display:none!important}
+</style>
+<script id="primaryNotificationsNavigationLogic2026">
+(()=>{
+ const primary=document.getElementById('universalShiftTabs');
+ const manager=document.getElementById('managerTabStrip');
+ const original=manager?.querySelector('[data-mcc-tab="requests"]');
+ const more=document.getElementById('universalMoreTab');
+ if(!primary||!manager||!original||!more||document.getElementById('universalNotificationsTab'))return;
+ const tab=document.createElement('button');
+ tab.type='button';tab.id='universalNotificationsTab';tab.setAttribute('aria-selected','false');
+ const label=document.createElement('span');label.textContent='🔔 Notifications';tab.appendChild(label);
+ const badge=document.createElement('span');badge.className='manager-notification-badge';badge.hidden=true;tab.appendChild(badge);
+ primary.insertBefore(tab,more);
+ function sync(){
+   tab.hidden=manager.hidden;
+   tab.setAttribute('aria-selected',String(!manager.hidden&&original.getAttribute('aria-selected')==='true'&&!document.body.classList.contains('shift-alerts-view')&&!document.body.classList.contains('available-shifts-view')));
+   const originalBadge=document.getElementById('managerNotificationBadge');
+   if(originalBadge){badge.textContent=originalBadge.textContent;badge.hidden=originalBadge.hidden||!originalBadge.textContent.trim()||originalBadge.textContent.trim()==='0'}
+ }
+ tab.addEventListener('click',()=>{
+   if(manager.hidden)return;
+   document.getElementById('universalScheduleTab')?.click();
+   original.click();
+   manager.classList.remove('menu-open');
+   more.setAttribute('aria-expanded','false');more.setAttribute('aria-selected','false');
+   sync();window.scrollTo({top:0,behavior:'instant'});
+ });
+ new MutationObserver(sync).observe(manager,{attributes:true,attributeFilter:['hidden']});
+ new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['aria-selected']});
+ const originalBadge=document.getElementById('managerNotificationBadge');
+ if(originalBadge)new MutationObserver(sync).observe(originalBadge,{attributes:true,attributeFilter:['hidden'],childList:true,characterData:true,subtree:true});
+ sync();
+})();
+</script>
 </body></html>
